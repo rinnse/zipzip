@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.demo.repository.FreeBoardRepository">
+
+   <select id="freeBoardList" parameterType="com.example.demo.dto.Community" resultType="com.example.demo.dto.Community">
+      SELECT RNUM,
+             COMMUNITY_NUM,
+             USER_ID,
+             AGENT_ID,
+             COMMUNITY_TITLE,
+             COMMUNITY_CONTENT,
+             LIKE_CNT,
+             HATE_CNT,
+             READ_CNT,
+             REG_DATE,
+             COMMENT_CNT
+      FROM (  SELECT ROWNUM AS RNUM,
+                     COMMUNITY_NUM,
+                     USER_ID,
+                     AGENT_ID,
+                     COMMUNITY_TITLE,
+                     COMMUNITY_CONTENT,
+                     LIKE_CNT,
+                     HATE_CNT,
+                     READ_CNT,
+                     REG_DATE,
+                     COMMENT_CNT
+              FROM (  SELECT NVL(A.COMMUNITY_NUM, 0) AS COMMUNITY_NUM,
+                             NVL(A.USER_ID, '') AS USER_ID,
+                             NVL(A.AGENT_ID, '') AS AGENT_ID,
+                             NVL(A.COMMUNITY_TITLE, '') AS COMMUNITY_TITLE,
+                             NVL(A.COMMUNITY_CONTENT, '') AS COMMUNITY_CONTENT,
+                             NVL(C.LIKE_CNT, 0) AS LIKE_CNT,
+                             NVL(A.HATE_CNT, 0) AS HATE_CNT,
+                             NVL(A.READ_CNT, 0) AS READ_CNT,
+                             NVL(TO_CHAR(A.REG_DATE, 'YYYY/MM/DD HH24:MI:SS'), '') AS REG_DATE_FORM,
+                             NVL(
+                                 CASE
+                                  WHEN TRUNC(A.REG_DATE) = TRUNC(SYSDATE) THEN TO_CHAR(A.REG_DATE, 'HH24:MI:SS')
+                                  ELSE TO_CHAR(A.REG_DATE, 'YYYY/MM/DD')
+                                 END 
+                              , '') AS REG_DATE,
+                              NVL(B.COMMUNITY_COMMENT_CNT, 0) AS COMMENT_CNT
+                        FROM ZIP_COMMUNITY A,
+                              (SELECT COMMUNITY_NUM, COUNT(COMMENT_NUM) AS COMMUNITY_COMMENT_CNT
+                            FROM ZIP_COMMUNITY_COMMENT
+                           GROUP BY COMMUNITY_NUM
+                          ) B,
+                              (SELECT COUNT(NVL(USER_ID, '')) AS LIKE_CNT,
+                                      NVL(COMMUNITY_NUM, 0) AS COMMUNITY_NUM
+                                 FROM ZIP_COMMUNITY_LIKE
+                                GROUP BY COMMUNITY_NUM
+                              ) C
+                       WHERE 1=1
+                         AND A.COMMUNITY_NUM = B.COMMUNITY_NUM(+)
+                         AND A.COMMUNITY_NUM = C.COMMUNITY_NUM(+)
+            <if test='searchType != null and searchType != "" and searchValue != null and searchValue != "" '> 
+               <choose> 
+                  <when test='searchType == "author"'>
+                     AND (USER_ID LIKE '%' || #{searchValue} || '%' OR AGENT_ID LIKE '%' || #{searchValue} || '%')
+                  </when>
+                  <when test='searchType == "title"'>
+                     AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%'
+                  </when>
+                  <when test='searchType == "content" '>
+                     AND DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0       
+                  </when>
+                  <when test='searchType == "all" '>
+                     AND ( USER_ID LIKE '%' || #{searchValue} || '%' OR AGENT_ID LIKE '%' || #{searchValue} || '%' OR COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 )
+                  </when>
+               </choose>
+            </if>
+            <if test='sort != null and sort != ""'>
+               <choose>
+                  <when test='sort == 1'>
+                   ORDER BY REG_DATE_FORM DESC
+                  </when>
+                  <when test='sort == 2'>
+                   ORDER BY READ_CNT DESC
+                  </when>
+               </choose>
+            </if>
+               ))
+      WHERE RNUM <![CDATA[>=]]> #{startRnum}
+        AND RNUM <![CDATA[<=]]> #{endRnum}
+      
+   </select>
+   
+   
+   <!-- totalCnt 구하기 -->
+   <select id="totalCnt" parameterType="com.example.demo.dto.Community" resultType="long">
+      SELECT NVL(COUNT(COMMUNITY_NUM), 0) AS TOTAL_CNT
+        FROM ZIP_COMMUNITY 
+       WHERE 1=1
+<if test='searchType != null and searchType != "" and searchValue != null and searchValue != "" '> 
+   <choose> 
+      <when test='searchType == "author"'>
+         AND (USER_ID LIKE '%' || #{searchValue} || '%' OR AGENT_ID LIKE '%' || #{searchValue} || '%')
+      </when>
+      <when test='searchType == "title"'>
+         AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%'
+      </when>
+      <when test='searchType == "content" '>
+         AND DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0       
+      </when>
+      <when test='searchType == "all" '>
+         AND ( USER_ID LIKE '%' || #{searchValue} || '%' OR AGENT_ID LIKE '%' || #{searchValue} || '%' OR COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 )
+      </when>
+   </choose>
+</if>
+   </select>
+   
+   
+   <!-- 자유게시판 게시글 insert -->
+   <insert id="freeBoardInsert" parameterType="com.example.demo.dto.Community">
+      <selectKey resultType="long" keyProperty="communityNum" order="BEFORE">
+         SELECT B_SEQ_COMMUNITY.NEXTVAL FROM DUAL
+      </selectKey>
+      INSERT INTO ZIP_COMMUNITY (
+                COMMUNITY_NUM,
+                USER_ID,
+                AGENT_ID,
+                COMMUNITY_TITLE,
+                COMMUNITY_CONTENT,
+                LIKE_CNT,
+                HATE_CNT,
+                READ_CNT,
+                REG_DATE
+      ) VALUES (
+                #{communityNum},
+                #{userId},
+                #{agentId},
+                #{communityTitle},
+                #{communityContent},
+                0,
+                0,
+                0,
+                SYSDATE
+      ) 
+   </insert>
+   
+   
+   <!-- 자유게시판 상세 보기 select -->
+   <select id="freeBoardDetail" parameterType="long" resultType="com.example.demo.dto.Community">
+      SELECT NVL(COMMUNITY_NUM, 0) AS COMMUNITY_NUM,
+             NVL(USER_ID, '') AS USER_ID,
+             NVL(AGENT_ID, '') AS AGENT_ID,
+             NVL(COMMUNITY_TITLE, '') AS COMMUNITY_TITLE,
+             NVL(COMMUNITY_CONTENT, '') AS COMMUNITY_CONTENT,
+             NVL(LIKE_CNT, 0) AS LIKE_CNT,
+             NVL(HATE_CNT, 0) AS HATE_CNT,
+             NVL(READ_CNT, 0) AS READ_CNT,
+             NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD (DY) HH24:MI'), '') AS REG_DATE
+        FROM ZIP_COMMUNITY 
+       WHERE COMMUNITY_NUM = #{value}
+   </select>
+   
+   
+   <!-- 게시글 조회수 증가 -->
+   <update id="freeBoardReadCnt" parameterType="long">
+      UPDATE ZIP_COMMUNITY
+         SET READ_CNT = READ_CNT + 1
+       WHERE COMMUNITY_NUM = #{value}
+   </update>
+   
+   
+   <!-- 댓글 list 갯수 조회 -->
+   <select id="commentListCnt" parameterType="long" resultType="long">
+      SELECT NVL(COUNT(COMMENT_NUM), 0) AS COMMUNITY_COMMENT_CNT
+        FROM ZIP_COMMUNITY_COMMENT
+       WHERE COMMUNITY_NUM = #{value}
+   </select>
+   
+   <!-- 댓글 list -->
+   <select id="commentList" parameterType="long" resultType="com.example.demo.dto.CommunityComment">
+      SELECT NVL(COMMUNITY_NUM, 0) AS COMMUNITY_NUM,
+             NVL(COMMENT_NUM, 0) AS COMMENT_NUM,
+             NVL(USER_ID, '') AS USER_ID,
+             NVL(AGENT_ID, '') AS AGENT_ID,
+             NVL(COMMENT_CONTENT, '') AS COMMENT_CONTENT,
+             NVL(COMMENT_GROUP, 0) AS COMMENT_GROUP,
+             NVL(COMMENT_DEPTH, 0) AS COMMENT_DEPTH,
+             NVL(LIKE_CNT, 0) AS LIKE_CNT,
+             NVL(TO_CHAR(REG_DATE, 'YYYY.MM.DD HH24:MI'), '') AS REG_DATE,
+             NVL(IS_DELETED, 0) AS IS_DELETED
+        FROM ZIP_COMMUNITY_COMMENT
+       WHERE 1=1
+         AND COMMUNITY_NUM = #{value}
+       ORDER BY COMMENT_GROUP ASC, REG_DATE ASC 
+   </select>
+   
+   <!-- 댓글 1건  -->
+   <select id="commentSelect" parameterType="long" resultType="com.example.demo.dto.CommunityComment">
+      SELECT NVL(COMMUNITY_NUM, 0) AS COMMUNITY_NUM,
+             NVL(COMMENT_NUM, 0) AS COMMENT_NUM,
+             NVL(USER_ID, '') AS USER_ID,
+             NVL(AGENT_ID, '') AS AGENT_ID,
+             NVL(COMMENT_CONTENT, '') AS COMMENT_CONTENT,
+             NVL(COMMENT_GROUP, 0) AS COMMENT_GROUP,
+             NVL(COMMENT_DEPTH, 0) AS COMMENT_DEPTH,
+             NVL(LIKE_CNT, 0) AS LIKE_CNT,
+             NVL(REG_DATE, '') AS REG_DATE,
+             NVL(IS_DELETED, 1) AS IS_DELETED
+        FROM ZIP_COMMUNITY_COMMENT
+       WHERE COMMENT_NUM = #{value} 
+   </select>
+   
+   <!-- 게시글 댓글 insert -->
+   <insert id="CommentInsert" parameterType="com.example.demo.dto.CommunityComment">
+      <selectKey resultType="long" keyProperty="commentNum" order="BEFORE">
+         SELECT B_SEQ_COMMUNITY_COMMENT.NEXTVAL FROM DUAL
+      </selectKey>
+      INSERT INTO ZIP_COMMUNITY_COMMENT (
+                COMMUNITY_NUM,
+                COMMENT_NUM,
+                USER_ID,
+                AGENT_ID,
+                COMMENT_CONTENT,
+                COMMENT_GROUP,
+                COMMENT_DEPTH,
+                LIKE_CNT,
+                REG_DATE,
+                IS_DELETED
+      ) VALUES (
+                #{communityNum},
+                #{commentNum},
+                #{userId},
+                #{agentId},
+                #{commentContent},
+                (SELECT NVL(MAX(COMMENT_GROUP), 0) + 1 AS COMMENT_GROUP FROM ZIP_COMMUNITY_COMMENT WHERE COMMUNITY_NUM = #{communityNum}),
+                #{commentDepth},
+                0,
+                SYSDATE,
+                1
+      ) 
+   </insert>
+
+
+   <!-- 게시글 대댓글 insert -->
+   <insert id="reCommentInsert" parameterType="com.example.demo.dto.CommunityComment">
+      <selectKey resultType="long" keyProperty="commentNum" order="BEFORE">
+         SELECT B_SEQ_COMMUNITY_COMMENT.NEXTVAL FROM DUAL
+      </selectKey>
+      INSERT INTO ZIP_COMMUNITY_COMMENT (
+                COMMUNITY_NUM,
+                COMMENT_NUM,
+                USER_ID,
+                AGENT_ID,
+                COMMENT_CONTENT,
+                COMMENT_GROUP,
+                COMMENT_DEPTH,
+                LIKE_CNT,
+                REG_DATE,
+                IS_DELETED
+      ) VALUES (
+                #{communityNum},
+                #{commentNum},
+                #{userId},
+                #{agentId},
+                #{commentContent},
+                #{commentGroup},
+                #{commentDepth},
+                0,
+                SYSDATE,
+                1
+      ) 
+   </insert>
+   
+   <!-- 댓글 삭제 상태 (컬럼값 변경) -->
+   <update id="commentDeleteUpdate" parameterType="long">
+      UPDATE ZIP_COMMUNITY_COMMENT
+         SET IS_DELETED = 0
+       WHERE COMMENT_NUM = #{value}
+   </update>
+   
+   
+   <!-- 추천 insert -->
+   <insert id="likeInsert" parameterType="com.example.demo.dto.Community">
+      INSERT INTO ZIP_COMMUNITY_LIKE (
+                  community_num,
+                  user_id
+      ) VALUES (
+                  #{communityNum},
+                  #{userId}
+      ) 
+   </insert>
+   
+   <!-- 추천 delete -->
+   <delete id="likeDelete" parameterType="com.example.demo.dto.Community">
+      DELETE FROM ZIP_COMMUNITY_LIKE
+       WHERE 1=1
+         AND COMMUNITY_NUM = #{communityNum}
+         AND USER_ID = #{userId}
+   </delete>
+   
+   <!-- 게시글별 총 추천수 -->
+   <select id="likeTotalCnt" parameterType="long" resultType="long">
+      SELECT COUNT(NVL(USER_ID, '')) AS USER_ID
+        FROM ZIP_COMMUNITY_LIKE 
+       WHERE 1=1
+         AND COMMUNITY_NUM = #{value}
+   </select>
+   
+   <!-- 추천여부 count -->
+   <select id="likeSelectCnt" parameterType="com.example.demo.dto.Community" resultType="long">
+      SELECT COUNT(NVL(USER_ID, '')) AS USER_ID
+        FROM ZIP_COMMUNITY_LIKE 
+       WHERE 1=1
+         AND COMMUNITY_NUM = #{communityNum}
+         AND USER_ID = #{userId}
+   </select>
+   
+   
+   <!-- 게시글 삭제 (추천삭제 -> 댓글삭제 -> 게시글 삭제) -->
+   <delete id="communityDeleteLike" parameterType="long">
+      DELETE FROM ZIP_COMMUNITY_LIKE
+       WHERE community_num = #{value}
+   </delete>
+
+   <delete id="communityDeleteComment" parameterType="long">
+      DELETE FROM zip_community_comment
+       WHERE community_num = #{value}
+   </delete>
+
+   <delete id="communityDelete" parameterType="long">
+      DELETE FROM zip_community
+       WHERE community_num = #{value}
+   </delete>
+   
+   
+   <!-- 게시글 수정 -->
+   <update id="communityUpdate" parameterType="com.example.demo.dto.Community">
+      UPDATE ZIP_COMMUNITY
+         SET COMMUNITY_TITLE = #{communityTitle},
+          COMMUNITY_CONTENT = #{communityContent}
+       WHERE COMMUNITY_NUM = #{communityNum}
+   </update>
+   
+   
+   <!--나의글 관련 소스 추가 24.05.14 -->
+   <!--나의 글 List 조회  -->
+	<select id="myWriteBoardList" parameterType="com.example.demo.dto.Community" resultType="com.example.demo.dto.Community">
+		SELECT  RNUM,
+	        COMMUNITY_NUM,
+	        USER_ID,
+	        AGENT_ID,
+	        COMMUNITY_TITLE,
+	        COMMUNITY_CONTENT,
+	        LIKE_CNT,
+	        HATE_CNT,
+	        READ_CNT,
+	        REG_DATE
+		FROM (SELECT ROWNUM AS RNUM,
+		                        COMMUNITY_NUM,
+		                        USER_ID,
+		                        AGENT_ID,
+		                        COMMUNITY_TITLE,
+		                        COMMUNITY_CONTENT,
+		                        LIKE_CNT,
+		                        HATE_CNT,
+		                        READ_CNT,
+		                        REG_DATE
+		        FROM(SELECT NVL(COMMUNITY_NUM, 0) AS COMMUNITY_NUM,
+		                    NVL(USER_ID, '') AS USER_ID,
+		                    NVL(AGENT_ID, '') AS AGENT_ID,
+		                    NVL(COMMUNITY_TITLE, '') AS COMMUNITY_TITLE,
+		                    NVL(COMMUNITY_CONTENT, '') AS COMMUNITY_CONTENT,
+		                    NVL(LIKE_CNT, 0) AS LIKE_CNT,
+		                    NVL(HATE_CNT, 0) AS HATE_CNT,
+		                    NVL(READ_CNT, 0) AS READ_CNT,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY/MM/DD HH24:MI:SS'), '') AS REG_DATE_FORM,
+		                    NVL(
+		                           CASE WHEN TRUNC(REG_DATE) = TRUNC(SYSDATE) THEN TO_CHAR(REG_DATE, 'HH24:MI:SS')
+		                           ELSE TO_CHAR(REG_DATE, 'YYYY/MM/DD')
+		                           END , '') AS REG_DATE
+				    	FROM ZIP_COMMUNITY
+	                 	WHERE 1=1
+	                 	AND (USER_ID = #{userId} OR AGENT_ID = #{agentId})          	                         
+	                		<if test='searchType != null and searchType != "" and searchValue != null and searchValue != "" '> 
+								<choose> 
+									<when test='searchType == "title"'>
+								   		AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%'
+									</when>
+									<when test='searchType == "content" '>
+								   		AND DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 		
+									</when>
+									<when test='searchType == "all" '>
+								  		 AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 )
+									</when>
+								</choose>
+							</if>  
+						ORDER BY REG_DATE_FORM DESC
+		                        ))		
+		WHERE RNUM <![CDATA[>=]]> #{startRnum}
+		  AND RNUM <![CDATA[<=]]> #{endRnum}	
+	</select>
+	
+	<!-- 나의 글 List TotalCnt 구하기 -->
+	<select id="myWriteTotalCnt" parameterType="com.example.demo.dto.Community" resultType="long">
+		SELECT NVL(COUNT(COMMUNITY_NUM), 0) AS TOTAL_CNT
+		  FROM ZIP_COMMUNITY 
+		 WHERE 1=1
+		 AND (USER_ID = #{userId} OR AGENT_ID = #{agentId})
+ 	<if test='searchType != null and searchType != "" and searchValue != null and searchValue != "" '> 
+		<choose> 
+			<when test='searchType == "title"'>
+		   		AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%'
+			</when>
+			<when test='searchType == "content" '>
+		   		AND DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 		
+			</when>
+			<when test='searchType == "all" '>
+		   		 AND COMMUNITY_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(COMMUNITY_CONTENT,#{searchValue} ) > 0 )
+			</when>
+		</choose>
+	</if> 
+	</select>
+   
+</mapper>
+

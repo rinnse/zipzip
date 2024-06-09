@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.ReviewBoardRepository">
+	<!-- 리뷰게시판 리스트 -->
+	<select id="reviewList" resultType="com.example.demo.dto.AgentReview">
+		SELECT REVIEW_NUM,
+	           USER_ID,
+	           AGENT_ID,
+	           REVIEW_CONTENT,
+	           REVIEW_SCORE,
+	           REG_DATE,
+	           AGENT_NAME,
+	           AGENT_OFFICE_NAME,
+	           HIDDEN
+		  FROM (SELECT ROWNUM AS RNUM,
+		               REVIEW_NUM,
+		               USER_ID,
+		               AGENT_ID,
+		               REVIEW_CONTENT,
+		               REVIEW_SCORE,
+		               REG_DATE,
+		               AGENT_NAME,
+		               AGENT_OFFICE_NAME,
+		               HIDDEN
+		          FROM (SELECT A.REVIEW_NUM AS REVIEW_NUM,
+		                       NVL(A.USER_ID, ' ') AS USER_ID,
+		                       NVL(B.AGENT_ID, ' ') AS AGENT_ID,
+		                       NVL(A.REVIEW_CONTENT, ' ') AS REVIEW_CONTENT,
+		                       NVL(A.REVIEW_SCORE, 0) AS REVIEW_SCORE,
+		                       NVL(TO_CHAR(A.REG_DATE, 'YYYY.MM.DD'), ' ') AS REG_DATE,
+		                       NVL(B.AGENT_NAME, ' ') AS AGENT_NAME,
+		                       NVL(B.AGENT_OFFICE_NAME, ' ') AS AGENT_OFFICE_NAME,
+		                       NVL(A.HIDDEN, 0) AS HIDDEN
+	                      FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+	                     WHERE 1 = 1
+	                       AND A.AGENT_ID = B.AGENT_ID       
+             <if test='reviewContent != null and reviewContent != ""'>
+		            AND A.REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+             </if>   
+             <if test='agentName != null and agentName != ""'> 	                      
+		            AND B.AGENT_NAME LIKE '%' || #{agentName} || '%'  
+			 </if>   
+		          ORDER BY A.REG_DATE DESC))
+                
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		  AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<!-- 전체 건 수 조회 -->
+	<select id="reviewListCount" parameterType="com.example.demo.dto.AgentReview" resultType="int">
+		SELECT COUNT(REVIEW_NUM) AS CNT
+  		  FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+  		 WHERE A.AGENT_ID = B.AGENT_ID
+  	  <if test='reviewContent != null and reviewContent != ""'>	 
+		   AND A.REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+      </if>
+      <if test='agentName != null and agentName != ""'>
+		   AND B.AGENT_NAME LIKE '%' || #{agentName} || '%'
+      </if>
+	</select>
+	
+	<!-- 리뷰 등록 -->
+	<insert id="reviewInsert" parameterType="com.example.demo.dto.AgentReview">
+		<!-- boardNum 선행처리기 -->
+		<selectKey resultType="long" keyProperty="reviewNum" order="BEFORE">
+			SELECT B_AGENT_REVIEW_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_AGENT_REVIEW (
+			        REVIEW_NUM,
+			        USER_ID,
+			        AGENT_ID,
+			        REVIEW_CONTENT,
+			        REVIEW_SCORE,
+			        REG_DATE,
+			        HIDDEN
+			    ) VALUES (
+			        #{reviewNum},
+			        #{userId},
+			        #{agentId},
+			        #{reviewContent},
+			        #{reviewScore},
+			        SYSDATE,
+			        0
+			    )
+	</insert>
+	
+	<!-- 리뷰 1건 삭제 -->
+	<delete id="reviewDelete" parameterType="long">
+		DELETE FROM ZIP_AGENT_REVIEW
+		 WHERE REVIEW_NUM = #{reviewNum}
+	</delete>
+	
+	
+	<!-- 나의 글(리뷰게시판) 조회 -->
+	<select id="myReviewBoard" resultType="com.example.demo.dto.AgentReview">
+		SELECT REVIEW_NUM,
+		          USER_ID,
+		          AGENT_ID,
+		          AGENT_NAME,
+		          REVIEW_CONTENT,
+		          REVIEW_SCORE,
+		          REG_DATE
+		  FROM (SELECT ROWNUM AS RNUM,
+		               REVIEW_NUM,
+		               USER_ID,
+		               AGENT_ID,
+		               AGENT_NAME,
+		               REVIEW_CONTENT,
+		               REVIEW_SCORE,
+		               REG_DATE
+		          FROM (SELECT A.REVIEW_NUM AS REVIEW_NUM,
+		                       NVL(A.USER_ID, ' ') AS USER_ID,
+		                       NVL(A.AGENT_ID, ' ') AS AGENT_ID,
+		                       NVL(B.AGENT_NAME, ' ') AS AGENT_NAME,
+		                       NVL(A.REVIEW_CONTENT, ' ') AS REVIEW_CONTENT,
+		                       NVL(A.REVIEW_SCORE, 0) AS REVIEW_SCORE,
+		                       NVL(TO_CHAR(A.REG_DATE, 'YYYY/MM/DD'), ' ') AS REG_DATE
+		                  FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+		                 WHERE 1 = 1 
+		                   AND A.AGENT_ID = B.AGENT_ID
+		                   AND A.USER_ID = #{userId}
+		      <if test='agentName != null and agentName != ""'>                  
+		                   AND B.AGENT_NAME LIKE '%' || #{agentName} || '%'
+		      </if>
+		      <if test='reviewContent != null and reviewContent != ""'>               
+		                   AND A.REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+		      </if>                 
+		                 ORDER BY A.REG_DATE DESC))
+		 WHERE RNUM <![CDATA[>=]]> #{startRow}
+		  AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<!-- 나의 글(리뷰게시판) 전체 건 수 조회 -->
+	<select id="myReviewBoardCount" parameterType="com.example.demo.dto.AgentReview" resultType="int">
+		SELECT COUNT(A.REVIEW_NUM) AS CNT
+		  FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+		 WHERE 1 = 1
+		   AND A.AGENT_ID = B.AGENT_ID
+		   AND A.USER_ID = #{userId}
+	  <if test='agentName != null and agentName != ""'>      	   
+		   AND B.AGENT_NAME LIKE '%' || #{agentName} || '%'
+	  </if>
+	  <if test='reviewContent != null and reviewContent != ""'> 	   
+		   AND A.REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+	  </if>	   
+	</select>
+	
+	<!-- 나의 글(리뷰게시판) 상세 1건 조회 -->
+	<select id="myReviewBoardView" parameterType="long" resultType="com.example.demo.dto.AgentReview">
+		SELECT A.REVIEW_NUM AS REVIEW_NUM,
+	           NVL(A.USER_ID, ' ') AS USER_ID,
+	           NVL(A.AGENT_ID, ' ') AS AGENT_ID,
+	           NVL(B.AGENT_NAME, ' ') AS AGENT_NAME,
+	           NVL(A.REVIEW_CONTENT, ' ') AS REVIEW_CONTENT,
+	           NVL(A.REVIEW_SCORE, 0) AS REVIEW_SCORE,
+	           NVL(TO_CHAR(A.REG_DATE, 'YYYY/MM/DD'), ' ') AS REG_DATE        
+		  FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+		 WHERE A.REVIEW_NUM = #{reviewNum}
+		   AND A.AGENT_ID = B.AGENT_ID
+	</select>
+	
+</mapper>

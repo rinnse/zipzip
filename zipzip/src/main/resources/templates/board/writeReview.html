@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		/* 리뷰 작성 틀 */
+		.update-container {
+			border: 1px solid #d9d9d9;
+			top: 20%;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			height: 600px;
+			position: relative; 
+		}
+		
+		/* 중개사 이미지, 중개사 정보 */
+		.agent_info img, .agent_info span {
+		    display: inline-block; /* 이미지와 span을 한 줄에 나타내기 위해 */
+		    vertical-align: middle; /* 이미지와 텍스트를 수직 정렬하기 위해 */
+		}
+		
+		/* 중개사 이미지 */
+		.agent_info img {
+			margin-left: 10px; /* 이미지 오른쪽 여백 */
+		    width: 35px;
+		    height: 35px;
+		    margin-top: 2%;
+		    margin-right: 10px;
+		}
+		
+		/* 중개사 정보 */
+		.agent_info span {
+			margin-top: 3%;
+			font-size: 15px;
+			font-weight: bold;
+		}
+		/* 작성자 아이디 */
+		.write_id {
+			color: #b8b8b8;
+			font-size: 14px;
+			flex: 0 0 auto;
+		    margin-right: 10px; /* 각 요소 사이의 간격 조정 */
+		    margin-left: 20px;
+		}
+		
+		.write_id span {
+			display: inline-block;    /* 작성자 아이디를 한 줄에 두기 */
+			margin-right: 20px;
+		}
+		
+		/* 중개사 정보 */
+		.agent_info {
+			margin-top: 3%;
+			margin-left: 18px;
+			border: 1px solid #b8b8b8;
+			width: 40%;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			height: 10%;
+		}
+		
+		/* 리뷰 작성 버튼 */
+		.uploadBtn {
+			border: none;
+			margin-top: 2%;
+			margin-bottom: 2%;
+			background-color: gray;
+			color: white;
+			border-radius: 5px;
+			width:53px;
+			height: 38px;
+			font-size: 16px;
+			margin-left: 94%;
+		}
+		
+		/* 리뷰 내용 */
+		#reviewContent {
+			width: 97%;
+			height: 200px;
+		    outline: none; /* 포커스 시 테두리 제거 */
+		    margin-top: 10px; 
+		    margin-left: 12px;
+		}
+		
+		hr {
+		  width: 97%;
+		  margin-left: 10px;
+		}
+		
+		/* 별점 스타일 */
+		#star {
+		  display: flex;
+		  margin-left: 15px;
+		}
+		
+		/* 별 하나하나 스타일 */
+		.star {
+		  font-size: 2rem;
+		  margin: 10px 0;
+		  cursor: pointer;
+		  margin-left: 3px;
+		}
+		
+		/* 빈 별일 경우 */
+		.star:not(.on) {
+		  color: #ccc;    /* 회색 */
+		}
+		
+		/* 클릭된 별일 경우 */
+		.star.on {
+		  color: #ffee00;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div class="section" style="margin-top: 60px;">
+		<div class="container">
+			<div class="row">
+
+				<div class="update-container">
+		     	   <div class="agent_info">
+		     	      <!-- 채팅한 중개사에 대한 정보 -->
+		     	      <img src="/resources/images/agent_profile1.png" alt="중개사 프로필">&nbsp;
+		     	   	  <span th:text="${agent.agentName}"></span>&nbsp;
+		     	   	  <span th:text="'[' + ${agent.agentOfficeName} + ']'"></span>&nbsp;
+		     	   </div>
+		     	   <br />
+		     	   <div class="write_id">
+		     	       <!-- 현재 로그인되어있는 사용자의 정보(= 채팅한 사용자) -->
+			     	   <span>작성자 아이디</span>
+			     	   <span th:text="${userId}"></span>
+		     	   </div>
+		     	   <hr />
+		      <form name="writeForm" id="writeForm" method="post">
+		           <!-- 숨겨진 필드로 선택된 별점 값 저장 -->        
+		    	   <input type="hidden" id="rating" name="rating"> 
+		    	   <!-- 별점은 0~5까지만 선택 가능 (디폴트 값 : 0) -->
+		     	   <div class="star-container" id="star">
+					  <span class="star" id="1">★</span>
+					  <span class="star" id="2">★</span>
+					  <span class="star" id="3">★</span>
+					  <span class="star" id="4">★</span>
+					  <span class="star" id="5">★</span>
+				   </div>
+				   <!-- 리뷰 내용  -->
+		     	   <div class="content">
+		     	   	  <textarea rows="10" id="reviewContent" name="reviewContent" style="width: 98%; border: 1px solid #ccc; border-radius: 10px; padding: 10px; box-sizing: border-box; 
+					font-size:15px;" autocomplete="off" placeholder="리뷰를 작성해주세요!" required></textarea>
+		     	   </div>
+		     	   <!-- 리뷰 업로드 버튼 -->
+		     	   <button type="button" id="uploadBtn" class="uploadBtn">작성</button>
+		     	   <!-- 중개인 정보 인서트하기 위한 히든 값 -->
+		     	   <input type="hidden" id="agentId" name="agentId" th:value="${agentId}" />
+		      </form>	   
+     
+      		 </div>
+
+			</div>
+		</div>
+	</div>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		// 별점 처리 기능
+		document.addEventListener('DOMContentLoaded', function() {
+		    const stars = document.querySelectorAll('.star');
+		    const ratingInput = document.getElementById('rating'); // 폼에 별점을 저장할 hidden 필드
+		    
+		    stars.forEach((star, index) => {
+		        star.addEventListener('click', () => {
+		            // 선택된 별점이 이미 클릭된 상태인지 확인
+		            const isAlreadySelected = star.classList.contains('on') && ratingInput.value == index + 1;
+		            
+		            if (isAlreadySelected) {
+		                // 이미 선택된 별을 클릭하면
+		                ratingInput.value = 0; // 별점 값 초기화
+		                updateStars(-1); // 모든 별 비우기
+		            } else {
+		                // 별점 설정
+		                ratingInput.value = index + 1;
+		                updateStars(index);
+		            }
+		        });
+		    });
+	
+			// 별의 활성 상태 업데이트 함수
+		    function updateStars(index) {   
+		        // 모든 별을 초기 상태로 설정하고 클릭한 별 추가
+		        stars.forEach((star, idx) => {
+		            if (idx <= index) {   // 클릭한 별의 인덱스를 매개변수로 받은 값 > 순회중인 인데스일 경우, 별 추가
+		                star.classList.add('on');
+		            } else {
+		                star.classList.remove('on');  // 제거
+		            }
+		        });
+		    }
+		});
+	
+		$(document).ready(function() {
+			$("#uploadBtn").on("click", function() {  // [작성] 버튼 클릭 시 
+				// 리뷰 내용 입력 체크
+				if($.trim($("#reviewContent").val()).length <= 0){
+					alert("내용을 입력해주세요!");
+					$("#reviewContent").focus();
+					return;
+				}
+				
+				// 리뷰 작성 폼 제출 (writeForm)
+				var formData = new FormData($("#writeForm")[0]);
+					
+				$.ajax({
+					type:"POST",
+					url:"/board/reviewProc",
+					data:formData,      
+					dataType:"JSON",
+					processData: false,  // FormData 처리 방지
+			        contentType: false,  // Content-Type 헤더 설정 방지
+					beforeSend:function(xhr){
+						xhr.setRequestHeader("AJAX", "true");
+					},
+					success:function(res){
+						if(res.code == 0){
+							alert("리뷰가 등록되었습니다.");
+							location.href = "/board/reviewBoard";  // 리뷰게시판 페이지로 이동
+						} else if(res.code == 400){
+							alert("리뷰 내용을 다시 확인해주세요.");
+							$("#reviewContent").focus();
+						} else if(res.code == 500){
+							alert("등록 error");
+						} else {
+							alert("등록 중 오류가 발생하였습니다.");
+						}
+					},
+					error:function(xhr, status, error){
+						alert("리뷰 작성 중 오류가 발생했습니다.");
+					}
+				});
+			});
+	 	});
+	</script>
+</body>
+
+</html>

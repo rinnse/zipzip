@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+ <mapper namespace="Manager">
+ 
+	<select id="findById" parameterType="String" resultType="com.example.demo.dto.Manager">
+		SELECT MANAGER_ID,
+		    MANAGER_PWD,
+		    MANAGER_NAME,
+		    ROLE
+		FROM ZIP_MANAGER
+		WHERE MANAGER_ID = #{managerId}
+	</select>
+	
+<select id="selectReportList" parameterType="com.example.demo.dto.Report" resultType="com.example.demo.dto.Report">
+SELECT REPORT_NUM, USER_ID, REPORT_TYPE, REG_DATE, STATUS, REPORT_CONTENT, ITEM_NUM
+FROM (
+SELECT ROWNUM RN, B.* FROM (
+SELECT  NVL(REPORT_NUM,0) REPORT_NUM,
+        NVL(USER_ID,'') USER_ID,
+        NVL(REPORT_TYPE,'E') REPORT_TYPE,
+        NVL(REG_DATE,'') REG_DATE,
+        NVL(STATUS,'P') STATUS,
+        NVL(REPORT_CONTENT,'') REPORT_CONTENT,
+        NVL(ITEM_NUM,0) ITEM_NUM
+FROM ZIP_REPORT 
+WHERE 1=1
+<if test="(userId != null and userId != '')"	>
+		AND  USER_ID like '%'|| #{userId} || '%'
+</if>
+<if test="(status!= null and status != '') "	>
+ 		AND STATUS like '%' || #{status} || '%'
+</if>
+<if test="(reportType != null and reportType != '')"	>
+  		AND REPORT_TYPE = #{reportType}
+
+</if>
+ORDER BY REG_DATE DESC) B)
+WHERE 1=1
+AND RN <![CDATA[>=]]> #{startRnum}
+AND RN <![CDATA[<=]]> #{endRnum}
+	</select>
+	
+	<select id="reportTotalCnt" parameterType="com.example.demo.dto.Report" resultType="long">
+	SELECT COUNT(REPORT_NUM) AS TOTAL_CNT
+	  FROM ZIP_REPORT
+	 WHERE 1=1
+<if test="(userId != null and userId != '')"	>
+		AND  USER_ID like '%'|| #{userId} || '%'
+</if>
+<if test="(status!= null and status != '') "	>
+ 		AND STATUS like '%' || #{status} || '%'
+</if>
+<if test="(reportType != null and reportType != '')"	>
+  		AND REPORT_TYPE = #{reportType}
+</if>
+	</select>
+	<update id="updateReportStatus" parameterType="com.example.demo.dto.Report">
+	 UPDATE ZIP_REPORT
+    SET STATUS = #{status}
+  WHERE REPORT_NUM = #{reportNum}
+	</update>
+	
+	<select id="selectUserList" parameterType="com.example.demo.dto.Search" resultType="com.example.demo.dto.User">
+	  SELECT USER_ID, USER_NAME, USER_PHONE, USER_EMAIL, STATUS, REG_DATE, EMAIL_AUTH
+FROM (
+SELECT ROWNUM RN, B.* FROM (
+SELECT  NVL(USER_ID,0) USER_ID,
+        NVL(USER_NAME,'') USER_NAME,
+        NVL(USER_PHONE,'E') USER_PHONE,
+        NVL(USER_EMAIL,'') USER_EMAIL,
+        NVL(STATUS,'P') STATUS,
+        NVL(REG_DATE,'') REG_DATE,
+        NVL(EMAIL_AUTH,0) EMAIL_AUTH
+FROM ZIP_USER 
+WHERE 1=1
+<if test="searchType != null and searchType != '' and searchValue != null and searchValue!=''">
+	<choose>
+		<when test='searchType == "1"'>
+		AND USER_ID LIKE '%'||#{searchValue}||'%'
+		</when>
+		<when test='searchType == "2"'>
+		AND USER_NAME LIKE '%'||#{searchValue}||'%'
+		</when>
+		<when test='searchType == "3"'>
+		AND STATUS LIKE '%'||#{searchValue}||'%'
+		</when>
+  	</choose>
+</if>
+ORDER BY REG_DATE DESC) B)
+WHERE 1=1
+AND RN <![CDATA[>=]]> #{startRnum}
+AND RN <![CDATA[<=]]> #{endRnum}
+	</select>
+	
+	<select id="selectUserTotal" parameterType="com.example.demo.dto.Search" resultType="long">
+	SELECT COUNT(USER_ID) AS TOTAL_CNT
+  FROM ZIP_USER
+ WHERE 1=1
+<if test="searchType != null and searchType != '' and searchValue != null and searchValue != ''">
+    <choose>
+        <when test="searchType == '1'">
+            AND USER_ID LIKE '%'||#{searchValue}||'%'
+        </when>
+        <when test="searchType == '2'">
+            AND user LIKE '%'||#{searchValue}||'%'
+        </when>
+        <when test="searchType == '3'">
+            AND STATUS LIKE '%'||#{searchValue}||'%'
+        </when>
+    </choose>
+</if>
+	</select>
+	<update id="updateUserStatus" parameterType="com.example.demo.dto.User">
+	 UPDATE ZIP_USER
+    	SET STATUS = #{status},
+    		EMAIL_AUTH = #{emailAuth}
+  	  WHERE USER_ID = #{userId}
+	</update>
+	
+	<update id="updateAgentStatus" parameterType="com.example.demo.dto.Agent">
+	UPDATE ZIP_AGENT
+	   SET AGENT_RIGHT=#{agentRight},
+	       STATUS = #{status}
+	 WHERE AGENT_ID = #{agentId}
+	</update>
+	
+	<update id="updateItemStatus" parameterType="com.example.demo.dto.Item">
+    UPDATE ZIP_ITEM
+	   SET ITEM_STATUS = #{itemStatus}
+	 WHERE ITEM_NUM= #{itemNum}
+	</update> 
+	
+	
+	<select id="userChange" resultType="com.example.demo.dto.Graph">
+	SELECT REG_DATE, TOTAL_CNT
+	  FROM (SELECT ROWNUM RN, A.*
+	          FROM (SELECT TO_CHAR(REG_DATE, 'yyyy-mm') REG_DATE, COUNT(USER_ID) TOTAL_CNT
+	                FROM ZIP_USER
+	                WHERE 1=1
+	                GROUP BY TO_CHAR(REG_DATE, 'yyyy-mm')
+	                ORDER BY REG_DATE ASC
+	            ) A
+	        WHERE ROWNUM <![CDATA[<]]> 5)
+	</select>
+	
+		<select id="reviewMgtList" parameterType="com.example.demo.dto.AgentReview" resultType="com.example.demo.dto.AgentReview">
+		SELECT REVIEW_NUM,
+	           USER_ID,
+	           AGENT_ID,
+	           REVIEW_CONTENT,
+	           REVIEW_SCORE,
+	           REG_DATE,
+	           HIDDEN
+		  FROM (SELECT ROWNUM AS RNUM,
+		               REVIEW_NUM,
+		               USER_ID,
+		               AGENT_ID,
+		               REVIEW_CONTENT,
+		               REVIEW_SCORE,
+		               REG_DATE,
+		               HIDDEN
+		           FROM (SELECT REVIEW_NUM,
+		                        NVL(USER_ID, ' ') AS USER_ID,
+		                        NVL(AGENT_ID, ' ') AS AGENT_ID,
+		                        NVL(REVIEW_CONTENT, ' ') AS REVIEW_CONTENT,
+		                        NVL(REVIEW_SCORE, 0) AS REVIEW_SCORE,
+		                        NVL(TO_CHAR(REG_DATE, 'YYYY/MM/DD HH24:MI:SS'), ' ') AS REG_DATE,
+		                        NVL(HIDDEN, 0) AS HIDDEN
+		                   FROM ZIP_AGENT_REVIEW
+		                  WHERE 1 = 1
+		    <if test='userId != null and userId != ""'>           
+		                    AND USER_ID LIKE '%' || #{userId} || '%'		            
+		    </if>  
+		    <if test='agentId != null and agentId != ""'>
+		    			    AND AGENT_ID LIKE '%' || #{agentId} || '%'
+		    </if>
+		    <if test='reviewContent != null and reviewContent != ""'>              
+		                    AND REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+		    </if>           
+		                  ORDER BY REG_DATE DESC))
+		  WHERE RNUM <![CDATA[>=]]> #{startRow}
+		    AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<!-- 전체 리스트 건 수 조회 -->
+	<select id="reviewMgtCount" parameterType="com.example.demo.dto.AgentReview" resultType="int">
+		SELECT COUNT(REVIEW_NUM) AS CNT
+		  FROM ZIP_AGENT_REVIEW
+		 WHERE 1 = 1 
+		   AND USER_ID LIKE '%' || #{userId} || '%'	
+		   AND AGENT_ID LIKE '%' || #{agentId} || '%'
+		   AND REVIEW_CONTENT LIKE '%' || #{reviewContent} || '%'
+	</select>
+	
+	<!-- 리뷰 한 건 삭제 -->
+	<delete id="reviewMgtDelete" parameterType="long">
+		DELETE FROM ZIP_AGENT_REVIEW
+		 WHERE REVIEW_NUM = #{reviewNum}
+	</delete>
+	
+	
+	<!--  리뷰 숨김 상태 업데이트 -->
+    <update id="hideReview" parameterType="long">
+        UPDATE ZIP_AGENT_REVIEW
+        SET HIDDEN = 1
+        WHERE REVIEW_NUM = #{reviewNum}
+    </update>
+
+	<!-- 리뷰 숨김 상태 해제 -->
+    <update id="unhideReview" parameterType="long">
+        UPDATE ZIP_AGENT_REVIEW
+        SET HIDDEN = 0
+        WHERE REVIEW_NUM = #{reviewNum}
+    </update>
+    
+    <select id="todayPage" resultType="com.example.demo.dto.TodayCnt">
+      SELECT *
+		FROM (SELECT COUNT(USER_ID) AS NEW_USER FROM ZIP_USER WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(ITEM_NUM) AS NEW_ITEM FROM ZIP_ITEM WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(AGENT_ID) AS NEW_AGENT FROM ZIP_AGENT WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(COMMUNITY_NUM) AS NEW_COMMU FROM ZIP_COMMUNITY WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(ITEM_NUM) AS NEW_LIKE FROM ZIP_INTEREST_ITEM WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(REPORT_NUM) AS NEW_REPORT FROM ZIP_REPORT WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(QNA_NUM) AS NEW_QUESTION FROM ZIP_QNA WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(SUGGEST_NUM) AS NEW_SUGGEST FROM ZIP_SUGGEST WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE)),
+		     (SELECT COUNT(REVIEW_NUM) AS NEW_REVIEW FROM ZIP_AGENT_REVIEW WHERE TRUNC(REG_DATE) = TRUNC(SYSDATE))
+    </select>
+    
+<select id="selectAgentList" parameterType="com.example.demo.dto.Search" resultType="com.example.demo.dto.Agent">
+	  SELECT AGENT_ID,AGENT_NAME,AGENT_OFFICE_NAME,AGNET_PHONE,AGENT_EMAIL,AGENT_INTRO,AGENT_ADDRESS,
+	  		 AGENT_ADDRESS_DETAIL,AGENT_RIGHT,STATUS,REG_DATE
+FROM (
+SELECT ROWNUM RN, B.* FROM (
+SELECT  NVL(AGENT_ID,0) AGENT_ID,
+        NVL(AGENT_NAME,'') AGENT_NAME,
+        NVL(AGENT_OFFICE_NAME,'') AGENT_OFFICE_NAME,
+        NVL(AGNET_PHONE,'') AGNET_PHONE,
+        NVL(AGENT_EMAIL,'') AGENT_EMAIL,
+        NVL(AGENT_INTRO,'') AGENT_INTRO,
+        NVL(AGENT_ADDRESS,'') AGENT_ADDRESS,
+        NVL(AGENT_ADDRESS_DETAIL,'') AGENT_ADDRESS_DETAIL,
+        NVL(AGENT_RIGHT,'') AGENT_RIGHT,
+        NVL(STATUS,'N') STATUS,
+        NVL(REG_DATE,'') REG_DATE
+FROM ZIP_AGENT 
+WHERE 1=1
+<if test="searchType != null and searchType != '' and searchValue != null and searchValue!=''">
+	<choose>
+		<when test='searchType == "1"'>
+		AND AGENT_ID LIKE '%'||#{searchValue}||'%'
+		</when>
+		<when test='searchType == "2"'>
+		AND AGENT_OFFICE_NAME LIKE '%'||#{searchValue}||'%'
+		</when>
+		<when test='searchType == "3"'>
+		AND AGENT_RIGHT LIKE '%'||#{searchValue}||'%'
+		</when>
+  	</choose>
+</if>
+ORDER BY REG_DATE DESC) B)
+WHERE 1=1
+AND RN <![CDATA[>=]]> #{startRnum}
+AND RN <![CDATA[<=]]> #{endRnum}
+</select>
+<!-- 중개인 토탈 -->
+<select id="selectAgentTotal" parameterType="com.example.demo.dto.Search" resultType="long">
+	SELECT COUNT(AGENT_ID) AS TOTAL_CNT
+  FROM ZIP_AGENT
+ WHERE 1=1
+<if test="searchType != null and searchType != '' and searchValue != null and searchValue != ''">
+    <choose>
+        <when test="searchType == '1'">
+            AND USER_ID LIKE '%'||#{searchValue}||'%'
+        </when>
+        <when test="searchType == '2'">
+            AND user LIKE '%'||#{searchValue}||'%'
+        </when>
+        <when test="searchType == '3'">
+            AND STATUS LIKE '%'||#{searchValue}||'%'
+        </when>
+    </choose>
+</if>
+</select>
+<!-- 아이템 리스트 -->
+<select id="selectItemList" parameterType="com.example.demo.dto.Search" resultType="com.example.demo.dto.Item">
+    SELECT ITEM_NUM, USER_ID, ITEM_NAME, ITEM_ADDRESS, ITEM_PTYPE, ITEM_ITYPE,
+           ITEM_DEPOSIT, ITEM_MONTH_PRICE, ITEM_AREA, ITEM_STATUS, FILE_NAME, REG_DATE
+    FROM (
+        SELECT ROWNUM AS RN, ITEM_NUM, USER_ID, ITEM_NAME, ITEM_ADDRESS, ITEM_PTYPE, ITEM_ITYPE,
+               ITEM_DEPOSIT, ITEM_MONTH_PRICE, ITEM_AREA, ITEM_STATUS, FILE_NAME, REG_DATE
+        FROM (
+            SELECT NVL(A.ITEM_NUM,0) ITEM_NUM,
+                   NVL(A.AGENT_ID,'') USER_ID,
+                   NVL(A.ITEM_NAME,'') ITEM_NAME,
+                   NVL(A.ITEM_ADDRESS,'') ITEM_ADDRESS,
+                   NVL(A.ITEM_PTYPE,'') ITEM_PTYPE,
+                   NVL(A.ITEM_ITYPE,'') ITEM_ITYPE,
+                   NVL(B.ITEM_DEPOSIT,0) ITEM_DEPOSIT,
+                   NVL(B.ITEM_MONTH_PRICE,0) ITEM_MONTH_PRICE,
+                   NVL(B.ITEM_AREA,0) ITEM_AREA,
+                   NVL(A.ITEM_STATUS,'') ITEM_STATUS,
+                   NVL(C.FILE_NAME,'') FILE_NAME,
+                   NVL(A.REG_DATE,TO_DATE('1970-01-01', 'YYYY-MM-DD')) REG_DATE
+            FROM ZIP_ITEM A
+            JOIN ZIP_ITEM_DETAIL B ON A.ITEM_NUM = B.ITEM_NUM
+            LEFT JOIN (
+                SELECT ITEM_NUM, FILE_NAME
+                FROM ZIP_ITEM_FILE
+                WHERE FILE_IDX = 1
+                ORDER BY FILE_NUM ASC
+            ) C ON A.ITEM_NUM = C.ITEM_NUM
+            where 1=1
+            <if test="searchType != null and searchType != '' and searchValue != null and searchValue != ''">          
+                <choose>
+                    <when test='searchType == "0"'> 
+                        AND A.AGENT_ID LIKE '%'|| #{searchValue}||'%'
+                    </when>
+                    <when test='searchType == "1"'> 
+                        AND A.ITEM_NUM = #{searchValue}
+                    </when>
+                    <when test='searchType == "2"'>
+                        AND A.ITEM_ADDRESS LIKE '%'||#{searchValue} ||'%'
+                    </when>
+                    <when test='searchType == "3"'>
+                        AND A.ITEM_PTYPE = #{searchValue}
+                    </when>
+                    <when test='searchType == "4"'>
+                        AND A.ITEM_ITYPE = #{searchValue}
+                    </when>
+                    <when test='searchType == "5"'> 
+                        AND A.ITEM_STATUS = #{searchValue}
+                    </when>
+                </choose>
+            </if>
+            ORDER BY A.ITEM_NUM DESC
+        )
+        WHERE ROWNUM <![CDATA[<=]]> #{endRnum}
+    )
+    WHERE RN <![CDATA[>=]]> #{startRnum}
+</select>
+
+
+
+<select id="selectItemTotal" parameterType="com.example.demo.dto.Search" resultType="long">
+    SELECT COUNT(A.ITEM_NUM) AS TOTAL_CNT
+    FROM ZIP_ITEM A
+    WHERE 1=1
+    <if test="searchType != null and searchType != '' and searchValue != null and searchValue!=''">
+        <choose>
+            <when test='searchType == "0"'> 
+                AND A.AGENT_ID LIKE '%' || #{searchValue} || '%'
+            </when>
+            <when test='searchType == "1"'> 
+                AND A.ITEM_NUM = #{searchValue}
+            </when>
+            <when test='searchType == "2"'>
+                AND A.ITEM_ADDRESS LIKE '%' || #{searchValue} || '%'
+            </when>
+            <when test='searchType == "3"'>
+                AND A.ITEM_PTYPE = #{searchValue}
+            </when>
+            <when test='searchType == "4"'>
+                AND A.ITEM_ITYPE = #{searchValue}
+            </when>
+            <when test='searchType == "5"'>
+                AND A.ITEM_STATUS = #{searchValue}
+            </when>
+        </choose>
+    </if>
+</select>
+
+</mapper>

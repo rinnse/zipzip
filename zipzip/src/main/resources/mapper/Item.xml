@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.example.demo.repository.ItemRepository">
+
+<!-- 아파트리스트 -->
+<select id="selectAptList" resultType="com.example.demo.dto.Item">
+ SELECT NVL(B.ITEM_NUM,0) AS ITEM_NUM, 
+       NVL(B.AGENT_ID, '' ) AS USER_ID,
+       NVL(B.ITEM_NAME, '') AS ITEM_NAME, 
+       NVL(B.ITEM_ADDRESS, '') AS ITEM_ADDRESS, 
+       NVL(C.ITEM_AREA, 0.0) AS ITEM_AREA, 
+       NVL(B.ITEM_ADDRESS_DETAIL, '') AS ITEM_ADDRESS_DETAIL, 
+       NVL(B.ITEM_PTYPE, '') AS ITEM_PTYPE, 
+       NVL(B.ITEM_ITYPE, '') AS ITEM_ITYPE, 
+       NVL(C.ITEM_FLOOR, 0) AS ITEM_FLOOR, 
+       NVL(B.ITEM_STATUS, 'N') AS ITEM_STATUS, 
+       NVL(B.RECOMMEND_ITEM, 'N') AS RECOMMEND_ITEM, 
+       B.ITEM_COUNT, 
+       <if test="userId != null">
+       I. LIKE_ITEM,
+      </if>
+       NVL(C.ITEM_INTRO, '') AS ITEM_INTRO, 
+       NVL(C.ITEM_DEPOSIT, 0) AS ITEM_DEPOSIT, 
+       NVL(C.ITEM_MONTH_PRICE, 0) AS ITEM_MONTH_PRICE, 
+       NVL(C.ITEM_BUILD_DATE, '') AS ITEM_BUILD_DATE, 
+       NVL(A.FILE_NAME, '') AS FILE_NAME
+
+  FROM ZIP_ITEM B, (SELECT ITEM_NUM, FILE_NAME
+                      FROM ZIP_ITEM_FILE
+                     WHERE FILE_IDX = 1
+                     ORDER BY FILE_NUM ASC) A,
+       ZIP_ITEM_DETAIL C
+       <if test="userId != null">
+ ,(SELECT DISTINCT CASE WHEN USER_ID = ${userId} THEN 'Y'
+                     ELSE 'N' 
+                     END AS LIKE_ITEM
+         FROM ZIP_INTEREST_ITEM
+         WHERE ITEM_NUM =#{itemNum}) I
+       </if>
+ WHERE B.ITEM_ITYPE = #{searchType}
+   AND B.ITEM_NUM = C.ITEM_NUM(+)
+   AND B.ITEM_NUM = A.ITEM_NUM(+)
+   AND B.ITEM_STATUS = 'Y'
+   <!-- 주소 -->
+   <if test="searchAdd != null and searchAdd.size() > 0">
+       AND (
+           <foreach collection="searchAdd" item="searchAdd" separator=" OR ">
+               B.ITEM_ADDRESS LIKE '%' || #{searchAdd} || '%'
+           </foreach>
+       )
+   </if>
+   <!-- 등록번호 -->
+   <if test="itemNum != null and itemNum != 0">
+         AND B.ITEM_NUM = #{itemNum}
+   </if>
+   <!-- 면적 -->
+   <if test="searchSize != null and searchSize != 0 and !searchSize.equals('')">
+       AND C.ITEM_AREA <![CDATA[>=]]> #{searchSize}
+   </if>
+   <!-- 납부타입 -->
+   <if test="pType != null and !pType.equals('')">
+        AND B.ITEM_PTYPE = #{pType}
+   </if>
+   <!-- 가격 -->
+   <if test="priceStart!=0 and priceEnd!=0 and priceStart!=0 and priceEnd>priceStart ">
+      AND C.ITEM_DEPOSIT BETWEEN #{priceStart} AND #{priceEnd}
+   </if>
+   <!--  로그인 되어 있을 때만 아래 조건 추가 -->
+   <if test="userId != null and userId !='' and !userId.equals('')">
+         AND I.USER_ID = #{userId}
+   </if>
+</select>
+
+
+<!-- 매물 하나 정보 뽑아오기  -->
+<select id="selectAptDetail" resultType="com.example.demo.dto.Item">
+SELECT
+    D.ITEM_INTRO,
+    D.ITEM_INTRO_DETAIL,
+    D.ITEM_DEPOSIT,
+    D.ITEM_MAINTAIN_PRICE,
+    D.ITEM_MONTH_PRICE,
+    D.ITEM_AREA,
+    D.ITEM_PARKING,
+    NVL(TO_CHAR(TO_DATE(D.ITEM_BUILD_DATE, 'YYYYMMDD'),'YYYY.MM.DD'),'') ITEM_BUILD_DATE,
+    D.ITEM_ELEVATOR,
+    D.ITEM_PET,
+    D.ITEM_DIRECTION,
+    D.ITEM_KIND,
+    D.ITEM_FLOOR,
+    D.ITEM_MOVE_AVBL,
+    NVL(TO_CHAR(TO_DATE(D.ITEM_MOVE_DATE, 'YYYYMMDD'),'YYYY.MM.DD'),'') ITEM_MOVE_DATE,
+    A.ITEM_NAME,
+    A.AGENT_ID,
+    A.ITEM_ADDRESS,
+    A.ITEM_ADDRESS_DETAIL,
+    A.ITEM_PTYPE,
+    A.ITEM_STATUS,
+    TRUNC(SYSDATE - TO_DATE(A.REG_DATE, 'YY/MM/DD')) AS REG_DATE,
+    A.RECOMMEND_ITEM,
+    A.ITEM_COUNT,
+     <if test="userId != null">
+    I. LIKE_ITEM,
+    </if>
+    U.AGENT_NAME,
+    U.AGENT_OFFICE_NAME,
+	U.AGNET_PHONE,
+	U.AGENT_EMAIL,
+	U.AGENT_INTRO,
+	U.AGENT_ADDRESS,
+	U.AGENT_ADDRESS_DETAIL,
+    U.AGENT_RIGHT,
+    U.FILE_ORG,
+    U.FILE_NAME
+ FROM ZIP_ITEM_DETAIL D, ZIP_ITEM A, ZIP_AGENT U
+ <if test="userId != null">
+ ,(SELECT DISTINCT CASE WHEN USER_ID = ${userId} THEN 'Y'
+                     ELSE 'N' 
+                     END AS LIKE_ITEM
+         FROM ZIP_INTEREST_ITEM
+         WHERE ITEM_NUM =#{itemNum}) I)
+         </if>
+WHERE 1=1
+  AND D.ITEM_NUM = A.ITEM_NUM
+  AND A.AGENT_ID = U.AGENT_ID(+)
+  AND D.ITEM_NUM = #{itemNum}
+<if test="userId != null">
+  <!-- 로그인 되어 있을 때만 아래 조건 추가 -->
+   AND I.USER_ID = ${userId}
+</if>
+</select>
+
+
+<!-- 아이템 파일 리스트 (상세페이지용) -->
+<select id="selectItemFile" resultType="com.example.demo.dto.ItemFile">
+SELECT
+    ITEM_NUM,
+    NVL(ITEM_NUM,'') AS ITEM_NUM,
+    NVL(FILE_NUM,'') AS FILE_NUM,
+    NVL(FILE_ORG,'') AS FILE_ORG,
+    NVL(FILE_NAME,'') AS FILE_NAME,
+    NVL(FILE_IDX,'') AS FILE_IDX,
+    NVL(FILE_DATE,'') AS FILE_DATE
+FROM
+    ZIP_ITEM_FILE
+WHERE ITEM_NUM = #{itemNum}
+</select>
+
+<!-- 아이템 옵션 (디테일용) -->
+<select id="selectItemOption" resultType="com.example.demo.dto.ItemOption">
+SELECT
+    NVL(SINK,'N') SINK,
+    NVL(AIR,'N') AIR,
+    NVL(LAUNDRY,'N') LAUNDRY,
+    NVL(REFRIGERATOR,'N') REFRIGERATOR,
+    NVL(CLOSET,'N') CLOSET,
+    NVL(GASRANGE,'N') GASRANGE,
+    NVL(INDUCTION,'N') INDUCTION,
+    NVL(MICRO,'N') MICRO,
+    NVL(DESK,'N') DESK,
+    NVL(BED,'N') BED,
+    NVL(ENTRANCE,'N') ENTRANCE,
+    NVL(CAMERATV,'N') CAMERATV,
+    NVL(INTERCOM,'N') INTERCOM
+FROM
+    ZIP_ITEM_OPTION
+WHERE ITEM_NUM = #{itemNum}
+</select>
+
+<select id="selectAgentItemList" resultType="com.example.demo.dto.AgentItem">
+SELECT NVL(ITEM_NUM ,0) ITEM_NUM
+      ,NVL(ITEM_PTYPE,'') ITEM_PTYPE
+      ,NVL(ITEM_ITYPE,'') ITEM_ITYPE
+      ,NVL(ITEM_NAME,'') ITEM_NAME
+      ,NVL(ITEM_DEPOSIT,0) ITEM_DEPOSIT
+      ,NVL(ITEM_MONTH_PRICE,0) ITEM_MONTH_PRICE
+      ,NVL(FILE_NAME,'') FILE_NAME
+ FROM(SELECT ROWNUM RN
+      ,A.ITEM_NAME
+      ,A.ITEM_NUM
+      ,A.ITEM_PTYPE
+      ,A.ITEM_ITYPE
+      ,D.ITEM_DEPOSIT
+      ,D.ITEM_MONTH_PRICE
+      ,B.FILE_NAME
+        FROM ZIP_ITEM A, ZIP_ITEM_DETAIL D, ( SELECT ITEM_NUM, FILE_NAME
+                                                FROM ZIP_ITEM_FILE
+                                               WHERE FILE_IDX = 1
+                                               ORDER BY FILE_NUM ASC)B
+                                               WHERE A.ITEM_NUM = B.ITEM_NUM
+                                                 AND A.ITEM_NUM = D.ITEM_NUM
+                                                 AND A.ITEM_STATUS != 'N'
+                                                 AND A.AGENT_ID = #{userId}
+                                                 AND A.ITEM_NUM != #{itemNum})
+ WHERE RN <![CDATA[<]]>4
+</select>
+
+<!-- 찜목록 상세페이지 조회 -->
+<select id="selectInterestItemDetail" resultType="com.example.demo.dto.Item">
+SELECT
+    D.ITEM_INTRO,
+    D.ITEM_INTRO_DETAIL,
+    D.ITEM_DEPOSIT,
+    D.ITEM_MAINTAIN_PRICE,
+    D.ITEM_MONTH_PRICE,
+    D.ITEM_AREA,
+    D.ITEM_PARKING,
+    NVL(TO_CHAR(TO_DATE(D.ITEM_BUILD_DATE, 'YYYYMMDD'),'YYYY.MM.DD'),'') ITEM_BUILD_DATE,
+    D.ITEM_ELEVATOR,
+    D.ITEM_PET,
+    D.ITEM_DIRECTION,
+    D.ITEM_KIND,
+    D.ITEM_FLOOR,
+    D.ITEM_MOVE_AVBL,
+    NVL(TO_CHAR(TO_DATE(D.ITEM_MOVE_DATE, 'YYYYMMDD'),'YYYY.MM.DD'),'') ITEM_MOVE_DATE,
+    A.ITEM_NAME,
+    A.ITEM_ADDRESS,
+    A.ITEM_ADDRESS_DETAIL,
+    A.ITEM_PTYPE,
+    A.ITEM_STATUS,
+    TRUNC(SYSDATE - TO_DATE(A.REG_DATE, 'YY/MM/DD')) AS REG_DATE,
+    A.RECOMMEND_ITEM,
+    A.ITEM_COUNT,
+    O.*,
+    NVL(I.USER_ID,'N') AS LIKE_ITEM,
+    U.AGENT_NAME,
+    U.AGENT_OFFICE_NAME,
+	U.AGNET_PHONE,
+	U.AGENT_EMAIL,
+	U.AGENT_INTRO,
+	U.AGENT_ADDRESS,
+	U.AGENT_ADDRESS_DETAIL,
+    U.AGENT_RIGHT,
+    U.FILE_ORG,
+    U.FILE_NAME
+ FROM ZIP_ITEM_DETAIL D, ZIP_ITEM A, ZIP_INTEREST_ITEM I, ZIP_AGENT U, ZIP_ITEM_OPTION O
+WHERE 1=1
+  AND D.ITEM_NUM = A.ITEM_NUM
+  AND D.ITEM_NUM = O.ITEM_NUM(+) 
+  AND D.ITEM_NUM = I.ITEM_NUM(+)
+  AND A.AGENT_ID = U.AGENT_ID(+)
+  AND D.ITEM_NUM = #{itemNum}
+<if test="userId != null" >
+   AND I.USER_ID = #{userId}
+</if>
+</select>
+
+<insert id="insertReport" parameterType="com.example.demo.dto.Report">
+INSERT INTO ZIP_REPORT (
+            REPORT_NUM,
+            USER_ID,
+            REPORT_TYPE,
+            ITEM_NUM,
+            REPORT_CONTENT,
+            REG_DATE,
+            STATUS
+) VALUES (
+        (SELECT MAX(REPORT_NUM)+1 FROM ZIP_REPORT)
+        ,#{userId}
+        ,#{reportType}
+        ,#{itemNum}
+        ,#{reportContent}
+        ,SYSDATE
+        ,'P')
+</insert>
+<select id="recent9item" resultType="com.example.demo.dto.Item">
+SELECT ITEM_NUM,ITEM_NAME,ITEM_ADDRESS,ITEM_PTYPE,ITEM_ITYPE,
+       ITEM_DEPOSIT,ITEM_MONTH_PRICE,ITEM_AREA,ITEM_KIND,FILE_NAME
+FROM (SELECT ROWNUM RN,
+                NVL(A.ITEM_NUM,0) ITEM_NUM,
+                NVL(A.ITEM_NAME,'') ITEM_NAME,
+                NVL(A.ITEM_ADDRESS,'') ITEM_ADDRESS,
+                NVL(A.ITEM_PTYPE,'') ITEM_PTYPE,
+                NVL(A.ITEM_ITYPE,'') ITEM_ITYPE,
+                NVL(B.ITEM_DEPOSIT,0) ITEM_DEPOSIT,
+                NVL(B.ITEM_MONTH_PRICE,0) ITEM_MONTH_PRICE,
+                NVL(B.ITEM_AREA,0) ITEM_AREA,
+                NVL(B.ITEM_KIND,'') ITEM_KIND,
+                NVL(C.FILE_NAME,'') FILE_NAME
+          FROM ZIP_ITEM A, ZIP_ITEM_DETAIL B, (SELECT ITEM_NUM, FILE_NAME
+                                                  FROM ZIP_ITEM_FILE
+                                                 WHERE FILE_IDX = 1
+                                                 ORDER BY FILE_NUM ASC)C
+         WHERE A.ITEM_NUM = B.ITEM_NUM
+           AND B.ITEM_NUM = C.ITEM_NUM
+         ORDER BY A.REG_DATE DESC)
+ WHERE RN<![CDATA[<]]>10
+</select>
+
+</mapper>

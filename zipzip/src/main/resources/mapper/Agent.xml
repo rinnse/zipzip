@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+ <mapper namespace="Agent">
+	
+	<!-- 회원가입 -->
+	<insert id="insert" parameterType="com.example.demo.dto.Agent">
+		INSERT INTO ZIP_AGENT (
+			AGENT_ID,
+			AGENT_PWD,
+			AGENT_NAME,
+			AGENT_OFFICE_NAME,
+			AGNET_PHONE,
+			AGENT_EMAIL,
+			AGENT_INTRO,
+			AGENT_ADDRESS,
+			AGENT_ADDRESS_DETAIL,
+			AGENT_RIGHT,
+			ROLE,
+			STATUS,
+			REG_DATE
+		) VALUES (
+		    #{agentId},
+		    #{agentPwd},
+		    #{agentName},
+		    #{agentOfficeName},
+		    #{agnetPhone},
+		    #{agentEmail},
+		    #{agentIntro},
+		    #{agentAddress},
+		    #{agentAddressDetail},
+		    #{agentRight},
+		    #{role},
+		    #{status},
+		    SYSDATE
+		)
+	</insert>
+	
+	<!-- 로그인 -->
+	<select id="findById" parameterType="String" resultType="com.example.demo.dto.Agent">
+		SELECT AGENT_ID,
+		    AGENT_PWD,
+		    AGENT_NAME,
+		    AGENT_OFFICE_NAME,
+		    AGNET_PHONE,
+		    AGENT_EMAIL,
+		    AGENT_INTRO,
+		    AGENT_ADDRESS,
+		    AGENT_ADDRESS_DETAIL,
+		    AGENT_RIGHT,
+		    ROLE,
+		    STATUS,
+		    REG_DATE
+		FROM ZIP_AGENT
+		WHERE AGENT_ID = #{agentId}
+	</select>
+	
+	<!-- 아이디 중복 검사 -->
+	<select id="idCheckAg" parameterType="String" resultType="int">
+		SELECT COUNT(*)
+		FROM ZIP_AGENT
+		WHERE AGENT_ID = #{agnetId}
+	</select>
+	
+	<!-- 아이디 찾기 -->
+	
+	
+	<!-- 비밀번호 찾기 -->
+	
+	
+	<!-- 중개인 정보조회 -->
+	<select id="agentSelect" parameterType="String" resultType="com.example.demo.dto.Agent">
+		SELECT AGENT_ID,
+		    NVL(AGENT_PWD, '') AGENT_PWD,
+		    NVL(AGENT_NAME, '') AGENT_NAME,
+		    NVL(AGENT_OFFICE_NAME, '') AGENT_OFFICE_NAME,
+		    NVL(AGNET_PHONE, '') AGNET_PHONE,
+		    NVL(AGENT_EMAIL, '') AGENT_EMAIL,
+		    NVL(AGENT_INTRO, '') AGENT_INTRO,
+		    NVL(AGENT_ADDRESS, '') AGENT_ADDRESS,
+		    NVL(AGENT_ADDRESS_DETAIL, '') AGENT_ADDRESS_DETAIL,
+		    NVL(AGENT_RIGHT, 'Y') AGENT_RIGHT,
+		    NVL(ROLE, '') ROLE,
+		    NVL(STATUS, 'Y') STATUS,
+		    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		    NVL(FILE_ORG, '') FILE_ORG,
+		    NVL(FILE_NAME, '') FILE_NAME
+		FROM ZIP_AGENT
+		WHERE AGENT_ID = #{agentId}
+	</select>
+	
+	<!-- 프로필 변경 -->
+	<update id="updateProfile">
+		UPDATE ZIP_AGENT
+		SET FILE_ORG = #{fileOrg},
+			FILE_NAME = #{fileName}
+		WHERE AGENT_ID = #{agentId}
+	</update>
+	
+	<!-- 중개인 정보수정 -->
+	<update id="agentUpdate">
+		UPDATE ZIP_AGENT
+		SET AGENT_NAME = #{agentName},
+		    AGENT_OFFICE_NAME = #{agentOfficeName},
+		    AGNET_PHONE = #{agnetPhone},
+		    AGENT_EMAIL = #{agentEmail},
+		    AGENT_INTRO = #{agentIntro},
+		    AGENT_ADDRESS = #{agentAddress},
+		    AGENT_ADDRESS_DETAIL = #{agentAddressDetail}
+		WHERE AGENT_ID = #{agentId}
+	</update>
+	
+	<!-- 비밀번호 확인 -->
+	<select id="pwdCheck" resultType="String">
+		SELECT AGENT_PWD
+		FROM ZIP_AGENT
+		WHERE AGENT_ID = #{agentId}
+	</select>
+	
+	<!-- 비밀번호 변경 -->
+	<update id="pwdUpdate">
+		UPDATE ZIP_AGENT
+		SET AGENT_PWD = #{agentPwd}
+		WHERE AGENT_ID = #{agentId}
+	</update>
+	
+	<!-- 탈퇴 -->
+	<update id="updateStatus">
+		UPDATE ZIP_AGENT
+		SET STATUS = #{status}
+		WHERE AGENT_ID = #{agentId}
+	</update>
+	
+	<!-- 결제상태 변경 -->
+	<update id="updateRight">
+		UPDATE ZIP_AGENT
+		SET AGENT_RIGHT = #{agentRight}
+		WHERE AGENT_ID = #{agentId}
+	</update>
+	
+
+
+ </mapper>

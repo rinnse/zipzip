@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		img {
+			width: 20px;
+			margin-right: 10px; /* 이미지와 별점/평점 사이 간격 조절 */
+		}
+		
+		/* 총 리뷰 아이콘 */
+		.total-review img {
+			width: 80px;
+		}
+		
+		.comment-icon {
+			display: block; 
+			margin: 10% auto;
+			font-weight: bold;
+			font-size: 45px;
+			margin-left: 36.5%;
+		}
+				
+		.total_cnt {
+			font-size: 45px; 
+		    text-align: center; 
+		    display: block; 
+		    margin: -9% auto 0 2%; /* 위에서 아래로의 여백, 가운데 정렬, 위 여백 */
+		}
+		
+		/* 사용자 총 평점 */
+		.totalScore {
+			font-weight:bold;
+			margin-left: 33%;
+			margin-top: 20px;
+			display: block;
+			margin-top: 9%;
+		}
+		
+		.avgScore {
+			display: block; 
+			margin: 12% auto;
+			font-weight: bold;
+			font-size: 45px;
+			margin-left: 29%;
+		}
+		
+		.avgScore-total {
+			color: #ededed; 
+			font-size: 45px;
+		}
+		.avgScore, .avgScore-total {
+			display: inline-block;
+		}
+				
+		.avg-star {
+		    text-align: center; 
+		    display: block; 
+		    margin-left: 10%;
+		}
+		
+		/* 평점과 총 리뷰 건 수 박스 */
+		.review-comment {
+		    border-radius: 10px;
+		    display: flex;
+		    justify-content: space-between;
+		    height: 300px;
+		    max-width: 50%;
+		    border: 1px solid #dbd9db;
+		    margin-bottom: 20px;
+		    padding: 20px;
+		    box-shadow: 0 4px 4px rgba(0, 0.1, 0.2, 0.2);
+		    margin-left: 15%;
+		}
+		
+		/* 평점과 총 리뷰 건 수 박스 구분 */
+		.divider {
+		    width: 1px;
+		    background-color: #ccc;
+		    margin: 0 10px;
+		}
+		
+		.review-rating,
+		.total-review {
+		    width: 50%;
+		}
+
+		.total-review span {
+			font-weight: bold;
+		}
+		
+		/* 리뷰 리스트 */
+		.myReview-list {
+			border-radius: 8px;
+			display: flex;  
+			position: relative;
+		    flex-direction: column;
+		    justify-content: space-between; /* 내용을 위아래로 균등 분배 */
+		    height: 250px; /* 최소 높이 설정 */
+		    max-width: 80%;
+		    border: 1px solid #dbd9db;
+		    margin-bottom: 20px; /* 하단 여백 */
+		    padding: 20px; /* 패딩 */
+		    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+		    margin-top: 2%;
+		}
+		
+		/* 모달창 스타일 */
+		.modal {
+		    display: none;
+		    position: absolute;  /* 화면에 고정 */
+		    top: 51%; /* 모달이 조금 더 아래로 내려가도록 수정 */
+		    left: 0;
+		    width: 80%; 
+		    height: 80%;
+		    z-index: 1000;
+		    border-radius: 8px;
+		}
+		
+		.modal_popup {
+		    top: -5; /* 팝업 창을 중앙에 위치시키기 위해 높이의 절반을 지정 */
+		    left: 20%;
+		    width: 140px;
+		    transform: translate(150%, 0%);
+		    padding: 20px;
+		    background: #ffffff;
+		    border-radius: 8px;
+		    z-index: 1001;
+		    margin-left: 70%;
+		    margin-top: 8%;
+		    border: 1px solid #ccc; /* 모달창 테두리 추가 */
+		    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+		    cursor: pointer;
+		}
+		
+		.modal_popup button {
+			text-align: center;
+			border: none;
+			outline: none; /* 선택 테두리 제거 */
+			background-color: white;
+			margin-top: 2px; /* 버튼 위쪽 간격 조절 */
+			margin-bottom: -1px; /* 버튼 아래쪽 간격 조절 */
+			font-size: 16px;
+		}
+		
+		.modal.on {
+		    display: block;
+		}
+		
+		/* 페이지 맨 위로 올라가는 버튼 아이콘 */
+		.topBtn {
+		    width: 80px;
+		    height: 80px;
+		    position: fixed; /* 화면에 고정됨 */
+		    bottom: 20px; 
+		    right: 65px;
+		    cursor: pointer;
+		}
+		
+		/* 별점 스타일 */
+		#star {
+		    border-width: 2px; /* 테두리 두께 조절 */
+		  	font-size: 1.5rem;
+		  	margin-top: 2%;
+		  	display: flex;
+		}
+		
+		/* 빈 별일 경우 */
+		#star:not(.on) {
+		  color: #ffee00;
+		}
+		
+		.star-score {
+			position: absolute;
+		    top: 6%; /* 원하는 만큼 위로 이동 */
+		    margin-left: 45px;
+		}
+		
+		.score {
+			font-weight: bold;
+			font-size: 15px;
+			margin-top: 4%;
+		}
+		
+		.star-score {
+		    display: inline-flex; /* 요소들을 한 줄에 배치 */
+		    align-items: center; /* 요소들을 수직으로 가운데 정렬 */
+		}
+		
+		/* 별점과 별점 숫자 */
+		.star-score .star-rating,
+		.star-score .score {
+		    margin-right: 7px; /* 요소들 사이의 간격 설정 */
+		}
+		
+		/* 사용자 아이디와 리뷰 등록일 스타일 */
+		.user-date {
+			display: inline-flex;
+			color: gray;
+			margin-left: 4.5%;
+			margin-top: -1%;
+			font-size: 13px;
+		}
+		
+		/* 리뷰 내용 */
+		.review-content {
+			border-radius: 11px;
+			background-color: #F9F9F9;
+			width: 75%;
+			height: 70%;
+			margin-left: 40px;
+			margin-top: -2%;
+			font-size: 15px;
+			word-wrap: break-word; /* 긴 단어가 있을 경우 줄바꿈되도록 설정 */
+    		overflow-wrap: break-word; /* 워드 브레이크가 지원되지 않는 브라우저를 위한 설정 */
+		}
+		
+		.review-content {
+		    padding: 7px 0 0 7px; /* 위쪽, 오른쪽, 아래쪽, 왼쪽 */
+		}
+		
+		.agent_name {
+			font-weight: bold;
+			font-size: 16px;
+		}
+		.agent_sec {
+			color: gray;
+		}
+		
+		.half-star {
+		    display: inline-block;
+		    width: 9px; /* 별의 절반 크기 */
+		    height: 16px; /* 별의 전체 높이 */
+		    background: url('/resources/images/half_star.png') no-repeat; /* 별 반 개 이미지 경로 */
+		}
+		
+		/* 리스트 더보기 버튼 */
+		#btn-more {
+			border: none;
+			border-radius: 8px;
+			width: 80%;
+			height: 40px;
+			background-color: #c2c0c1;
+			color: white;
+			font-size: 17px;
+		}
+		
+		/* 별 반 개 */		
+		#half_star {
+		    width: 18%;
+		    height: 22%;
+		    margin-top: 7.7%; 
+		    margin-right: 2px; 
+		    margin-left: 2px;
+		    position: relative;
+		    bottom: 5px; 
+		}
+		
+		/* 리스트 더보기 구현 */
+		.myReview-list.active {
+			display: block;
+		}
+		
+		.myReview-list:after {
+			display: none;
+		}
+		
+		.btn-more {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div class="section" style="margin-top: 60px;">
+		<div class="container">
+			<div class="row">
+				<!-- 중개사 이름과 중개사사무소 정보 -->
+				<div>
+					<span class="agent_name" th:text="${agent.agentName}"></span>
+					<span class="agent_sec" th:text="${'(' + agent.agentOfficeName + ')'}"></span>
+					<span>님의 리뷰 • •</span>
+					<input type="hidden" id="agentId" name="agentId" th:value="${agentId}" />
+					<br /><br />
+				</div>
+				
+				<div class="review-comment">
+				  <div class="review-rating">
+				    <span class="totalScore">사용자 총 평점</span>
+				    <!-- 나의 총 평점 -->
+					<span class="avgScore" 
+						  th:text="${avgReviewScore != null ? #strings.substring(avgReviewScore.toString(), 0, #strings.indexOf(avgReviewScore.toString(), '.') + 2) : 'N/A'}"></span>
+					<span class="avgScore-total">/5</span>
+				    <!-- 평균 별점 -->
+				    <span class="avg-star" id="star" style="font-size: 50px; margin-top: -4%;"
+				    	  th:text="${avgReviewScore}"></span>&nbsp; 
+				  </div>
+				  <!-- 구분자 -->
+				  <div class="divider"></div>    
+				  <!-- 총 리뷰 수 -->
+				  <div class="total-review">
+				    <span style="margin-left:33%; display: block; margin-left:37%; margin-top: 9%;">전체 리뷰 수</span>
+				    <img src="/resources/images/comment_icon.png" alt="리뷰 총 건 수" class="comment-icon"/><br />
+				    <!-- 천 단위를 넘길 경우엔 세 자리 콤마로 구분 -->
+				    <span class="total_cnt" th:if="${totalCount >= 1000}" 
+				    	  th:text="${#numbers.formatNumber(totalCount)}"></span>
+					<span class="total_cnt" th:if="${totalCount < 1000}" 
+						  th:text="${totalCount}"></span>
+				  </div>
+				</div>
+			
+				<!-- 나의 리뷰 리스트 -->
+				<div>
+				   <br />
+				   <span th:text="'전체보기 ' + ${totalCount}"
+				         style="font-weight: bold; font-size: 15px;"></span>  
+				   <img src="/resources/images/down_arrow.png" />
+				   
+				   <!-- 최신순 . 평점순 옵션 -->
+				   <span class="modal_btn" style="cursor: pointer; margin-left:67.5%;">정렬
+				   	  <img src="/resources/images/down_arrow.png" alt="Open Modal" id="modalIcon">
+				   </span>
+				   <!-- 모달창 -->
+				   <div class="modal">
+				      <div class="modal_popup">
+				        <form id="optionForm" name="optionForm" method="post">
+						  <!-- 정렬 옵션 버튼 -->
+						  <button type="button" onclick="sortList('1')">최신순</button>
+			              <button type="button" onclick="sortList('2')">평점 높은 순</button>
+			              <button type="button" onclick="sortList('3')">평점 낮은 순</button>
+			              <input type="hidden" id="option" name="option" value="${option}" />
+					    </form>
+					  </div>
+				   </div>
+				   
+			<!-- 리스트 시작 -->
+				   <div class="myReview-list" id="myReview-list" th:each="myReList : ${myReList}">
+				   	  <!-- 사용자 이미지 아이콘 -->
+				   	  <img src="/resources/images/user.png" alt="사용자 프로필 아이콘"
+						   style="width: 40px; height: 39px; margin-right: 4px;" />
+				   	  <!-- 별점 -->
+				   	  <div class="star-score">
+						  <span class="star-rating" id="star" 
+						  		th:text="${myReList.reviewScore}"></span>
+						  <span class="score" th:text="${myReList.reviewScore}"></span>
+				      </div>
+				      <div class="user-date">
+				   	  <!-- 사용자 아이디 -->
+					   	  <span class="user-id" th:text="${#strings.substring(myReList.userId, 0, 
+					   	  		      #strings.length(myReList.userId) - 2)} + '****' + ' • ' "></span>&nbsp;
+					   	  <!-- 리뷰 업로드일 -->
+					   	  <span class="upload-date" th:text="${myReList.regDate}"></span>
+					  </div>
+					  <br />
+				   	  <!-- 리뷰 내용 -->
+				   	  <div class="review-content">
+				   	 	 <span th:text="${myReList.reviewContent}"></span>
+				   	  </div>
+				   </div>
+				   <br />
+			<!-- 리스트 종료 -->
+				   
+				   <!-- 맨 위로 이동 -->
+				   <img src="/resources/images/top_list.png" alt="맨 위로 이동" class="topBtn"/>
+				   
+				   <!-- 리스트 더보기 버튼 -->
+				   <button type="button" id="btn-more" class="more">더보기</button>
+				</div >
+			</div>
+		</div>
+
+	</div>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		// 모달창 띄우기 !!
+		const modal = document.querySelector('.modal');
+		const modalOpen = document.querySelector('.modal_btn');
+	
+		// 모달 화살표 버튼 아이콘
+		const modalIcon = document.querySelector('#modalIcon');
+	
+		// 모달창 이벤트
+		modalOpen.addEventListener('click', function() {
+		    // 모달 창 토글
+		    if (modal.style.display === 'block') {
+		        modal.style.display = 'none';
+		        modalIcon.src = "/resources/images/down_arrow.png"; // 아래 화살표
+		    } else {
+		        modal.style.display = 'block';
+		        modalIcon.src = "/resources/images/up_arrow.png"; // 위 화살표
+		    }
+		});
+	
+		// 모달 밖 영역을 클릭했을 때 모달팝업 닫기
+		window.addEventListener('click', function(event) {
+		    if (event.target == modal) {
+		        modal.style.display = 'none';
+		        modalIcon.src = "/resources/images/down_arrow.png";  // 모달창 닫으면 아래 화살표로 변경
+		    }
+		});
+		
+		// 정렬 옵션
+		function sortList(option){
+			document.optionForm.option.value = option;
+			document.optionForm.action = "/agent/agentReview";
+			document.optionForm.submit();
+		}
+		
+		// top 버튼
+		document.querySelector('.topBtn').addEventListener('click', function() {
+		    // 페이지 상단으로 스크롤 이동
+		    window.scrollTo({
+		        top: 0,
+		        behavior: 'auto'    // 부드러운 스크롤 애니메이션 : smooth
+		    });
+		});
+		
+		// 중개인의 리뷰 별점 기능
+		// 페이지 로드 시 별점 표시하기
+		document.addEventListener("DOMContentLoaded", function () {
+			var starElements = document.querySelectorAll(".star-rating"); // 별점을 표시할 요소들 선택
+			starElements.forEach(function (starElement) {
+				var score = parseInt(starElement.textContent); // 요소의 텍스트를 숫자로 변환하여 별점으로 사용
+				starElement.textContent = displayStars(score); // 별점으로 표시된 문자열로 변경
+			});
+		});
+
+		// 별점 숫자를 받아와서 별 모양으로 표시하는 함수
+		function displayStars(score) {
+			var stars = "";
+			for (var i = 0; i < 5; i++) {
+				if (i < score) {
+					stars += "★"; // 현재 별점보다 작은 인덱스는 별 모양으로 표시
+				} else {
+					stars += "☆"; // 현재 별점보다 크거나 같은 인덱스는 빈 별 모양으로 표시
+				}
+			}
+			return stars;
+		}
+		
+		// 중개인의 리뷰의 평균 별점(소수점 포함) 기능
+		// 페이지 로드 시 별점 표시
+		document.addEventListener("DOMContentLoaded", function () {
+		    var starElements = document.querySelectorAll(".avg-star"); // 평균 별점을 표시할 요소들 선택
+		    starElements.forEach(function (starElement) {
+		        var score = parseFloat(starElement.textContent); // 요소의 텍스트를 숫자로 변환하여 별점으로 사용
+		        starElement.innerHTML = displayAvgStars(score); 
+		    });
+		});	
+		function displayAvgStars(score) {
+		    var stars = "";
+		    for (var i = 0; i < 5; i++) {
+		        if (i < Math.floor(score)) {
+		            stars += "★"; // 현재 별점보다 작은 인덱스는 별 모양으로 표시
+		        } else if (i === Math.floor(score) && score % 1 !== 0) {
+		            // 소수점이 있는 경우 처리
+		            if(score % 1 === 0.5){  
+		            	// 0.5인 경우, 별 반 개
+		            	stars += '<img src="/resources/images/half_star.png" id="half_star" alt="별 반 개">';
+		            } else if (score % 1 >= 0.1 && score % 1 < 0.5) {
+		                // 소수점이 0.1이상 0.5 미만인 경우, 별 반 개보다 덜 칠해진 별
+		                stars += '<img src="/resources/images/less_star.png" id="half_star" alt="덜 칠해진 별">';
+		            } else {
+		                // 소수점이 0.6이상 0.9 미만인 경우, 더 칠해진 별
+		                stars += '<img src="/resources/images/over_star.png" id="half_star" alt="더 칠해진 별">';
+		            }
+		        } else {
+		            stars += "☆"; // 현재 별점보다 크거나 같은 인덱스는 빈 별 모양으로 표시
+		        }
+		    }
+		    return stars;
+		}
+
+		// 리스트 더보기 구현
+		$(document).ready(function() {
+		    var initialLoadCount = 3; // 초기 로드할 리뷰 개수
+		    var totalReviews = $(".myReview-list").length;  // 전체 리뷰 개수
+		    
+		    loadMore(initialLoadCount); // 초기 로드
+		
+		    $("#btn-more").on("click", function() { // 더보기 버튼 클릭 시
+		        initialLoadCount += 3; // 3개씩 추가로 로드
+		        loadMore(initialLoadCount);
+		    });
+		
+		    // loadMore 함수 정의
+		    function loadMore(count) {
+		        $(".myReview-list").hide(); // 모든 리스트 숨기기
+		        $(".myReview-list").slice(0, count).show(); // count 개수만큼 리스트 보이기
+		
+		        if (count >= totalReviews) { // 더 이상 불러올 데이터가 없을 경우
+		            $("#btn-more").hide(); // 더보기 버튼 숨기기
+		        } else {
+		            $("#btn-more").show(); // 더보기 버튼 보이기
+		        }
+		    }
+		});
+	</script>
+</body>
+
+</html>

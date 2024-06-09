@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<style>
+	.dropdown {
+		
+	}
+</style>
+<div th:fragment="nav">
+
+    <nav class="site-nav">
+        <div class="container" style="max-width:100%;padding-left:0px;justify-content: center;">
+            <div class="menu-bg-wrap" style="width:96.5%;height:80px;margin-left:2%;">
+                <div class="site-navigation">
+                    <img src="/resources/images/logo.png" width="5%" height="5%" onclick="window.location.href = '/'" style="cursor:pointer;max-height:50px;max-width:60px;margin-left:2%;">
+                    
+                    <span sec:authorize="isAuthenticated()">
+                       <span class="logo ps-3" sec:authentication="name"></span> 님 어서오세요
+                    </span>
+                    
+                    <!-- 회원 
+                    <span sec:authorize="hasRole('ROLE_USER')">
+                        <span class="logo ps-3" th:text="${user.userName}"></span>
+                       <span>님 안녕하세요</span>
+                    </span>
+                    -->
+
+                    <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+                        <li class="active"><a class="fs-5" href="/">Home</a></li>
+                        <li class="has-children"><a class="fs-5">매물</a>
+                            <ul class="dropdown">
+                                <li><a class="fs-5" href="/item/one">원룸 🏠</a></li>
+                                <li><a class="fs-5" href="/item/two">투룸/쓰리룸 &#127969;</a></li>
+                                <li><a class="fs-5" href="/item/off">오피스텔 🏢</a></li>
+                                <li><a class="fs-5" href="/item/apt">아파트 &#127751;</a></li>
+                            </ul>
+                        </li>
+                        <li class="has-children"><a class="fs-5">게시판</a>
+                            <ul class="dropdown">
+                               <li><a class="fs-5" href="/board/notice">공지사항 🔔</a></li>
+                                <li><a class="fs-5" href="/board/freeBoard">자유게시판 👯</a></li>
+                                <li><a class="fs-5" href="/board/reviewBoard">리뷰게시판 📑</a></li>
+                            </ul>
+                        </li>
+                        <li class="has-children"><a class="fs-5">서비스</a>
+                            <ul class="dropdown">
+                                <li><a class="fs-5" href="/etc/event">이벤트 🎉</a></li>
+                                <li><a class="fs-5" href="/etc/news">뉴스 📰</a></li>
+                                <li><a class="fs-5" href="/etc/sense">부동산상식 &#128270;</a></li>
+                            </ul>
+                        </li>
+                        <li class="has-children"><a class="fs-5">고객지원</a>
+                            <ul class="dropdown">
+                        <li><a class="fs-5" href="/etc/faq">FQA 🦕</a></li>
+                                <li><a class="fs-5" href="/board/qna">QnA 📞</a></li>
+                                <li><a class="fs-5" href="/board/suggest">건의사항 📬</a></li>
+                            </ul>
+                        </li>
+                        <!-- 인증되지 않은(로그인하지 않은) 사용자에게 보임 -->
+                        <li><a class="fs-5" sec:authorize="isAnonymous()" href="/user/login">로그인/회원가입</a></li>
+                        <li><a class="fs-5" sec:authorize="isAnonymous()" href="/agent/home">중개사무소 가입</a></li>
+                       
+                        <!-- ROLE_USER만 보임 -->
+                        <li class="has-children"><a class="fs-5" sec:authorize="hasRole('ROLE_USER')">마이페이지</a>
+                            <ul class="dropdown">
+                                <li><a class="fs-5" href="/user/info">정보수정 💾</a></li>
+                                <li><a class="fs-5" href="/user/interestItem">찜한 매물 💓</a></li>
+                                <li><a class="fs-5" href="/user/myWriteList">나의글 📝</a></li>
+                                <li><a class="fs-5" href="/user/myQna">나의문의 💭</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="fs-5" sec:authorize="hasRole('ROLE_USER')" href="/user/logout">로그아웃</a></li>
+                        
+                        <!-- ROLE_AGENT만 보임 -->
+                        <li class="has-children"><a class="fs-5" sec:authorize="hasRole('ROLE_AGENT')" href="/agent/home">중개인페이지</a>
+                           <ul class="dropdown">
+                              <li><a class="fs-5" href="/agent/info">정보수정</a></li>
+                           </ul>
+                        </li>
+                        <li><a class="fs-5" sec:authorize="hasRole('ROLE_AGENT')" href="/agent/logout">로그아웃</a></li>
+                        
+                        <!-- ROLE_MANAGER만 보임 -->
+                  		<li><a class="fs-5" sec:authorize="hasRole('ROLE_MANAGER')" href="/manager/home">관리자페이지</a></li>
+                        <li><a class="fs-5" sec:authorize="hasRole('ROLE_MANAGER')" href="/manager/logout">로그아웃</a></li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+<div style="margin-bottom:8px;"></div>
+
+</html>

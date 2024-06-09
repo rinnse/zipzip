@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+        .btn_gotop {
+            display: none;
+            position: fixed;
+            bottom: 5%;
+            right: 3%;
+            z-index: 999;
+            border: 1px solid #ccc;
+            outline: none;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            padding: 10px 10px;
+            border-radius: 100%;
+        }
+        .focused {
+           background-color: lightgrey;
+           color:red;
+           cursor:pointer;
+        
+   }
+   .autocomplete-input {
+       display: block;
+       margin: 10px auto 0;
+       padding: 10px;
+       font-size: 16px;
+       outline: none;
+       overflow-y: hide;
+       overflow-x: auto;
+   }
+   
+   .ui-autocomplete {
+     max-height: 180px;
+     overflow-y: auto;
+     overflow-x: hidden;
+       margin: 0;
+       padding: 0;
+       background-color: #fff;
+       border: 1px solid #ccc !important;
+       border-radius: 8px;
+       z-index: 1;
+       list-style: none;
+        scrollbar-width: none; 
+      overflow-wrap: break-word;
+      font-family: 'Ha' !important;
+      cursor:pointer;
+   }
+   
+   .ui-autocomplete li {
+   width:100%;
+   font-family: 'Ha' !important;
+       padding: 10px;
+       cursor: pointer;
+       font-size: 16px;
+       color: #000;
+      overflow-wrap: break-word;
+      overflow-y: hide;
+   }
+   
+   .ui-autocomplete li :hover{
+   background-color: lightgrey;
+   cursor:pointer;
+   }
+   
+   .ui-autocomplete li strong {
+       color: #0077cc;
+   }
+   
+   .ui-helper-hidden-accessible {
+       display: none;
+   }
+   
+   .ui-autocomplete li.focused {
+       background-color: lightgrey;
+   }
+   
+     .content {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+     }
+     
+     .notice {
+        padding: 5px 10px;
+       font-size: 15px;
+       background: #00204A1A;
+       border-radius: 30px;"
+     }
+     
+     .event {
+        padding: 5px 10px;
+       font-size: 15px;
+       background: #00204A1A;
+       border-radius: 30px;"
+     }
+     
+     .imgEvent {
+        width: 100%;
+        height: 100%;
+     }
+   .properties-box-img {
+      width: 95%;
+      height: 150px;
+      border-radius: 5px;
+      margin-right: 5px;
+      margin-left: 5px;
+      object-fit: cover;
+      overflow: hidden;
+   }
+   .home-title {
+      font-size:25px;
+      font-weight:bold;
+      color:#666666;
+   }
+     
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <div class="hero" style="height:150px;min-height:400px;margin-top:120px;background-color:pink;">
+        <!-- 메인 슬라이드 이미지 -->
+        <div class="hero-slide" style="display:flex;">
+            <div class="img overlay" style="background-image: url('/resources/images/home-img.jpg'); height:150px;min-height:400px;">
+            </div>
+            <div class="img overlay" style="background-image: url('/resources/images/viewhouse.jpg'); height:150px;min-height:400px;">
+            </div>
+        </div>
+
+        <!-- 검색 -->
+        <div class="container" >
+            <div class="">
+                <div class="col-lg-9 text-center" style="cursor:pointer;margin-left:12%;margin-top:10%;">
+                    <div style="font-size:35px;font-weight:bold;color:#fff;margin-bottom:10px;">어떤 집을 찾고 계세요? ✨</div>
+                    <form action="#" class="narrow-w form-search d-flex align-items-stretch mb-3 autocomplete-input" data-aos="fade-up"
+                        data-aos-delay="200">
+                        <input type="text" class="form-control px-4" placeholder="원하는 지역, 지하철역을 입력해주세요!" id="searchBox" value=""/>
+                        <input type="button" class="btn btn-primary" id="searchBtn" value="Search">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 매물 -->
+    <div class="section" style="padding-top:2rem">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div style="font-size:25px;font-weight:bold;color:#666666;margin-left:30px;">최근 매물 📂</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="property-slider-wrap">
+                        <div class="property-slider">
+                            <div class="property-item" th:each="item : ${list}" style="padding: 20px;">
+                                <a class="img">
+                                    <img th:src="@{'/resources/upload/item/' + ${item.fileName}}" alt="Image" class="properties-box-img" />
+                                </a>
+
+                  <div class="property-content" style="max-height:100px;display:block;padding:5px;margin-top:0px;">
+                                    <div class="price mb-2" style="margin-left:15px; margin-top:8px;display:flex;width:95%;justify-content:space-between;">
+                                       <div><span th:text="${item.itemPtype}"></span> <span class="transD" th:text="' '+ ${item.transD}" id="transD"></span><span th:if="${item.itemPtype == '월세'}" th:text="' / '+ ${item.transM}"></span></div>
+                                       <a class="btn btn-primary py-2 px-3" id="seeDetailBtn"  
+                                        th:itemNum="${item.itemNum}"
+                                        th:itemItype="${item.itemItype}"
+                                        th:itemAdd="${item.itemAddress}"
+                                        th:onclick="seeDetail(this.getAttribute('itemNum'),this.getAttribute('itemItype'),
+                                        this.getAttribute('itemAdd'))">상세보기</a>
+                                    </div>
+
+                           <div style="display:flex;margin-left:-15px;">
+                           <span style="margin-left:30px;color:#666666;" class="city d-block mb-3" th:text="'['+${item.itemName}+']'"></span>
+                                        <span class="d-block text-black-50" style="margin-top:6px; margin-left:10px;" th:text="${item.itemAddress}"></span> 
+                                         
+                           </div>
+                  </div>
+                                
+                            </div>
+                            <!-- .item -->
+
+                            <!-- .item -->
+                        </div>
+
+                        <div id="property-nav" class="controls" tabindex="0" aria-label="Carousel Navigation">
+                            <span class="prev" data-controls="prev" aria-controls="property" tabindex="-1">Prev</span>
+                            <span class="next" data-controls="next" aria-controls="property" tabindex="-1">Next</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알아두면 좋은 상식 -->
+    <section class="features-1">
+        <div class="home-title">
+            알아두면 좋은 부동산 상식</div>
+        <br />
+        <div class="container">
+            <div class="row">
+                <div style="text-align: right; margin-top: -4%;">
+                    <a href="/etc/sense" class="more_btn">more</a>
+                </div>
+                <div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="300" th:each="sense : ${senseList}">
+                    <div class="box-feature">
+                        <span class="flaticon-house"></span>
+                        <h3 class="mb-3" th:text="${sense.senseTitle}"></h3>
+                        <p class="content" th:text=${sense.senseContent}><p>
+                            <a th:onclick="'fn_sense('+${sense.senseNum}+')'" style="cursor: pointer;"class="learn-more">Learn More</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 공지사항 -->
+    <div class="section sec-testimonials">
+        <div class="container">
+            <div class="row mb-5 align-items-center">
+                <div class="col-md-6">
+                    <h2 class="font-weight-bold heading text-primary mb-4 mb-md-0">
+                        공지사항 <a href="/board/notice" class="notice">more</a>
+                    </h2>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div id="testimonial-nav">
+                        <span class="prev" data-controls="prev">Prev</span>
+                        <span class="next" data-controls="next">Next</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            </div>
+            <div class="testimonial-slider-wrap">
+                <div class="testimonial-slider">
+                    <div th:each="notice : ${noticeList}" class="item">
+                        <div class="testimonial">
+                            <a th:onclick="'fn_notice('+${notice.noticeNum}+')'" style="cursor: pointer;">
+                               <div th:text="${notice.noticeTitle}" class="h5 text-primary mb-4"></div>
+                            </a>
+                            <blockquote>
+                                <p class="content" th:text="${notice.noticeContent}"></p>
+                            </blockquote>
+                            <p th:text="${notice.userId}" class="text-black-50"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이벤트 -->
+    <div class="section section-4 bg-light">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-5">
+                <div class="col-lg-5">
+                    <h2 class="font-weight-bold heading text-primary mb-4">
+                       이벤트 <a href="/etc/event" class="event">more</a>
+                    </h2>
+                    <p class="text-black-50">
+                        각종 이벤트를 확인해보실 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+            <div class="col" th:each="event : ${eventList}">
+               <th:block th:if="${event.fileName == null}">
+                  <a th:onclick="'fn_event('+${event.eventNum}+')'" style="cursor: pointer;">
+                     <img class="imgEvent" th:src="@{|/resources/images/no_image.jpg|}">
+                  </a>
+               </th:block>
+               <th:block th:if="${event.fileName != null}">
+                  <a th:onclick="'fn_event('+${event.eventNum}+')'" style="cursor: pointer;">
+                     <img class="imgEvent" th:src="@{|/resources/upload/event/${event.fileName}|}">
+                  </a>
+               </th:block>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 베너 -->
+    <div class="section">
+        <div class="row justify-content-center footer-cta" data-aos="fade-up">
+            <div class="col-lg-7 mx-auto text-center">
+                <h2 class="mb-4">회원이시면 더 많은 정보를 얻을 수 있습니다.</h2>
+                <p>
+                    <a href="/user/join" class="btn btn-primary text-white py-3 px-4">
+                        회원가입 하시겠습니까?
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 뉴스 -->
+    <div class="section section-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-5">
+                <div class="col-lg-6 mb-5">
+                    <h2 class="font-weight-bold heading text-primary mb-4">
+                        뉴스
+                    </h2>
+                    <p class="text-black-50 fs-5">실시간 업데이트되는 새로운 부동산 소식 궁금하지 않으신가요?</p>
+                </div>
+                <div class="row">
+                    <div th:each="news:${news}" class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-3">
+                        <div class="h-100 person">
+                            <div class="person-contents">
+                                <h2 class="mb-0">
+                                    <a th:href="${news.url}" target="_blank"><span th:text="${news.subject}"></span></a>
+                                </h2>
+                                <span th:text="${news.info}" class="meta d-block mb-3"></span>
+                                <a th:href="${news.url}" target="_blank">
+                                    <p th:text="${news.content}"></p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: -15%; margin-left: -10%; padding: 50px 40px;">
+                        <a href="/etc/news" class="more_btn" style="font-size: 1.5em;">
+                            + more </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+      <form name="bbsForm" id="bbsForm" method="POST">
+      <input type="hidden" name="senseNum" value="">
+      <input type="hidden" name="noticeNum" value="">
+      <input type="hidden" name="eventNum" value="">
+   </form>
+
+    <!-- 상단으로 이동하기 버튼 -->
+    <a href="#" class="btn_gotop">
+        <span class="glyphicon glyphicon-chevron-up">TOP</span>
+    </a>
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script type="text/javascript">
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 300) {
+                $('.btn_gotop').show();
+            } else {
+                $('.btn_gotop').hide();
+            }
+        });
+        
+        $('.btn_gotop').click(function () {
+            $('html, body').animate({ scrollTop: 0 }, 400);
+            return false;
+        });
+        
+      function fn_sense(senseNum) {
+         document.bbsForm.senseNum.value = senseNum;
+         document.bbsForm.action = "/etc/sense/" + senseNum;
+          document.bbsForm.submit();
+      }
+      function fn_notice(noticeNum) {
+         document.bbsForm.noticeNum.value = noticeNum;
+         document.bbsForm.action = "/board/notice/" + noticeNum;
+          document.bbsForm.submit();
+      }
+      function fn_event(eventNum) {
+         document.bbsForm.eventNum.value = eventNum;
+         document.bbsForm.action = "/etc/event/" + eventNum;
+          document.bbsForm.submit();
+      }
+    </script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+     $(document).ready(function(){
+        const inputSource = [];
+
+        fetch('/resources/json/seoulStaion.json')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(item => {
+                    item.label = item.지번주소; 
+                    item.value = item.구; 
+                    inputSource.push(item);
+                });
+            });
+        console.log(inputSource);
+        $('#searchBox').autocomplete({
+             source : inputSource,
+             minLength : 1,
+             // 자동 완성 위치 조정
+             position: { my: "left top+5" },
+             // 자동 완성 메뉴가 열렸을 때, 하이라이팅 로직
+             open: function () {
+                 const inputText = $("#searchBox").val().toLowerCase();
+                 // 각 제안 아이템에 대한 하이라이팅
+                 $(".ui-autocomplete li").each(function () {
+                     let suggestion = $(this).text();
+                     const index = suggestion.toLowerCase().indexOf(inputText);
+                     if (index !== -1) {
+                         // 단어의 일부를 강조하는 HTML을 사용하여 새로운 제안 생성
+                         const highlightedPart = `<strong>${suggestion.substr(index, inputText.length)}</strong>`;
+                         suggestion = suggestion.substring(0, index) + highlightedPart + suggestion.substring(index + inputText.length);
+                         // 새로운 제안으로 항목 내용을 업데이트
+                         $(this).html(suggestion);
+                     }
+               });
+           }, //open end
+           focus: function (event, ui) {
+               $(ui.item).addClass('focused');
+           },
+           blur: function (event, ui) {
+               $(ui.item).removeClass('focused');
+           },
+           select : function (event, ui){
+              $("#searchBox").val(ui.item.label); 
+              console.log(ui.item.value); //강남
+              console.log(ui.item.label); //상세
+              
+              submitPage(ui.item.value);
+              $(ui.item).hide();
+              
+           }
+        });
+        $("#searchBtn").on("click",function(){
+           var info = $("#searchBox").val();
+           if( info != null && info.length > 0){
+              alert(info);
+              submitPage($("#searchBox").val());
+           }
+        });
+     });
+     function submitPage (info){
+        console.log("/item/one?info="+info);
+        window.location.href="/item/one?info="+info;
+     }
+     function seeDetail (itemNum, itemItype, itemAdd){
+        var type = '/item/';
+        if(itemItype == 'A'){
+           type+='apt';
+        }
+        else if (itemItype == 'O'){
+           type+='one';
+        }
+        else if(itemItype == 'T'){
+           type+='two';
+        }
+      else if(itemItype == 'F'){
+         type+='off';   
+      }
+        var src = type+"?info="+itemAdd;
+        console.log(src);
+        window.location.href = src;
+     }
+  </script>
+
+</body>
+
+</html>

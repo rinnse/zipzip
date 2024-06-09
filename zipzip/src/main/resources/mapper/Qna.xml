@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="Qna">
+		
+	<insert id="insert" parameterType="com.example.demo.dto.Qna">
+		<selectKey resultType="long" keyProperty="qnaNum" order="BEFORE">
+			SELECT ZIP_QNA_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_QNA (
+		    QNA_NUM,
+		    USER_ID,
+		    QNA_TITLE,
+		    QNA_CONTENT,
+		    REG_DATE,
+		    QNA_HIT,
+		    QNA_GROUP,
+		    QNA_ORDER,
+		    QNA_INDENT,
+		    QNA_PARENT
+		) VALUES (
+		    #{qnaNum},
+		    #{userId},
+		    #{qnaTitle},
+		    #{qnaContent},
+		    SYSDATE,
+		    #{qnaHit},
+		    #{qnaNum},
+		    #{qnaOrder},
+		    #{qnaIndent},
+		   	#{qnaParent}
+		)
+	</insert>
+	
+	<select id="selectAll" resultType="com.example.demo.dto.Qna">
+		SELECT QNA_NUM,
+		    USER_ID,
+		    QNA_TITLE,
+		    QNA_CONTENT,
+		    REG_DATE,
+		    QNA_HIT,
+		    QNA_GROUP,
+		    QNA_ORDER,
+		    QNA_INDENT,
+		    QNA_PARENT
+		FROM (SELECT ROWNUM RNUM,
+		            QNA_NUM,
+		            USER_ID,
+		            QNA_TITLE,
+		            QNA_CONTENT,
+		            REG_DATE,
+		            QNA_HIT,
+		            QNA_GROUP,
+		            QNA_ORDER,
+		            QNA_INDENT,
+		            QNA_PARENT
+		        FROM(SELECT QNA_NUM,
+		                NVL(USER_ID, '') USER_ID,
+		                NVL(QNA_TITLE, '') QNA_TITLE,
+		                NVL(QNA_CONTENT, '') QNA_CONTENT,
+		                NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                NVL(QNA_HIT, 0) QNA_HIT,
+		                NVL(QNA_GROUP, 0) QNA_GROUP,
+		                NVL(QNA_ORDER, 0) QNA_ORDER,
+		                NVL(QNA_INDENT, 0) QNA_INDENT,
+		                NVL(QNA_PARENT, 0) QNA_PARENT
+		            FROM ZIP_QNA
+		            WHERE 1=1
+		            <if test='searchValue != null and searchValue != "" '>
+	                AND QNA_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(QNA_CONTENT, #{searchValue}) > 0
+	                </if>
+		            ORDER BY QNA_GROUP DESC, QNA_ORDER ASC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+
+	<select id="listCnt" parameterType="com.example.demo.dto.Qna" resultType="long">
+		SELECT COUNT(*) CNT
+		FROM ZIP_QNA
+		WHERE 1=1
+		<if test='searchValue != null and searchValue != "" '>
+		AND QNA_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(QNA_CONTENT, #{searchValue}) > 0
+		</if>
+	</select>
+	
+	<update id="updateHit" parameterType="long">
+		UPDATE ZIP_QNA
+		SET QNA_HIT = QNA_HIT + 1
+		WHERE QNA_NUM = #{qnaNum}
+	</update>
+	
+	<select id="selectOne" parameterType="long" resultType="com.example.demo.dto.Qna">
+		SELECT QNA_NUM,
+			NVL(USER_ID, '') USER_ID,
+			NVL(QNA_TITLE, '') QNA_TITLE,
+			NVL(QNA_CONTENT, '') QNA_CONTENT,
+			NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+			NVL(QNA_HIT, 0) QNA_HIT,
+			NVL(QNA_GROUP, 0) QNA_GROUP,
+			NVL(QNA_ORDER, 0) QNA_ORDER,
+			NVL(QNA_INDENT, 0) QNA_INDENT,
+			NVL(QNA_PARENT, 0) QNA_PARENT
+		FROM ZIP_QNA
+		WHERE QNA_NUM = #{qnaNum}
+	</select>
+	
+	<update id="update">
+		UPDATE ZIP_QNA
+		SET QNA_TITLE = #{qnaTitle},
+		QNA_CONTENT = #{qnaContent}
+		WHERE QNA_NUM = #{qnaNum}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM ZIP_QNA
+		WHERE QNA_NUM = #{qnaNum}
+	</delete>
+	
+	<update id="groupUpdate" parameterType="com.example.demo.dto.Qna">
+		UPDATE ZIP_QNA
+		SET QNA_ORDER = QNA_ORDER + 1
+		WHERE QNA_GROUP = #{qnaGroup}
+		AND QNA_ORDER <![CDATA[>=]]> #{qnaOrder}
+	</update>
+	
+	<insert id="insertReply" parameterType="com.example.demo.dto.Qna">
+		<selectKey resultType="long" keyProperty="qnaNum" order="BEFORE">
+			SELECT ZIP_QNA_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_QNA (
+		    QNA_NUM,
+		    USER_ID,
+		    QNA_TITLE,
+		    QNA_CONTENT,
+		    REG_DATE,
+		    QNA_HIT,
+		    QNA_GROUP,
+		    QNA_ORDER,
+		    QNA_INDENT,
+		    QNA_PARENT
+		) VALUES (
+		    #{qnaNum},
+		    #{userId},
+		    #{qnaTitle},
+		    #{qnaContent},
+		    SYSDATE,
+		    #{qnaHit},
+		    #{qnaGroup},
+		    #{qnaOrder},
+		    #{qnaIndent},
+		   	#{qnaParent}
+		) 
+	</insert>
+	
+		<!-- 24.05.21 나의 문의 Qna 리스트 관련 소스 추가-->
+	<select id="myQnaSelectAll" resultType="com.example.demo.dto.Qna">
+		SELECT  RNUM,
+		        QNA_NUM,
+		        USER_ID,
+		        QNA_TITLE,
+		        QNA_CONTENT,
+		        REG_DATE,
+		        QNA_HIT,
+		        QNA_GROUP,
+		        QNA_ORDER,
+		        QNA_INDENT,
+		        QNA_PARENT
+		FROM (SELECT ROWNUM RNUM,
+		                QNA_NUM,
+		                USER_ID,
+		                QNA_TITLE,
+		                QNA_CONTENT,
+		                REG_DATE,
+		                QNA_HIT,    
+		                QNA_GROUP,
+		                QNA_ORDER,
+		                QNA_INDENT,
+		                QNA_PARENT
+		        FROM(SELECT B.QNA_NUM,
+		                NVL(B.USER_ID, '') USER_ID,
+		                NVL(B.QNA_TITLE, '') QNA_TITLE,
+		                NVL(B.QNA_CONTENT, '') QNA_CONTENT,
+		                NVL(TO_CHAR(B.REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                NVL(B.QNA_HIT, 0) QNA_HIT,
+		                NVL(B.QNA_GROUP, 0) QNA_GROUP,
+		                NVL(B.QNA_ORDER, 0) QNA_ORDER,
+		                NVL(B.QNA_INDENT, 0) QNA_INDENT,
+		                NVL(B.QNA_PARENT, 0) QNA_PARENT
+		             FROM ZIP_QNA A, ZIP_QNA B 
+		             WHERE 1=1
+		              AND A.USER_ID= #{userId} 
+		              AND A.QNA_NUM = B.QNA_GROUP
+		              <if test='searchValue != null and searchValue != "" '>
+	                	AND (B.QNA_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(B.QNA_CONTENT, #{searchValue}) > 0)
+	                  </if>
+		             ORDER BY B.QNA_GROUP DESC, B.QNA_ORDER ASC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	
+	<!-- 24.05.21 나의 문의 Qna 리스트 개수 관련 소스 추가-->
+	<select id="myQnaListCnt" parameterType="com.example.demo.dto.Qna" resultType="long">
+		SELECT COUNT(B.QNA_NUM) AS CNT
+		FROM ZIP_QNA A, ZIP_QNA B 
+		WHERE 1=1
+		 AND A.USER_ID= #{userId}  
+		 AND A.QNA_NUM = B.QNA_GROUP
+		 <if test='searchValue != null and searchValue != "" '>
+          AND (B.QNA_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(B.QNA_CONTENT, #{searchValue}) > 0)
+         </if>
+	</select>
+	
+</mapper>

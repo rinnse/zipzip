@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+				<div class="properties-box-column" id="changable">
+					<div>					
+<script type="text/javascript">
+
+</script>
+						<!-- 매물 1개 시작 'openIframe(\'' + ${item.itemNum} + '\')' -->
+						<div class="properties-box" th:each="item : ${list2}" 	th:itemNum="${item.itemNum}"
+							 			th:itemItype="${item.itemItype}"
+							 			th:add = "${item.itemAddress}"
+							 			th:onclick="fn_showIframe(this.getAttribute('itemNum'),this.getAttribute('itemItype')); ">
+							 	<div class="properties-box-padding oneItem" id="oneItem">		
+								<div>
+									<img th:src="@{'/resources/upload/item/' + ${item.fileName}}" alt="Image" class="properties-box-img" />
+								</div>
+								<div class="properties-box-content">
+									<div class="item-name">
+										<span th:text="${item.itemName}"></span>
+									</div>
+									<div class="item-price">
+										<span>   
+										<span th:text="${item.itemPtype}" class="PayType" id="PayType"></span><span class="transD" th:text="' '+ ${item.transD}" id="transD"></span><span th:if="${item.itemPtype == '월세'}" th:text="' / '+ ${item.transM}"></span>
+										</span>
+									</div>
+									<div class="item-info">
+										<span class="itemSize" id="itemSize" th:text="${item.itemArea}"></span>m²ㆍ
+										<span th:text="${item.itemFloor}"></span>층 <br />
+										<span  id="add"  th:text="${item.itemAddress}"></span>
+									</div>
+									<div class="item-intro">
+										<span th:text="${item.itemIntro}"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<hr>
+						<!-- 매물 1개 끝 -->
+
+					</div><!-- th:each문 끝 -->
+
+				</div><!--  -->
+</body>
+</html>

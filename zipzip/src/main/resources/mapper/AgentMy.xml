@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.repository.AgentMyRepository">
+
+	<!-- 나의 리뷰 평점 평균 조회 -->
+	<select id="avgReviewScore" parameterType="String" resultType="double">
+		SELECT AVG(REVIEW_SCORE) AS REVIEW_SCORE
+		  FROM ZIP_AGENT_REVIEW 
+	  	 WHERE AGENT_ID = #{agentId}
+	</select>
+	
+	<!-- 나의 리뷰 목록 -->
+	<select id="myReviewList" parameterType="com.example.demo.dto.AgentReview" resultType="com.example.demo.dto.AgentReview">
+	    SELECT A.REVIEW_NUM,
+	           NVL(A.USER_ID, ' ') AS USER_ID,
+	           NVL(A.AGENT_ID, ' ') AS AGENT_ID,
+	           NVL(A.REVIEW_CONTENT, ' ') AS REVIEW_CONTENT,
+	           NVL(A.REVIEW_SCORE, 0) AS REVIEW_SCORE,
+	           NVL(TO_CHAR(A.REG_DATE, 'YYYY.MM.DD'), ' ') AS REG_DATE,
+	           NVL(B.AGENT_NAME, ' ') AS AGENT_NAME,
+	           NVL(B.AGENT_OFFICE_NAME, ' ') AS AGENT_OFFICE_NAME
+	      FROM ZIP_AGENT_REVIEW A, ZIP_AGENT B
+	     WHERE A.AGENT_ID = #{agentId}
+	       AND A.AGENT_ID = B.AGENT_ID
+  <if test='option != null and option != "" '>    
+	<choose>
+	   <when test='option == "1" '>
+	      ORDER BY A.REG_DATE DESC
+	   </when>
+	   <when test='option == "2" '>
+	       ORDER BY A.REVIEW_SCORE DESC
+	   </when>
+	   <when test='option == "3" '>
+	       ORDER BY A.REVIEW_SCORE ASC
+	   </when>
+	</choose>  
+  </if>
+	</select>
+
+	
+	<!-- 나의 리뷰 건 수 -->
+	<select id="myReviewCount" parameterType="String" resultType="int">
+		SELECT COUNT(REVIEW_NUM) AS REVIEW_NUM
+		  FROM ZIP_AGENT_REVIEW
+	   	 WHERE AGENT_ID = #{agentId}
+	</select>
+	
+	<!-- ===================================================================== YH -->
+	
+	<!-- 매물등록 -->
+	<insert id="itemInsert" parameterType="com.example.demo.dto.Item">
+		<selectKey resultType="long" keyProperty="itemNum" order="BEFORE">
+			SELECT B_ITEM_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_ITEM (
+		            ITEM_NUM,
+		            AGENT_ID,
+		            ITEM_NAME,
+		            ITEM_ADDRESS,
+		            ITEM_ADDRESS_DETAIL,
+		            ITEM_PTYPE,
+		            ITEM_ITYPE,
+		            ITEM_STATUS,
+		            REG_DATE,
+		            RECOMMEND_ITEM,
+		            ITEM_COUNT
+		) VALUES (
+		            #{itemNum},
+		            #{agentId},
+		            #{itemName},
+		            #{itemAddress},
+		            #{itemAddressDetail},
+		            #{itemPtype},
+		            #{itemItype},
+		            #{itemStatus},
+		            SYSDATE,
+		            #{recommendItem},
+		            0
+		)
+	</insert>
+	
+	<!-- 매물등록 - 상세 -->
+	<insert id="itemDetailInsert" parameterType="com.example.demo.dto.ItemDetail">
+		INSERT INTO ZIP_ITEM_DETAIL (
+		            ITEM_NUM,
+		            ITEM_INTRO,
+		            ITEM_INTRO_DETAIL,
+		            ITEM_DEPOSIT,
+		            ITEM_MAINTAIN_PRICE,
+		            ITEM_MONTH_PRICE,
+		            ITEM_AREA,
+		            ITEM_PARKING,
+		            ITEM_BUILD_DATE,
+		            ITEM_ELEVATOR,
+		            ITEM_PET,
+		            ITEM_DIRECTION,
+		            ITEM_KIND,
+		            ITEM_FLOOR,
+		            ITEM_MOVE_AVBL,
+		            ITEM_MOVE_DATE,
+		            ITEM_NEAR
+		) VALUES (
+		            #{itemNum},
+		            #{itemIntro},
+		            #{itemIntroDetail},
+		            #{itemDeposit},
+		            #{itemMaintainPrice},
+		            #{itemMonthPrice},
+		            #{itemArea},
+		            #{itemParking},
+		            #{itemBuildDate},
+		            #{itemElevator},
+		            #{itemPet},
+		            #{itemDirection},
+		            #{itemKind},
+		            #{itemFloor},
+		            #{itemMoveAvbl},
+		            #{itemMoveDate},
+		            ''
+		) 
+	</insert>
+	
+	<!-- 매물등록 - 옵션 -->
+	<insert id="itemOptionInsert" parameterType="com.example.demo.dto.ItemOption">
+		INSERT INTO ZIP_ITEM_OPTION (
+		            ITEM_NUM,
+		            SINK,
+		            AIR,
+		            LAUNDRY,
+		            REFRIGERATOR,
+		            CLOSET,
+		            GASRANGE,
+		            INDUCTION,
+		            MICRO,
+		            DESK,
+		            BED,
+		            ENTRANCE,
+		            CAMERATV,
+		            INTERCOM
+		) VALUES (
+		            #{itemNum},
+		            #{sink},
+		            #{air},
+		            #{laundry},
+		            #{refrigerator},
+		            #{closet},
+		            #{gasrange},
+		            #{induction},
+		            #{micro},
+		            #{desk},
+		            #{bed},
+		            #{entrance},
+		            #{cameratv},
+		            #{intercom}
+		) 
+	</insert>
+	
+	<!-- 매물등록 - 파일 -->
+	<insert id="itemFileInsert" parameterType="com.example.demo.dto.ItemFile">
+		<selectKey resultType="long" keyProperty="fileNum" order="BEFORE">
+			SELECT ITEM_FILE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO ZIP_ITEM_FILE (
+		            ITEM_NUM,
+		            FILE_NUM,
+		            FILE_IDX,
+		            FILE_ORG,
+		            FILE_NAME,
+		            FILE_DATE
+		) VALUES (
+		            #{itemNum},
+		            #{fileNum},
+		            #{fileIdx},
+		            #{fileOrg},
+		            #{fileName},
+		            SYSDATE
+		) 
+	</insert>
+	
+	<!-- 등록한 미물 list 조회 -->
+	<select id="myItemRegList" parameterType="com.example.demo.dto.Item" resultType="com.example.demo.dto.Item">
+		SELECT NVL(A.ITEM_NUM, 0) AS ITEM_NUM,
+		       NVL(A.AGENT_ID, '') AS AGENT_ID,
+		       NVL(A.ITEM_NAME, '') AS ITEM_NAME,
+		       NVL(A.ITEM_ADDRESS, '') AS ITEM_ADDRESS,
+		       NVL(A.ITEM_ADDRESS_DETAIL, '') AS ITEM_ADDRESS_DETAIL,
+		       NVL(A.ITEM_PTYPE, '') AS ITEM_PTYPE,
+		       NVL(A.ITEM_ITYPE, '') AS ITEM_ITYPE,
+		       NVL(A.ITEM_STATUS, '') AS ITEM_STATUS,
+		       NVL(TO_CHAR(A.REG_DATE, 'YYYY-MM-DD HH24:MI:SS'), '') AS REG_DATE,
+		       NVL(A.ITEM_COUNT, 0) AS ITEM_COUNT,
+		       NVL(B.ITEM_DEPOSIT, 0) AS ITEM_DEPOSIT,
+		       NVL(B.ITEM_MONTH_PRICE, 0) AS ITEM_MONTH_PRICE,
+		       NVL(C.FILE_NAME, '') AS FILE_NAME
+		  FROM ZIP_ITEM A, ZIP_ITEM_DETAIL B, ZIP_ITEM_FILE C
+		 WHERE A.ITEM_NUM = B.ITEM_NUM
+		   AND A.ITEM_NUM = C.ITEM_NUM 
+		   AND C.FILE_IDX = 1
+		   AND A.AGENT_ID = #{agentId}
+<if test='itemItype != null and itemItype != "" '> 
+		   AND A.ITEM_ITYPE = #{itemItype}
+</if>
+<if test='itemPtype != null and itemPtype != "" '>
+		   AND A.ITEM_PTYPE = #{itemPtype}
+</if>
+		 ORDER BY REG_DATE DESC
+	</select>
+
+	
+	<!-- 매물 삭제 -->
+	<delete id="deleteItem" parameterType="long">
+		DELETE FROM ZIP_ITEM WHERE ITEM_NUM = #{value}
+	</delete>
+	<!-- 매물 삭제 (상세) -->
+	<delete id="deleteItemDetail" parameterType="long">
+		DELETE FROM ZIP_ITEM_DETAIL WHERE ITEM_NUM = #{value}
+	</delete>
+	<!-- 매물 삭제 (옵션) -->
+	<delete id="deleteItemOption" parameterType="long">
+		DELETE FROM ZIP_ITEM_OPTION WHERE ITEM_NUM = #{value}
+	</delete>
+	<!-- 매물 삭제 (파일) -->
+	<delete id="deleteItemFile" parameterType="long">
+		DELETE FROM ZIP_ITEM_FILE WHERE ITEM_NUM = #{value}
+	</delete>
+	
+	
+	<!-- 매물 한개 조회 -->
+	<select id="itemSelect" parameterType="long" resultType="com.example.demo.dto.Item">
+		SELECT NVL(A.ITEM_NUM, 0) AS ITEM_NUM,
+		       NVL(A.AGENT_ID, '') AS AGENT_ID,
+		       NVL(A.ITEM_NAME, '') AS ITEM_NAME,
+		       NVL(A.ITEM_ADDRESS, '') AS ITEM_ADDRESS,
+		       NVL(A.ITEM_ADDRESS_DETAIL, '') AS ITEM_ADDRESS_DETAIL,
+		       NVL(A.ITEM_PTYPE, '') AS ITEM_PTYPE,
+		       NVL(A.ITEM_ITYPE, '') AS ITEM_ITYPE,
+		       NVL(A.ITEM_STATUS, '') AS ITEM_STATUS,
+		       NVL(TO_CHAR(A.REG_DATE, 'YYYY/MM/DD HH24:MI'), '') AS REG_DATE,
+		       NVL(A.RECOMMEND_ITEM, '') AS RECOMMEND_ITEM,
+		       NVL(A.ITEM_COUNT, 0) AS ITEM_COUNT,
+		       NVL(D.ITEM_INTRO, '') AS ITEM_INTRO,
+		       NVL(D.ITEM_INTRO_DETAIL, '') AS ITEM_INTRO_DETAIL,
+		       NVL(D.ITEM_DEPOSIT, 0) AS ITEM_DEPOSIT,
+		       NVL(D.ITEM_MAINTAIN_PRICE, 0) AS ITEM_MAINTAIN_PRICE,
+		       NVL(D.ITEM_MONTH_PRICE, 0) AS ITEM_MONTH_PRICE,
+		       NVL(D.ITEM_AREA, 0) AS ITEM_AREA,
+		       NVL(D.ITEM_PARKING, '') AS ITEM_PARKING,
+		       NVL(TO_CHAR(TO_DATE(D.ITEM_BUILD_DATE, 'YYYYMMDD'),'YYYYMMDD'),'') AS ITEM_BUILD_DATE,
+		       NVL(D.ITEM_ELEVATOR, '') AS ITEM_ELEVATOR,
+		       NVL(D.ITEM_PET, '') AS ITEM_PET,
+		       NVL(D.ITEM_DIRECTION, '') AS ITEM_DIRECTION,
+		       NVL(D.ITEM_KIND, '') AS ITEM_KIND,
+		       NVL(D.ITEM_FLOOR, 0) AS ITEM_FLOOR,
+		       NVL(D.ITEM_MOVE_AVBL, '') AS ITEM_MOVE_AVBL,
+		       NVL(TO_CHAR(TO_DATE(D.ITEM_MOVE_DATE, 'YYYYMMDD'),'YYYYMMDD'),'') AS ITEM_MOVE_DATE
+		  FROM ZIP_ITEM A, ZIP_ITEM_DETAIL D
+		 WHERE 1 = 1
+		   AND A.ITEM_NUM = D.ITEM_NUM
+		   AND A.ITEM_NUM = #{value}
+	</select>
+	
+	<!-- 매물 수정 ITEM -->
+	<update id="itemUpdate" parameterType="com.example.demo.dto.Item" >
+		UPDATE ZIP_ITEM
+		   SET ITEM_NAME = #{itemName},
+		       ITEM_ADDRESS = #{itemAddress},
+		       ITEM_ADDRESS_DETAIL = #{itemAddressDetail},
+		       ITEM_PTYPE = #{itemPtype},
+		       ITEM_ITYPE = #{itemItype},
+		       ITEM_STATUS = #{itemStatus},
+		       RECOMMEND_ITEM = 'N'
+		 WHERE ITEM_NUM = #{itemNum}
+	</update>
+	
+	<!-- 매물 수정 ITEM_DETAIL -->
+	<update id="itemDetailUpdate" parameterType="com.example.demo.dto.ItemDetail">
+		UPDATE ZIP_ITEM_DETAIL
+		   SET ITEM_INTRO = #{itemIntro},
+		       ITEM_INTRO_DETAIL = #{itemIntroDetail},
+		       ITEM_DEPOSIT = #{itemDeposit},
+		       ITEM_MAINTAIN_PRICE = #{itemMaintainPrice},
+		       ITEM_MONTH_PRICE = #{itemMonthPrice},
+		       ITEM_AREA = #{itemArea},
+		       ITEM_PARKING = #{itemParking},
+		       ITEM_BUILD_DATE = #{itemBuildDate},
+		       ITEM_ELEVATOR = #{itemElevator},
+		       ITEM_PET = #{itemPet},
+		       ITEM_DIRECTION = #{itemDirection},
+		       ITEM_KIND = #{itemKind},
+		       ITEM_FLOOR = #{itemFloor},
+		       ITEM_MOVE_AVBL = #{itemMoveAvbl},
+		       ITEM_MOVE_DATE = #{itemMoveDate}
+		 WHERE ITEM_NUM = #{itemNum}
+	</update>
+	
+	<!-- 매물 수정 ITEM_OPTION -->
+	<update id="itemOptionUpdate" parameterType="com.example.demo.dto.ItemOption">
+		UPDATE ZIP_ITEM_OPTION
+		   SET SINK = #{sink},
+		       AIR = #{air},
+		       LAUNDRY = #{laundry},
+		       REFRIGERATOR = #{refrigerator},
+		       CLOSET = #{closet},
+		       GASRANGE = #{gasrange},
+		       INDUCTION = #{induction},
+		       MICRO = #{micro},
+		       DESK = #{desk},
+		       BED = #{bed},
+		       ENTRANCE = #{entrance},
+		       CAMERATV = #{cameratv},
+		       INTERCOM = #{intercom}
+		 WHERE ITEM_NUM = #{itemNum}
+	</update>
+	
+	
+	
+	
+	
+	<!-- ===================================================================== YH 끝 -->
+</mapper>

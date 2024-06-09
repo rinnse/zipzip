@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+		.board-Page-container {
+		   display: flex;
+		   position: relative;
+		   justify-content: center;
+		   align-items: center;
+		   min-height: 565px;
+		   width: 100%;
+		}
+		.board-container {
+		   display: flex;
+		   position: relative;
+		   justify-content: center;
+		   align-items: center;
+		   min-height: 500px;
+		   width:96%;
+		   border-radius: 10px;
+		   margin-bottom: 1.5%;
+		   background-color: #fffff;
+		    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08);
+		   margin-top:-8px;
+		}
+
+        .board-content-container {
+           background-color: #fff;      /*fafafa*/
+            display: flex;
+          position: relative;
+          justify-content: center;
+          align-items: center;
+          height: 50%;
+          width: 70%;
+          margin-top: 30px;
+          margin-bottom: 30px;
+          flex-direction: column;
+/*           box-shadow:  0px 0px 10px rgba(0, 0, 0, 0.2); /*  */ */
+        }
+        
+        .title-container {
+           margin-top:50px;
+           margin-bottom:30px;
+           font-size:35px;
+           font-weight:bold;
+           color:#3d3d3d;
+        }
+        
+        .form-container {
+           display: flex;
+           width:90%;
+           margin-top:10px;
+           flex-direction: column;
+          justify-content: center;
+        }        
+        .info-container {
+           display: flex;
+           width:100%;
+           margin-top:10px;
+           flex-direction: column;
+          justify-content: center;
+        }
+
+        .label-write {
+            font-weight: bold;
+            float:left;
+        }
+        
+      input:focus, input[type="number"]:focus {
+         border: 1px solid darkgreen;
+            outline: none;
+        }
+        .input-text {
+            width: 50%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .input-add {
+            width: 70%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;       
+        }
+        input[type="number"] {
+            width: 150px;
+            padding: 5px 7px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+/*             outline: none; */
+        }
+        
+        input[type="radio"]:checked + label {
+          font-weight: bold;
+          color: #5066a5; /* 선택된 라벨의 텍스트 색상 변경 */
+      }
+      input[type="radio"] + label {
+          margin-left:5px;
+          margin-right: 20px;
+      }
+     [type="radio"] {
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        box-shadow: 0 0 0 1px #ccc;
+        border-radius: 50%;
+      }
+      [type="radio"]:checked {
+        width: 15px;
+        height: 15px;
+        background-color: #5066a5;
+        box-shadow: 0 0 0 2px #5066a5;
+        border: 4px solid white;
+        border-radius: 50%;
+      }
+        
+        textarea{
+           display: flex;
+         border: 1px solid lightgray;
+         border-radius:3px;
+         outline:none;
+         padding:10px;
+         margin-top: 5px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+      }
+      textarea:focus{
+         border: 1px solid darkgreen;
+         outline:none;
+      }
+
+        .button-container {
+           width:90%;
+           margin-top:30px;
+           margin-bottom:30px;
+            text-align: right;
+            /* 버튼을 오른쪽으로 정렬 */
+        }
+
+        .submit-button {
+            background-color: gray;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        submit-button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .itemFile-button {
+           background-color:#fff;
+           color: darkgray;
+           border: 1px solid lightgray;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom:10px;
+        }
+        
+        hr{
+           width:100%;
+           border: 2px solid gray;
+        }
+        .stitle {
+           display:flex;
+           float:left;
+           font-weight: bold;
+           font-size:20px;
+           color:darkgreen;
+           margin-top:50px;
+        }
+        
+        th, td {
+            border: 1px solid lightgray;
+            padding: 8px;
+            text-align: center;
+        }
+        .td-title {
+           background-color:#fafafa;
+           width:150px;
+           border-left: none;
+           font-weight:bold;
+        }
+        .td-content {
+           text-align: left; /* 내용을 왼쪽 정렬 */
+           padding: 20px;
+           border-right: none;
+        }
+        .td-content-text {
+           margin-right:10px;
+        }
+        .td-content-price {
+           padding: 10px;
+            text-align: left; /* 내용을 왼쪽 정렬 */
+           border-right: none;
+        }
+        .td-content-labelInfo {
+           font-weight: bold;
+        }
+
+        /* 옵션 컨테이너 */
+        .option-container {
+            display: flex;
+            flex-wrap: wrap; /* 요소들이 넘칠 경우 자동으로 줄바꿈 */
+            justify-content: space-between; /* 요소들 사이의 간격을 균등하게 배치 */
+            width: 80%; 
+        }
+        /* 옵션 아이템 */
+        .option-item {
+            flex-basis: 23%; /* 요소의 초기 크기 설정 */
+            margin-bottom: 10px; 
+        }
+        
+        #fileView{
+           display: flex;
+         width: 100%;
+         min-height:150px;
+         margin-top:10px;
+         margin-bottom:30px;
+         padding:10px;
+         border:1px dotted darkgray;
+         border-radius:3px;
+      }
+      #fileView:empty:before{
+         content : attr(data-placeholder);
+         color : #999;
+         font-size:.9em;
+      }
+      #preview{
+          width: 100%;
+      }
+      #Preview li{
+          float:left
+      }
+      #preview li{
+         display: inline-flex;;
+         width:150px;
+         height:120px;
+         color:#fafafa;
+          margin: 10px;
+          position: relative;
+          border: 1px solid #ececec;
+          cursor:move;
+      }
+      
+      #curFileView{
+           display: flex;
+         width: 100%;
+         min-height:150px;
+         margin-top:10px;
+         padding:10px;
+         border:1px dotted darkgray;
+         border-radius:3px;
+      }
+      #curFileView:empty:before{
+         content : attr(data-placeholder);
+         color : #999;
+         font-size:.9em;
+      }
+      #curFileView{
+          width: 100%;
+      }
+      #curFileView li{
+          float:left
+      }
+      #curFileView li{
+         display: inline-flex;;
+         width:150px;
+         height:120px;
+         color:#fafafa;
+          margin: 10px;
+          position: relative;
+          border: 1px solid #ececec;
+          cursor:move;
+      }
+      .cur-img {
+         width:100%;
+         height:100%;
+      }
+      .delBtn{
+          position: absolute;
+          top: 0;
+          right: 0;
+          font-size: 13px;
+          background-color: #000;
+          color: #fff;
+          width: 18px;
+          height: 18px;
+          line-height: 16px;
+          display: inline-block;
+          text-align: center;
+          cursor: pointer;
+      }
+      
+      .itemMoveAvbl-container{
+         margin-left:30px;
+      }
+      .star{
+         margin-left:5px;
+         color:#1b52d1;
+         font-weight:bold;
+      }
+      .guide {
+          color:gray;
+          font-size:12px;
+      }
+      
+      #mapDiv{
+         width:300px;
+         height:250px;
+         border-radius:5px;
+         border:2px solid lightgray;
+      }
+
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+        <div style="height: 13vh;"></div>
+
+        <div class="board-Page-container">
+            <div class="board-container">
+                <!-- 게시판 전체 내용 div -->
+                <div class="board-content-container"> 
+                   <div class="title-container">💚 매물 수정 💚</div>
+                   
+                   <div style="color:gray">주소를 다르게 입력할 경우 허위매물로 신고될 수 있으니 꼭 동일하게 입력 바랍니다.</div>
+                   <div style="color:gray">전/월세/매매 매물만 등록할 수 있습니다.</div> 
+                   <div class="star">* <span style="color:black;">필수 입력 항목</span></div>
+               <!--등록한 매물은 30일 간 노출됩니다. -->
+
+<!--                     <label class="label-write" for="title">중개인 이름</label> -->
+<!--                     <input type="text" id="boardWriter" name="boardWriter"  readonly> th:value="${user.userId}" -->
+<form id="itemUpdateForm" name="itemUpdateForm" method="post" enctype='multipart/form-data' class="form-container" >                
+                   <div class="info-container">
+                      <label class="stitle">매물 정보 🔍</label> 
+                      <hr>
+                       
+                       <table>
+                      <tr>
+                          <td class="td-title">
+                             <div>매물 소개<span class="star">*</span></div>
+                          </td>
+                          <td class="td-content" colspan="3">
+                           <label for="itemNamer">매물 이름</label><br>
+                             <input type="text" id="itemName" name="itemName" maxlength="50" class="input-text" th:value="${item.itemName}">
+                             <div class="guide">최대 30글자까지만 입력 가능합니다.</div><br>
+                             
+                           <label for="itemIntro">매물 설명</label><br/>
+                             <textarea id="itemIntro" name="itemIntro" rows="3" cols="100" maxlength="100">[(${item.itemIntro})]</textarea>
+                             <div class="guide">최대 100글자까지만 입력 가능합니다.</div><br>
+                     
+                             <label for="itemIntroDetail">매물 상세 설명</label><br>
+                             <textarea id="itemIntroDetail" name="itemIntroDetail" rows="8" cols="100" >[(${item.itemIntroDetail})]</textarea><br>   
+                        </td>
+                      </tr>
+                      <tr>
+                          <td class="td-title">매물 유형<span class="star">*</span></td>
+                          <td class="td-content" colspan="3">
+                             <input type="radio" id="monthly" name="itemItype" value="O" th:checked="${item.itemItype eq 'O'}">
+                             <label for="monthly" style="margin-right:20px;">원룸</label>
+                             
+                             <input type="radio" id="twoRoom" name="itemItype" value="T" th:checked="${item.itemItype eq 'T'}">
+                             <label for="twoRoom" style="margin-right:20px;">투룸</label>
+                             
+                             <input type="radio" id="officetel" name="itemItype" value="F" th:checked="${item.itemItype eq 'F'}">
+                             <label for="officetel" style="margin-right:20px;">오피스텔</label>
+                             
+                             <input type="radio" id="apartment" name="itemItype" value="A" th:checked="${item.itemItype eq 'A'}">
+                             <label for="apartment" style="margin-right:20px;">아파트</label>
+                        </td>
+                      </tr>
+                      <tr>
+                          <td class="td-title">매물 크기<span class="star">*</span></td>
+                          <td class="td-content" colspan="3">
+                           면적 <input id="itemArea" name="itemArea" type="number" th:value="${item.itemArea}"> m²
+                        </td>
+                      </tr>
+                      <tr>
+                          <td class="td-title">매물 주소<span class="star">*</span></td>
+                          <td class="td-content" colspan="2">
+                             <div>주소</div>
+                             <input type="text" id="itemAddress" name="itemAddress" class="input-add" th:value="${item.itemAddress}" readonly> <!-- readonly -->
+                             <button type="button" id="btnSearch" class="submit-button">검색</button> <!-- onclick="fn_addressToMap()"  -->
+                             <div>
+                                <div>상세 주소</div>
+                                <input type="text" id="itemAddressDetail" name="itemAddressDetail" class="input-add" maxlength="45"  th:value="${item.itemAddressDetail}">
+                                <div>해당 층</div>
+                                <input type="number" id="itemFloor" name="itemFloor" th:value="${item.itemFloor}"> 층 (-1:반지하, 0:옥탑)
+                             </div>
+                        </td>
+                        
+                        <td class="td-content" style="border-left:none">
+                           <div id="mapDiv">지도</div>
+                        </td>
+                      </tr>
+                      <tr>
+                          <td class="td-title">준공 일자<span class="star">*</span></td>
+                          <td class="td-content" style="width:38%;">
+                             <input type="text" id="itemBuildDate" name="itemBuildDate" class="input-text" placeholder="YYYYMMDD"  th:value="${item.itemBuildDate}" readonly>
+                          </td>
+                          <td style="width:13%;font-weight:bold;">방향</td> 
+                          <td class="td-content">
+                             <input type="text" id="itemDirection" name="itemDirection" class="input-text" th:value="${item.itemDirection}">
+                             <span> ex) 남향, 남동향, 동향 등</span>
+                          </td>
+                      </tr>
+                      <tr>
+                          <td class="td-title">용도별 건축물의<br/> 종류 분류<span class="star">*</span></td>
+                          <td class="td-content" colspan="3">
+                             <input type="text" id="itemKind" name="itemKind" class="input-text" maxlength="40" th:value="${item.itemKind}">&nbsp; 
+                             ex. 단독주택, 다가구주택, 상가주택, 다세대주택, 아파트, 연립주택 등
+                          </td>
+                      </tr>
+                  </table>
+                    
+                    </div>
+                    
+                    
+                    <div class="info-container">
+                      <label class="stitle">거래 정보 💰</label>
+                      <hr>
+                  
+                  <table>
+                       <tr>
+                           <td class="td-title">거래 종류<span class="star">*</span></td>
+                           <td class="td-content">
+                               <input type="radio" id="sale" name="itemPtype" value="S" th:checked="${item.itemPtype eq 'S'}">
+                               <label for="sale">매매</label>
+                               
+                               <input type="radio" id="yearRent" name="itemPtype" value="Y" th:checked="${item.itemPtype eq 'Y'}">
+                               <label for="yearRent">전세</label>
+                               
+                               <input type="radio" id="monthlyRent" name="itemPtype" value="M" th:checked="${item.itemPtype eq 'M'}">
+                               <label for="monthlyRent">월세</label>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td class="td-title">가격 정보<span class="star">*</span></td>
+                           <td>
+                              <div class="td-content-price">
+                                 <span class="S-price">매매가 :</span>
+                                 <span class="Y-price" style="display:none;">전세 보증금 :</span>
+                                 <span class="M-price" style="display:none;">보증금 :</span>
+                                 <input type="number" id="itemDeposit" name="itemDeposit" style="margin-right:50px;" th:value="${item.itemDeposit}">
+                                 
+                                 <span class="M-price" style="display:none;">월세 :</span>
+                                 <input class="M-price" type="number" id="itemMonthPrice" name="itemMonthPrice" th:value="${item.itemMonthPrice}" style="margin-right:50px;" /> 
+                                 
+                                 <span class="td-content-text">관리비 :</span>
+                                 <input type="number" id="itemMaintainPrice" name="itemMaintainPrice" th:value="${item.itemMaintainPrice}">
+                                 <div class="guide">금액의 단위는 만원입니다. 정확히 확인 후 입력해주세요.</div>
+                              </div>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td class="td-title">입주 가능 일자<span class="star">*</span></td>
+                           <td class="td-content">
+                              <input type="text" id="itemMoveDate" name="itemMoveDate" placeholder="YYYYMMDD" class="input-text"  th:value="${item.itemMoveDate}" readonly >
+                            <span class="itemMoveAvbl-container">
+                                 <input type="checkbox" id="itemMoveAvbl" name="itemMoveAvbl" value="Y" th:checked="${item.itemMoveAvbl eq 'Y'}">
+                                 <label for="itemMoveAvbl">즉시입주 가능 여부</label>
+                             </span>
+                           </td>
+                       </tr>
+                   </table>
+                    </div>
+                    
+                    
+                     <div class="info-container">
+                      <label class="stitle">추가 정보 📝</label>
+                      <hr>
+                      
+                  <table>
+                     <tr>
+                           <td class="td-title">주차 가능 여부<span class="star">*</span></td>
+                           <td class="td-content">
+                               <input type="radio" id="parking_yes" name="itemParking" value="Y" th:checked="${item.itemParking eq 'Y'}">
+                               <label for="parking_yes">가능</label>
+                               
+                               <input type="radio" id="parking_no" name="itemParking" value="N" th:checked="${item.itemParking eq 'N'}">
+                               <label for="parking_no">불가능</label>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td class="td-title">엘리베이터 유무<span class="star">*</span></td>
+                           <td class="td-content">
+                               <input type="radio" id="elevator_yes" name="itemElevator" value="Y" th:checked="${item.itemElevator eq 'Y'}">
+                               <label for="elevator_yes">있음</label>
+                               
+                               <input type="radio" id="elevator_no" name="itemElevator" value="N" th:checked="${item.itemElevator eq 'N'}">
+                               <label for="elevator_no">없음</label>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td class="td-title">반려동물 허용 여부<span class="star">*</span></td>
+                           <td class="td-content">
+                               <input type="radio" id="pets_yes" name="itemPet" value="Y"  th:checked="${item.itemPet eq 'Y'}">
+                               <label for="pets_yes">허용</label>
+                               
+                               <input type="radio" id="pets_no" name="itemPet" value="N" th:checked="${item.itemPet eq 'N'}">
+                               <label for="pets_no">불가능</label>
+                           </td>
+                       </tr>
+                       <tr>
+                          <td class="td-title">옵션</td>
+                          <td class="td-content">
+                            <div class="option-container">
+                                <div class="option-item">
+                                    <input type="checkbox" id="sink" name="sink" value="Y" th:checked="${itemOption.sink eq 'Y'}">
+                                    <label for="sink">싱크대</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="air" name="air" value="Y" th:checked="${itemOption.air eq 'Y'}">
+                                    <label for="air">에어컨</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="laundry" name="laundry" value="Y" th:checked="${itemOption.laundry eq 'Y'}">
+                                    <label for="laundry">세탁기</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="refrigerator" name="refrigerator" value="Y" th:checked="${itemOption.refrigerator eq 'Y'}">
+                                    <label for="refrigerator">냉장고</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="closet" name="closet" value="Y" th:checked="${itemOption.closet eq 'Y'}">
+                                    <label for="closet">옷장</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="gasrange" name="gasrange" value="Y" th:checked="${itemOption.gasrange eq 'Y'}">
+                                    <label for="gasrange">가스레인지</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="induction" name="induction" value="Y" th:checked="${itemOption.induction eq 'Y'}">
+                                    <label for="induction">인덕션</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="micro" name="micro" value="Y" th:checked="${itemOption.micro eq 'Y'}">
+                                    <label for="micro">전자레인지</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="desk" name="desk" value="Y" th:checked="${itemOption.desk eq 'Y'}">
+                                    <label for="desk">책상</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="bed" name="bed" value="Y" th:checked="${itemOption.bed eq 'Y'}">
+                                    <label for="bed">침대</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="entrance" name="entrance" value="Y" th:checked="${itemOption.entrance eq 'Y'}">
+                                    <label for="entrance">공동현관</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="cameratv" name="cameratv" value="Y" th:checked="${itemOption.cameratv eq 'Y'}">
+                                    <label for="cameratv">CCTV</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="intercom" name="intercom" value="Y" th:checked="${itemOption.intercom eq 'Y'}">
+                                    <label for="intercom">인터폰</label>
+                                </div>
+                            </div>
+                            <div class="guide">옵션을 선택하지 않을 경우 해당 옵션은 등록되지 않습니다.</div>
+                          </td>
+                       </tr>
+                   </table>
+
+                 
+                    </div>
+               
+                    <div class="info-container">
+                      <label class="stitle">사진 등록</label>
+                      <hr>
+                      
+                      <table>
+                       <tr>
+                           <td class="td-title">사진 등록<span class="star">*</span></td>
+                           <td class="td-content">
+                              <input type='file' id='filePlus' name="filePlus" multiple='multiple' accept=".jpg, .png" class="itemFile-button"/>
+                              <div>- 변경될 사진 목록</div>
+                              <div id='fileView'>
+                                 <ul id="preview" class="sortable">
+                                 </ul>   
+                              </div>
+                              <div>- 현재 등록된 사진 목록</div>
+                              <div id='curFileView'>
+                                 <ul id="curPreview" class="sortable">
+                                    <th:block th:if="${itemFile != null}" th:each="item : ${itemFile}">
+                                    <li>
+                                       <img class="cur-img" th:src="@{'/resources/upload/item/' + ${item.fileName}}" />
+                                    </li>
+                                    </th:block>
+                                 </ul>   
+                              </div>
+                           </td>
+                       </tr>
+                   </table>
+               </div>
+<input type="hidden" id="itemNum" name="itemNum" th:value="${itemNum}" />
+</form>                  
+
+                    <div class="button-container">
+                       <button class="submit-button" id="btnBack">매물목록가기</button>
+                        <button class="submit-button" id="btnWrite">수정하기</button>
+                    </div>
+                </div>
+                <!-- 게시판 전체 내용 div 끝 -->
+            </div>
+        </div>
+
+        <!-- 본문 끝 -->
+
+        <!-- 푸터 시작 -->
+        <footer th:replace="/common/footer :: footer"></footer>
+        <!-- 푸터 끝 -->
+
+        <!-- 개별 js -->
+      <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+       <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+       <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+       <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+      <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=726dfc318a4b673936280508718242cf&libraries=services"></script>
+        <script type="text/javascript">
+      
+        $(document).ready(function() {
+           //alert("스크립트 시작");
+           
+           //agent null일시 돌아가기 (itemNum 이 0일때도)
+           
+           displayInitialAddress();
+           
+           //로딩시 가격정보 설정
+           $('.S-price, .Y-price, .M-price').hide();
+           if('[[${item.itemPtype}]]' == 'M'){
+              $('.M-price').show();
+           }else if('[[${item.itemPtype}]]' == 'Y'){
+              $('.Y-price').show();
+           }else if('[[${item.itemPtype}]]' == 'S'){
+              $('.S-price').show();
+           }else{
+              $('.S-price, .Y-price, .M-price').hide();
+           }
+           
+           $("#itemMoveDate").val('[[${item.itemMoveDate}]]');   
+           console.log('[[${item.itemMoveDate}]]');
+           
+           //준공일자
+           $("#itemBuildDate").datepicker({   //$("#itemBuildDate").datepicker();
+              dateFormat: "yymmdd",         //버전별 format으로 해야 적용되는 경우 있음
+              monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+              dayNamesMin: ['월', '화', '수', '목', '금', '토', '일'],
+              yearSuffix: "년",
+              showMonthAfterYear: true,
+              changeMonth: true,
+              changeYear: true,
+              showButtonPanel: true,
+              showAnim: "slide"
+           }).on('dp.change',function(e){
+              $("#itemBuildDate").val(e.data.format("yymmdd"));
+           });
+           
+           //입주가능일자 itemMoveDate
+           $("#itemMoveDate").datepicker({   
+              dateFormat: "yymmdd",
+                monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+                 dayNamesMin: ['월', '화', '수', '목', '금', '토', '일'],
+                 yearSuffix: "년",
+                 showMonthAfterYear: true,
+                 changeMonth: true,
+                 changeYear: true,
+                 showButtonPanel: true,
+                 showAnim: "slide"
+           }).on('dp.change',function(e){
+              $("#itemMoveDate").val(e.data.format("yymmdd"));
+           });
+           
+           //거래 유형에 따른 금액 화면 변경 jQuery
+            $('input[name="itemPtype"]').change(function() {
+               $("#itemDeposit").val('');
+               $('#itemMonthPrice').val('');
+               $('#itemMaintainPrice').val('');
+               
+                var selectedPtype = $(this).val();
+                cngPriceSection(selectedPtype);
+            });
+            function cngPriceSection(selectedPtype) {
+                $('.S-price, .Y-price, .M-price').hide();
+                if (selectedPtype === 'S') {
+                    $('.S-price').show();
+                } else if (selectedPtype === 'Y') {
+                    $('.Y-price').show();
+                } else if (selectedPtype === 'M') {
+                    $('.M-price').show();
+                    $('#itemMonthPrice').show();
+                }
+            }
+            
+            //검색
+            $("#btnSearch").on("click", function(){
+               fn_addressToMap();
+            });
+           
+           //목록으로
+           $("#btnBack").on("click", function(){
+              if(confirm("수정 중인 매물 정보는 저장되지 않습니다. \n매물 목록으로 이동하시겠습니까?"))
+              location.href = "/agent/itemList";
+           });
+           
+           
+           
+           //등록하기 버튼
+           $('#btnWrite').on('click', function(){
+              console.log($("#itemDeposit").val());
+              
+                var isOk = true;
+                var msg = "입력하지 않은 필수 항목이 있습니다.\n누락된 항목을 확인하고, 등록 버튼을 눌러주세요.\n\n** 누락된 필수 항목 **\n";
+
+                if (!$('#itemName').val().trim()) {
+                   isOk = false;
+                   msg += '- 매물 이름\n';
+                }
+                if (!$('#itemIntro').val().trim()) {
+                   isOk = false;
+                   msg += '- 매물 소개\n';
+                }
+                if (!$('#itemIntroDetail').val().trim()) {
+                   isOk = false;
+                   msg += '- 매물 소개 상세\n';
+                }
+                if (!$('input[name="itemItype"]:checked').val()) {
+                   isOk = false;
+                   msg += '- 매물 유형\n';
+                }
+                if (!$('#itemArea').val().trim() || isNaN($('#itemArea').val().trim()) || $('#itemArea').val().trim() <= 0) {
+                   isOk = false;
+                    msg += '- 매물 크기(숫자만 입력 가능)\n';
+                }
+                if (!$('#itemAddress').val().trim()) {
+                   isOk = false;
+                    msg += '- 매물 주소\n';
+                }
+                if (!$('#itemAddressDetail').val().trim()) {
+                   isOk = false;
+                    msg += '- 매물 주소 상세\n';
+                }
+                if (!$('#itemFloor').val().trim() || isNaN($('#itemFloor').val().trim()) || $('#itemArea').val().trim() <= 0) {
+                   isOk = false;
+                    msg += '- 매물 해당 층 수 (숫자만 입력 가능)\n';
+                }
+                // 준공 일자 체크
+                var itemBuildDate = $('#itemBuildDate').val().trim();
+                var datePattern = /^\d{4}\d{2}\d{2}$/;
+                if (!itemBuildDate || !datePattern.test(itemBuildDate)) {
+                   isOk = false;
+                    msg += '- 준공 일자 (형식:YYYYMMDD)\n';
+                }
+                if (!$('#itemDirection').val().trim()) {
+                   isOk = false;
+                    msg += '- 뱡향\n';
+                }
+                if (!$('#itemKind').val().trim()) {
+                   isOk = false;
+                    msg += '- 용도별 건축물의 종류 분류\n';
+                }
+            
+                // 거래 정보 유효성 (추가-월세일 경우 월세도 체크)
+                var itemDeposit = $('#itemDeposit').val().trim();
+                if (!itemDeposit || isNaN(itemDeposit) || itemDeposit <= 0) {
+                   isOk = false;
+                   msg += '- 매매가/보증금 (단위:만원)\n';
+                }
+                var itemMonthPrice = $('#itemMonthPrice').val().trim();
+                if($('#monthlyRent').prop('checked')){
+                   if(!itemMonthPrice || isNaN(itemMonthPrice) || itemMonthPrice <= 0){
+                      isOk = false;
+                      msg += '- 월세 (단위:만원)\n';                      
+                   }
+                }
+                
+                var itemMaintainPrice = $('#itemMaintainPrice').val().trim();
+                if (!itemMaintainPrice || isNaN(itemMaintainPrice) || itemMaintainPrice <= 0) {
+                   isOk = false;
+                   msg += '- 관리비 (단위:만원)\n';
+                }
+                
+                var moveDate = $('#itemMoveDate').val().trim();
+                var datePattern = /^\d{4}\d{2}\d{2}$/;
+                if (!moveDate || !datePattern.test(moveDate)) {
+                   isOk = false;
+                    msg += '- 입주 가능 일자 (형식 : YYYYMMDD)\n';
+                }
+                
+                // 추가 정보 유효성
+                if (!$('input[name="itemParking"]:checked').val()) {
+                   isOk = false;
+                    msg += '- 주차 가능 여부\n';
+                }
+                if (!$('input[name="itemElevator"]:checked').val()) {
+                   isOk = false;
+                    msg += '- 엘리베이터 유무\n';
+                }
+                if (!$('input[name="itemPet"]:checked').val()) {
+                   isOk = false;
+                    msg += '- 반려동물 허용 여부\n';
+                }
+              
+
+              
+                // 에러 메시지 표시 및 폼 제출 중지
+                if (!isOk) {
+                    alert(msg);
+                    event.preventDefault();
+                    return;
+                }
+                
+                   
+              fn_itemRegProc();
+           });
+
+        });
+        
+
+      // 지도
+       var mapContainer = document.getElementById('mapDiv'),
+           mapOption = {
+               center: new daum.maps.LatLng(37.537187, 127.005476), 
+               level: 5 
+           };
+   
+       //지도 생성
+       var map = new daum.maps.Map(mapContainer, mapOption);
+       //주소-좌표 변환 객체
+       var geocoder = new daum.maps.services.Geocoder();
+       //마커 생성
+       var marker = new daum.maps.Marker({
+           //position: new daum.maps.LatLng(37.537187, 127.005476),
+           map: map
+       });
+       //기존 주소
+       var initialAddress = '[[${item.itemAddress}]]';
+       
+       // 기존마커찍기
+       function displayInitialAddress() {
+           if (initialAddress) {
+               geocoder.addressSearch(initialAddress, function(results, status) {
+                   if (status === daum.maps.services.Status.OK) {
+                       var result = results[0];
+                       var coords = new daum.maps.LatLng(result.y, result.x);
+                       
+                       mapContainer.style.display = "block";
+                       map.relayout();
+                       map.setCenter(coords);
+                       marker.setPosition(coords);
+                       
+                       map.setDraggable(false);
+                       map.setZoomable(false);
+                   }
+               });
+           }
+       }
+       
+       // 주소검색후 지도에 마커 찍기
+       function fn_addressToMap() {
+           
+           new daum.Postcode({
+               oncomplete: function(data) {
+                   var addr = data.address; // 최종 주소 변수
+                   
+                   document.getElementById("itemAddress").value = addr;   //if (addr !== initialAddress)
+                    // 주소로 검색
+                    geocoder.addressSearch(data.address, function(results, status) {
+                        if (status === daum.maps.services.Status.OK) {
+                            
+                            var result = results[0];
+                            var coords = new daum.maps.LatLng(result.y, result.x);
+                            
+                            mapContainer.style.display = "block";
+                            map.relayout();
+                            map.setCenter(coords);
+                            marker.setPosition(coords)
+                            
+                            map.setDraggable(false);
+                            map.setZoomable(false);
+                        }
+                    });
+               }
+           }).open();
+       }   
+
+
+      // 매물 등록 ajax     
+        function fn_itemRegProc(){
+           
+          var form = $("#itemUpdateForm")[0];
+          var itemUpdateFormData = new FormData(form);
+           
+           $.ajax({
+              type:"POST",
+              enctype: 'multipart/form-data',
+              processData: false,
+              contentType: false,
+                url:"/agent/itemUpdateProc",
+                data:itemUpdateFormData,
+                datatype:"JSON",
+                cache:false,
+                beforeSend:function(xhr){
+                   console.log($("#itemDeposit").val());
+                   xhr.setRequestHeader("AJAX", "true");
+                },
+                success:function(res){
+                   if(res == 200){
+                      alert("매물이 수정되었습니다.");
+                      location.href = "/agent/itemList";   
+                   }
+                   else if(res == 400){
+                      alert("값이 올바르지 않습니다.");
+                      $("#boardTitle").focus();
+                      $("#btnUpdate").prop("disabled", false);
+                   }
+                   else{
+                      alert("매물 수정 중 오류가 발생하였습니다.");
+                      $("#boardTitle").focus();
+                      $("#btnUpdate").prop("disabled", false);
+                   }
+                },
+                error:function(error){
+                   alert("매물 수정 중 예상치 못한 오류가 발생하였습니다.");
+                   $("#btnUpdate").prop("disabled", false);
+                }
+           });
+        }
+
+        $("#filePlus").change(function(e){
+             $('#preview').empty();
+             console.log("00000");
+             var files = e.target.files;
+             var arr = Array.prototype.slice.call(files);
+             
+             arr.forEach(function(file) {
+                  console.log("File Name: " + file.name);
+                  console.log("File Size: " + file.size + " bytes");
+                  console.log("File Type: " + file.type);
+              });
+             
+             fn_preview(arr);
+             console.log("11111");
+             
+         function fn_preview(arr){
+                arr.forEach(function(f){
+                   
+                   var str = '<li>';
+                   
+                   if(f.type.match('image.*')){
+                      var reader = new FileReader();
+                      reader.onload = function(e){
+                         str += '<img src="'+e.target.result+'" title="'+f.name+'" width=150 height=120>';
+                         //str += '<span class="delBtn" onclick="fn_delImg(this)">x</span>';
+                         str += '</li>';
+                         $(str).appendTo('#preview');
+                      }
+                      reader.readAsDataURL(f);
+                   }else{
+                      alert("미리보기에 실패하였습니다.");
+                   }
+                   
+                });
+             }
+             
+          });
+        
+
+
+        </script>
+</body>
+
+</html>

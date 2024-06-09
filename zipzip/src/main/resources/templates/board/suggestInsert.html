@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		section .container {
+        	width: 60%;
+        }
+        
+		textarea {
+			resize: none;
+		}
+
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+	<section style="min-height: 565px;">
+		<div class="container p-5">
+			<div class="d-flex row align-items-center justify-content-center h-100">
+				<form action="/board/suggestInsert" method="POST">
+
+					<div>
+						<input type="text" class="form-control mb-3" id="suggestTitle" name="suggestTitle" placeholder="제목" required>
+					</div>
+					<div>
+						<input type="text" class="form-control mb-3" id="userId" name="userId" th:value="${#authentication.name}" readonly>
+					</div>
+					<div>
+						<textarea class="form-control mb-3 p-3" cols="20" rows="20" id="suggestContent" name="suggestContent" placeholder="내용"></textarea>
+					</div>
+					<div>
+						<input type="submit" value="저장">
+						<input type="button" id="btnList" name="btnList" value="목록">
+					</div>
+				</form>
+			</div>
+		</div>
+	</section>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#btnList").on("click", function () {
+				location.href = "/board/suggest";
+			});
+		});
+	</script>
+</body>
+
+</html>

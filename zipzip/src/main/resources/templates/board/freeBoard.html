@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+   <!-- 헤더 시작 -->
+   <div th:replace="/common/header :: header"></div>
+   <!-- 헤더 끝 -->
+
+   <!-- 개별 css -->
+   <style type="text/css">
+      .board-Page-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 565px;
+         width: 100%;
+      }
+      .board-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 500px;
+         width:96%;
+         border-radius: 10px;
+         margin-bottom: 1.5%;
+         background-color: #fffff;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+         margin-top:-8px;
+      }
+      .board-content-container {
+         display: flex;
+         position: relative;
+         min-height: 450px;
+         width: 70%;
+         margin-top: 30px;
+         margin-bottom: 30px;
+         padding: 2% 0%;
+         flex-direction: column;
+
+      }
+      .board-head {
+         display: flex;
+         position: relative;
+         justify-content: space-between;
+         align-items: center;
+         width: 90%;
+         margin: auto;
+         margin-bottom: 0px;
+         margin-top: 0px;
+      }
+      .board-head-name {
+         font-size: 32px;
+         font-weight:1000;
+         margin-top: 16px;
+         margin-bottom: 16px;
+         margin-left: 1%;
+         margin-right: auto;
+         cursor: pointer;
+         color:#666666;
+      }
+      .board-head-align {
+         display: flex;
+         align-items: center;
+         /* 세로로 중앙 정렬 */
+         margin-right: 20px;
+      }
+
+      .board-head-align-new {
+         cursor: pointer;
+         margin-right: 10px;
+      }
+
+      .board-head-align-new2 {
+         cursor: pointer;
+      }
+
+      .button-write-container {
+         display: flex;
+         height: 100%;
+         align-items: center;
+         /* 세로 중앙 정렬 */
+         justify-content: flex-end;
+         /* 가로 오른쪽 정렬 */
+      }
+
+      .button-write {
+         padding: 8px 16px;
+         background-color: gray;
+         color: #fff;
+         border: none;
+         border-radius: 5px;
+         font-size: 14px;
+         cursor: pointer;
+         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+         transition: background-color 0.3s ease;
+      }
+      .button-write:hover {
+         background-color: #555;
+         transform: translateY(-2px);
+         cursor: pointer;
+      }
+
+      .board-bottom {
+         display: flex;
+         position: relative;
+         justify-content: space-between;
+         align-items: center;
+         width: 90%;
+         margin: auto;
+         margin-top: 20px;
+         margin-bottom: 30px;
+      }
+
+      .board-input-container {
+         display: flex;
+         height: 100%;
+         width: 50%;
+         align-items: center;
+         justify-content: flex-start;
+      }
+
+      .board-select {
+         background-color: #ffffff;
+         border: 1px solid gray;
+         border-radius: 5px;
+         margin-right: 10px;
+         height: 30px;
+         padding: 3px 10px;
+         font-size: 12px;
+         color: #333333;
+         &:hover {
+            background-color: #fafafa;
+         }
+      }
+
+      .board-input {
+         display: flex;
+         location: relative;
+         height: 30px;
+         width: 60%;
+         border-radius: 5px;
+         border: 1.5px solid gray;
+         outline: none;
+         padding: 5px;
+         margin-right: 10px;
+         font-size: 12px;
+      }
+
+      .search-button {
+         background-color: gray;
+         color: #fff;
+         border: none;
+         border-radius: 5px;
+         height: 30px;
+         width: 70px;
+         font-size: 12px;
+         cursor: pointer;
+         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+         transition: background-color 0.3s ease;
+      }
+
+      .search-button:hover {
+         background-color: #555;
+         transform: translateY(-2px);
+         cursor: pointer;
+      }
+
+      .board-paging-container {}
+
+      /* ----- 페이징 ----- */
+      .page_wrap {
+         text-align: center;
+         font-size: 0;
+      }
+
+      .page_nation {
+         display: inline-block;
+      }
+
+      .page_nation .none {
+         display: none;
+      }
+
+      .page_nation a {
+         display: block;
+         margin: 0 3px;
+         float: left;
+         border: 1px solid #e6e6e6;
+         width: 28px;
+         height: 28px;
+         line-height: 28px;
+         text-align: center;
+         background-color: #fff;
+         font-size: 13px;
+         color: #999999;
+         text-decoration: none;
+      }
+
+      .page_nation .arrow {
+         border: 1px solid #ccc;
+      }
+
+      .page_nation .pprev {
+         background: #f8f8f8 url('img/page_pprev.png') no-repeat center center;
+         margin-left: 0;
+      }
+
+      .page_nation .prev {
+         background: #f8f8f8 url('img/page_prev.png') no-repeat center center;
+         margin-right: 7px;
+      }
+
+      .page_nation .next {
+         background: #f8f8f8 url('img/page_next.png') no-repeat center center;
+         margin-left: 7px;
+      }
+
+      .page_nation .nnext {
+         background: #f8f8f8 url('img/page_nnext.png') no-repeat center center;
+         margin-right: 0;
+      }
+
+      .page_nation a.active {
+         background-color: #42454c;
+         color: #fff;
+         border: 1px solid #42454c;
+      }
+
+
+
+      /*========================테이블css======================*/
+
+      table {
+         border: 1px #a39485 solid;
+         font-size: .9em;
+         border: none;
+         /* 테두리 없애기 */
+         width: 100%;
+         border-collapse: collapse;
+         overflow: hidden;
+         font-size: 14px;
+         width: 90%;
+         margin: auto;
+      }
+
+      thead {
+         /*   font-weight: bold; */
+         /*   color: #fff; */
+         background: lightgray;
+      }
+
+      td,
+      th {
+         padding: 0.5em .0.5em;
+         vertical-align: middle;
+      }
+
+      th {
+         border-right: 1px solid #fff;
+         height: 80%;
+
+      }
+
+      td {
+         border-bottom: 1px solid rgba(0, 0, 0, .1);
+      }
+
+      tr:hover {
+         background-color: rgba(0, 0, 0, 0.1);
+         /* 호버 시 배경색 변경 */
+      }
+
+      .td-num {
+         font-size: 12px;
+         color: gray;
+      }
+
+      .td-text {
+         text-align: left;
+         padding-left: 15px;
+         padding-right: 15px;
+      }
+      .td-text-content {
+         text-align: left;
+         padding-left: 15px;
+         padding-right: 15px;
+         width: 200px; /* 제목을 표시할 최대 너비 */
+          white-space: nowrap; /* 텍스트가 한 줄로만 표시되도록 설정 */
+          overflow: hidden; /* 넘치는 부분은 숨김 처리 */
+          text-overflow: ellipsis; /* 넘치는 부분은 ... 으로 대체 */
+      }
+   </style>
+</head>
+
+<body>
+   <!-- 네비 시작 -->
+   <div th:replace="/common/nav :: nav"></div>
+   <!-- 네비 끝 -->
+
+   <!-- 본문 시작 -->
+   <div style="height: 13vh;"></div>
+
+   <div class="board-Page-container">
+      <div class="board-container">
+         <!-- 게시판 전체 내용 div -->
+         <div class="board-content-container">
+
+            <!-- head(검색창 등) -->
+            <div class="board-head">
+               <a class="board-head-name" href="/board/freeBoard">&#127795;커뮤니티&#127795;</a>
+               <div class="board-head-align">
+                  <span class="board-head-align-new"
+                     th:onclick="'fn_pageClick(' + ${curPage} + ',' + 2 + ')'">인기순🐷</span>
+                  <!--                   <span class="board-head-align-new" >추천순</span> -->
+                  <span class="board-head-align-new2"
+                     th:onclick="'fn_pageClick(' + ${curPage} + ',' + 1 + ')'">최신순🐤</span>
+               </div>
+               <div class="button-write-container">
+                  <button id="btnWrite" class="button-write">글쓰기 💭</button>
+               </div>
+            </div>
+
+            <!-- 테이블 내용 -->
+            <div style="text-align: center; position:relative; margin-top:0%;">
+               <table>
+                  <thead>
+                     <tr>
+                        <th style="width:60px;">번호</th>
+                        <th style="width:60px;">글쓴이</th>
+                        <th style="width:270px;">제목</th>
+                        <th style="width:80px;">등록일</th>
+                        <th style="width:50px;">추천</th>
+                        <th style="width:50px;">조회</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <tr th:if="${list != null}" th:each="list : ${list}">
+                        <td th:text="${list.communityNum}" class="td-num">글번호값</td>
+                        <td th:text="${list.userId} != null ? ${list.userId} : ${list.agentId}" class="td-text">작성자값</td>
+                        <td class="td-text-content" th:onclick="'fn_view(' + ${list.communityNum} + ')'" style="cursor:pointer;">
+                            <span th:text="${list.communityTitle != null && #strings.length(list.communityTitle) >= 35 ? #strings.substring(list.communityTitle, 0, 35) + '...' : list.communityTitle}">글제목값</span>
+                           <span th:if="${list.commentCnt > 0}" th:text="'(' + ${list.commentCnt} + ')'" style="font-weight:bold; font-size:12px; color:darkgreen;"></span>
+                        </td>
+                        <td th:text="${list.regDate}" class="td-num">작성일값</td>
+                        <td th:text="${list.likeCnt}" class="td-num">추천수값</td>
+                        <td th:text="${list.readCnt}" class="td-num">조회수값</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+
+            <!-- bottom -->
+            <div class="board-bottom">
+               <div class="board-input-container">
+                  <select id="searchSelect" name="searchSelect" class="board-select">
+                     <option value="all" th:selected="${searchType} == 'all'">통합검색</option>
+                     <option value="title" th:selected="${searchType} == 'title'">제목</option>
+                     <option value="content" th:selected="${searchType} == 'content'">내용</option>
+                     <option value="author" th:selected="${searchType} == 'author'">작성자</option>
+                  </select>
+                  <input id="searchInput" class="board-input" type="text" th:value="${searchValue}">
+                  <button class="search-button" id="btnSearch">검색 &#128269;</button>
+               </div>
+
+               <div class="board-paging-container">
+                  <div class="page_wrap">
+                     <div class="page_nation" th:if="${paging != null}">
+                        <th:block th:if="${paging.prevBlockPage gt 0}">
+                           <a class="" href="#" th:onclick="'fn_pageClick(' + 1 + ',' + ${sort} + ')'"><<</a>
+                           <a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.prevBlockPage} + ',' + ${sort} + ')'"><</a>
+                        </th:block>
+                        <th:block th:each="i: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+                           <a class="active" th:if="${i == paging.curPage}" th:text="${i}">1</a>
+                           <a href="#" th:if="${i != paging.curPage}" th:text="${i}" th:onclick="'fn_pageClick(' + ${i} + ',' + ${sort} + ')'">2</a>
+                        </th:block>
+                        <th:block th:if="${paging.nextBlockPage gt 0}">
+                           <a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.nextBlockPage} + ',' + ${sort} + ')'">></a>
+<!--                            <a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.lastPage} + ',' + ${sort} + ')'">>></a> -->
+                        </th:block>
+                     </div>
+                  </div>
+                  <form id="searchForm" name="searchForm" method="post">
+                     <input type="hidden" id="communityNum" name="communityNum" value="${communityNum}" />
+                     <input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+                     <input type="hidden" id="searchType" name="searchType" th:value="${searchType}" />
+                     <input type="hidden" id="searchValue" name="searchValue" th:value="${searchValue}" />
+                     <input type="hidden" id="sort" name="sort" th:value="${sort}" />
+                  </form>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </div>
+   <!-- 본문 끝 -->
+
+   <!-- 푸터 시작 -->
+   <footer th:replace="/common/footer :: footer"></footer>
+   <!-- 푸터 끝 -->
+
+   <!-- 개별 js -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script type="text/javascript">
+      $(document).ready(function () {
+
+         //    alert($("#curPage").val());
+         //    alert("처음" + document.searchForm.curPage.value);
+
+         $("#btnWrite").on("click", function () {
+            
+             if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+                alert("글을 작성하려면 회원 로그인이 필요합니다. ");
+                return;
+             }
+
+            document.searchForm.curPage.value = "1";
+            document.searchForm.action = "/board/freeBoardWrite";
+            document.searchForm.submit();
+
+         }); btnSearch
+
+         //검색버튼 클릭시
+         $("#btnSearch").on("click", function () {
+
+            document.searchForm.searchType.value = $("#searchSelect").val();
+            document.searchForm.searchValue.value = $("#searchInput").val();
+            document.searchForm.curPage.value = "1";
+            document.searchForm.action = "/board/freeBoard";
+            document.searchForm.submit();
+
+         })
+      });
+      
+      function fn_pageClick(curPage, sort) {
+         document.searchForm.curPage.value = curPage;
+         document.searchForm.sort.value = sort;
+         document.searchForm.action = "/board/freeBoard";
+         document.searchForm.submit();
+      }
+      
+      //상세페이지
+      function fn_view(communityNum) {
+         document.searchForm.communityNum.value = communityNum;
+         document.searchForm.action = "/board/freeBoardDetail?communityNum=" + communityNum;
+         document.searchForm.submit();
+      }
+   </script>
+</body>
+
+</html>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Event">
+
+	<insert id="insert" parameterType="com.example.demo.dto.Event">
+		<selectKey resultType="long" keyProperty="eventNum" order="BEFORE">
+			SELECT ZIP_EVENT_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+			INSERT INTO ZIP_EVENT (
+			    EVENT_NUM,
+			    USER_ID,
+			    EVENT_TITLE,
+			    EVENT_CONTENT,
+			    FILE_ORG,
+			    FILE_NAME,
+			    REG_DATE,
+			    EVENT_HIT
+			) VALUES (
+			    #{eventNum},
+			    #{userId},
+			    #{eventTitle},
+			    #{eventContent},
+			    #{fileOrg},
+			    #{fileName},
+			    SYSDATE,
+			    0
+			)
+	</insert>
+	
+	<select id="selectList" resultType="com.example.demo.dto.Event">
+		SELECT EVENT_NUM,
+		    USER_ID,
+		    EVENT_TITLE,
+		    EVENT_CONTENT,
+		    FILE_ORG,
+			FILE_NAME,
+		    REG_DATE,
+		    EVENT_HIT
+		FROM (SELECT ROWNUM RNUM,
+		            EVENT_NUM,
+		            USER_ID,
+		            EVENT_TITLE,
+		            EVENT_CONTENT,
+		            FILE_ORG,
+			    	FILE_NAME,
+		            REG_DATE,
+		            EVENT_HIT
+		        FROM (SELECT EVENT_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(EVENT_TITLE, '') EVENT_TITLE,
+		                    NVL(EVENT_CONTENT, '') EVENT_CONTENT,
+		                    NVL(FILE_ORG, '') FILE_ORG,
+                   			NVL(FILE_NAME, '') FILE_NAME,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(EVENT_HIT, 0) EVENT_HIT
+		                FROM ZIP_EVENT
+		                WHERE 1=1
+		                ORDER BY EVENT_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> 1
+		AND RNUM <![CDATA[<=]]> 3
+	</select>
+	
+	<select id="selectAll" resultType="com.example.demo.dto.Event">
+		SELECT EVENT_NUM,
+		    USER_ID,
+		    EVENT_TITLE,
+		    EVENT_CONTENT,
+		    FILE_ORG,
+			FILE_NAME,
+		    REG_DATE,
+		    EVENT_HIT
+		FROM (SELECT ROWNUM RNUM,
+		            EVENT_NUM,
+		            USER_ID,
+		            EVENT_TITLE,
+		            EVENT_CONTENT,
+		            FILE_ORG,
+			    	FILE_NAME,
+		            REG_DATE,
+		            EVENT_HIT
+		        FROM (SELECT EVENT_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(EVENT_TITLE, '') EVENT_TITLE,
+		                    NVL(EVENT_CONTENT, '') EVENT_CONTENT,
+		                    NVL(FILE_ORG, '') FILE_ORG,
+                   			NVL(FILE_NAME, '') FILE_NAME,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(EVENT_HIT, 0) EVENT_HIT
+		                FROM ZIP_EVENT
+		                WHERE 1=1
+		             	<if test='searchValue != null and searchValue != "" '>
+		                AND EVENT_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(EVENT_CONTENT, #{searchValue}) > 0
+		                </if>
+		                ORDER BY EVENT_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<select id="listCnt" parameterType="com.example.demo.dto.Event" resultType="long">
+		SELECT COUNT(*) CNT
+		FROM ZIP_EVENT
+		WHERE 1=1
+		<if test='searchValue != null and searchValue != "" '>
+		AND EVENT_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(EVENT_CONTENT, #{searchValue}) > 0
+		</if>
+	</select>
+
+	<update id="updateHit" parameterType="long">
+		UPDATE ZIP_EVENT
+		SET EVENT_HIT = EVENT_HIT + 1
+		WHERE EVENT_NUM = #{eventNum}
+	</update>
+	
+	<select id="selectOne" parameterType="long" resultType="com.example.demo.dto.Event">
+		SELECT EVENT_NUM,
+		    NVL(USER_ID, '') USER_ID,
+            NVL(EVENT_TITLE, '') EVENT_TITLE,
+            NVL(EVENT_CONTENT, '') EVENT_CONTENT,
+            NVL(FILE_ORG, '') FILE_ORG,
+   			NVL(FILE_NAME, '') FILE_NAME,
+            NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+            NVL(EVENT_HIT, 0) EVENT_HIT
+		FROM ZIP_EVENT
+		WHERE EVENT_NUM = #{eventNum}
+	</select>
+	
+	<update id="update">
+		UPDATE ZIP_EVENT
+		<if test='fileOrg != null'>
+		SET EVENT_TITLE = #{eventTitle},
+			EVENT_CONTENT = #{eventContent},
+			FILE_ORG = #{fileOrg},
+			FILE_NAME = #{fileName}
+		</if>
+		<if test='fileOrg == null'>
+		SET EVENT_TITLE = #{eventTitle},
+			EVENT_CONTENT = #{eventContent}
+		</if>
+		WHERE EVENT_NUM = #{eventNum}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM ZIP_EVENT
+		WHERE EVENT_NUM = #{eventNum}
+	</delete>
+	
+</mapper>

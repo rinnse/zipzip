@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		section .container {
+        	width: 100%;
+        }
+        
+		ul {
+			margin-bottom: 0;
+		}
+
+		li {
+			list-style: none;
+		}
+		
+		p {
+			margin-bottom: 0;
+		}
+		.ib {
+			display: inline-block;
+		}
+		
+		pre {
+			font-family: 'Ha';
+            src: url('/resources/fonts/kor/HANAMDAUM_Body.woff2') format('woff');
+            white-space: pre-wrap;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+	<section style="min-height: 565px;">
+		<div class="container p-5">
+			<p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">부동산상식</p>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="fs-3 px-3" th:text="${sense.senseTitle}"></td>
+					</tr>
+					<tr>
+						<td>
+							<ul class="row justify-content-between p-3">
+								<li class="col-4 fs-6">
+									<b>작성자</b>
+									<p class="ib px-2" th:text="${sense.userId}"></p>
+								</li>
+								<li class="col-4 fs-6 text-end">
+									<b>등록일</b>
+									<p class="ib px-1" th:text="${sense.regDate}"></p>
+									<b>조회수</b>
+									<p class="ib px-1" th:text="${sense.senseHit}"></p>
+								</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<ul class="p-3">
+								<pre class="pb-1 fs-6" th:text="${sense.senseContent}"></pre>
+							</ul>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div>
+				<input type="button" id="btnList" name="btnList" value="목록">
+				<span th:if="${#authentication.name} == manager">
+					<input type="button" id="btnUpdate" name="btnUpdate" value="수정">
+					<input type="button" id="btnDelete" name="btnDelete" value="삭제">
+				</span>
+			</div>
+		</div>
+		
+	</section>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->	
+	<script type="text/javascript" th:inline="javascript">
+		$(document).ready(function () {
+			$("#btnList").on("click", function () {
+				location.href = "/etc/sense";
+			});
+			
+			$("#btnUpdate").on("click", function () {
+				location.href = "/etc/senseUpdate/[[${sense.senseNum}]]";
+			});
+			
+			$("#btnDelete").on("click", function () {
+				if (confirm("삭제하시겠습니까?") == true) {
+					location.href = "/etc/senseDelete/[[${sense.senseNum}]]";
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

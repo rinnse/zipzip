@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+	
+	<!-- 삭제 버튼 css파일 -->
+	<link rel="stylesheet" href="/resources/css/deleteButton.css">
+	<!-- 개별 css -->
+	<style type="text/css">
+		/* 검색창 */
+		input[type="text"] {
+		    border: 1px solid #d698b1; /* 테두리 색상 */
+		    border-radius: 4px; /* 모서리 둥근 처리 */
+		    width: calc(100% - 60%); /* 버튼 너비 조정 */
+		    padding: 10px; /* 내부 여백 */
+		    margin-bottom: 10px; /* 아래쪽 여백 */
+		    color: #000; /* 텍스트 색상 - 검정색으로 변경 */
+		}
+		
+		/* 검색창에 포커스가 되었을 때의 스타일 */
+		.search-bar_input:focus {
+		    border-color: #d698b1; /* 포커스가 되었을 때의 테두리 색상 */
+		    outline: none; /* 기본 포커스 효과 제거 */
+		}
+		
+		/* 버튼 스타일 수정 */
+		button[type="button"] {
+		    background-color: #d698b1; /* 배경색 */
+		    border: 1px solid #d698b1; /* 테두리 색상 일치 */
+		    border-left: none; /* 왼쪽 테두리 제거 */
+		    border-radius: 0 6px 6px 0; /* 왼쪽 모서리 둥근 처리 제거 */
+		    padding: 10px; /* 내부 여백 */
+		    width: 45px; /* 버튼 너비 조정 */
+		    height: 45px; /* 버튼 높이 조정 */
+		    cursor: pointer; /* 커서 모양 변경 */
+		    margin-left: -2%;
+		    margin-top: 5px;
+		    align-items: center; /* 중앙 정렬 */
+		    justify-content: center; /* 중앙 정렬 */
+		}
+		
+		/* 버튼 안 검색 아이콘 위치 설정 */
+		img[src="/resources/images/search_icon.png"] {
+		    width: 90%; 
+		    height: auto; 
+		}
+		
+		/* 각 리뷰 박스 */
+		.box-feature {
+		    display: flex;
+		    flex-direction: column;
+		    justify-content: space-between; /* 내용을 위아래로 균등 분배 */
+		    height: 300px; /* 최소 높이 설정 */
+		    border: 1px solid #dbd9db;
+		    margin-bottom: 20px; /* 하단 여백 */
+		    padding: 20px; /* 패딩 */
+		    border-radius: 8px; /* 모서리 둥근 처리 */  
+		    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+		}	
+		
+		/* 리뷰 박스에 마우스 갖다댔을 때 */
+		.box-feature {
+		  transition: transform 0.3s ease;
+		}
+
+		.box-feature:hover {
+		  background-color: #fcfcfc;
+		  transform: translateY(-35px);  /* 리뷰 박스가 위로 올라가는 효과 */
+		}
+		
+		/* 중개사 정보 */
+		.agent-info {
+			cursor: pointer;
+		}
+		
+		/* 중개사 이미지 프로필과 중개사 정보 */
+		.profile-icon, .agent-info {
+		    display: inline-block; /* 이미지와 span을 한 줄에 나타내기 위해 */
+		    vertical-align: middle; /* 이미지와 텍스트를 수직 정렬하기 위해 */
+		}
+		
+		/* 작성자 아이디랑 등록일 */
+		.s_info {
+		    font-size: 0.9em; /* 원하는 폰트 크기 조절 */
+		}
+		
+		/* 페이징 스타일 */
+		.pagination {
+		    text-align: center; 
+		    height: 37px; 
+		    line-height: 37px;
+		    position: relative; 
+		    left: 50%; /* 왼쪽 여백을 50%로 설정합니다. */
+		    transform: translateX(-50%); /* 가운데 정렬을 위해 x축으로 -50%만큼 이동합니다. */
+		    width: auto; /* 필요한 만큼의 너비를 가지도록 설정합니다. */
+		    bottom: -5%;
+		    justify-content: center;
+		}
+		
+		.pagination p {
+			display:inline-block; 
+			border:1px solid #d6d6d6; 
+			height:35px; width:35px;  
+			vertical-align:middle; 
+			text-align:center; 
+			text-decoration:none; 
+			font-size:15px; 
+			color:white;
+			background:#d6d6d6;
+			border-radius: 20px;
+			margin-left: 4px;
+			cursor: pointer;
+		}
+		
+		.pagination .on {
+			color:#fff; 
+			font-weight:bold; 
+			background:#d698b1;
+			cursor: pointer;
+		}
+		
+		.pagination .next{
+			height:35px; 
+			width:35px; 
+			border:1px solid #d4d4d4;
+			overflow:hidden;
+			position:relative; 
+			font-size:0;
+		}
+		
+		.pagination .next{
+			background:#ebebeb url("") no-repeat center center; 
+			margin-left:4px; 
+			border-left:0;
+		}
+		
+		.agent-sub {
+			font-size: 12px;
+			margin-left: 20px;
+		}
+		
+		/* 별점 스타일 */
+		#star {
+		    border-width: 2px; /* 테두리 두께 조절 */
+		  	font-size: 1.5rem;
+		  	margin-top: 2%;
+		  	margin: 10px 0;
+		  	display: flex;
+		}
+		
+		#star:not(.on) {
+		  color: #ffee00;
+		}
+		
+		/* 사용자 정보 */
+		.user_info {
+			display: flex;
+		    align-items: center; /* 아이템을 수직 가운데 정렬 */
+		}
+		
+		/* 별점과 삭제 버튼 스타일 */
+		.rating-and-button {
+		    display: flex; /* 요소들을 가로로 나란히 정렬 */
+		    align-items: center; /* 세로 중앙 정렬 */
+		    padding: 4px 0; /* 위아래 여백을 줄이기 */
+        	margin: 0; /* 추가적인 외부 여백 제거 */
+        	width: 90%;
+        	height: 20%;
+		}
+		
+		/* 별점 (숫자) */
+		.score {
+			font-weight: bold;
+		}
+		/* 총 평점 */
+		.totalScore {
+			color: gray;
+		}
+		
+		.score,
+		.totalScore {
+		    display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div class="section" style="margin-top: 60px;">
+		<div class="container">
+			<div class="row">
+				<!-- 검색창 -->
+				<!-- 중개인 이름 또는 내용(ex. 벌레. 별로에요 등) -->
+				<div class="search-container">
+				    <form id="searchForm" name="searchForm" method="POST">
+						<!-- 검색 조건 -->
+						<select id="searchType" name="searchType"
+							style="font-size:0.9rem; width:6rem; height:2rem; margin-left:.5rem; cursor:pointer;">
+							<!-- 리뷰 내용과 중개사 이름으로 검색 가능 -->
+							<option value="">카테고리</option>
+							<option value="1" th:selected="${searchType == '1'}">리뷰 내용</option>
+							<option value="2" th:selected="${searchType == '2'}">중개사</option>
+						</select>
+						<!-- 검색 값 -->
+						<input class="search-bar_input" type="text" id="searchValue" name="searchValue"
+							th:value="${searchValue}" placeholder="검색" autocomplete="off" />
+						<button type="button">
+							<img src="/resources/images/search_icon.png" alt="검색 아이콘" id="searchBtn" />
+						</button>
+						<input type="hidden" name="curPage" value="${curPage}" />
+				    </form>
+				</div>
+				
+				<!-- 경로쳐서 들어가면 시큐리티에 걸려서 리뷰 작성 인서트 확인을 위해.. -->
+				<!-- (채팅 구현하면 뺄 것) -->
+				<button type="button" id="writeBtn" style="border:none; border-radius:10px; background-color:#c2c0c0;
+					margin-left:94%; width:55px; height:45px; color:white; margin-top:-4%; font-size:16px;">리뷰</button>
+				
+				<br />
+				<!-- 리뷰게시판 리스트 시작 -->
+				<div class="col-6 col-lg-3" data-aos="fade-up" data-aos-delay="400" th:each="reList : ${reList}">
+					<div class="box-feature mb-4">
+						<!-- 리뷰 내용-->
+						<div class="content">
+						    <span th:if="${reList.hidden == 1}">해당 게시물은 관리자에 의해 숨김 처리되었습니다.</span>
+							<span th:unless="${reList.hidden == 1}"
+							      th:text="${reList.reviewContent}"></span>				
+						</div>
+						
+						<div class="rating-and-button">
+							<!-- 별점 -->
+							<span class="star-rating" id="star" th:text="${reList.reviewScore}"></span>&nbsp;
+							<span class="score" th:text="${reList.reviewScore}"></span>
+							<span class="totalScore">/5</span>
+							<!-- 로그인 사용자가 작성한 리뷰일 경우, 삭제 가능 -->	
+							<button class="btn-hover color-10" th:if="${reList != null and reList.userId == userId}"
+									th:onclick="'deleteBtn(\'' + ${reList.reviewNum} + '\')'">삭제</button>	
+						</div>
+						<div class="user_info">
+							<!-- 작성자 정보와 업로드 일자 -->
+							<img src="/resources/images/user.png" alt="사용자 프로필 아이콘"
+								style="width: 20px; height: 19px; margin-right: 4px;" />
+							<span class="s_info" th:text="${#strings.substring(reList.userId, 0, #strings.length(reList.userId) - 2)} + '****' 
+                  + ' | ' + ${reList.regDate}"></span>
+						</div>
+						<hr />
+				
+						<!-- 공인중개사 정보로 이동 -->
+						<a href="/">
+							<img src="/resources/images/agent_profile1.png" alt="중개사 프로필" class="profile-icon">
+							<span class="agent-info" th:text="${reList.agentName}"></span><br />
+							<span class="agent-sub" th:text="${reList.agentOfficeName}"></span>
+						</a>
+						<input type="hidden" id="reviewNum" name="reviewNum" value="${reviewNum}" />
+					</div>
+				</div>
+				<!-- 리뷰게시판 리스트 종료 -->
+
+			</div>
+		</div>
+		<br />
+		<!-- 페이징 처리 -->
+		<div class="pagination mt0">
+			<!-- 페이지 시작 -->
+			<p th:if="${paging.prevBlockPage gt 0}">
+				<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${paging.prevBlockPage} + ')'"
+					title="이전 블럭" style="color: white; font-size:17px;"><<</a>
+			</p>
+			<th:block th:each="i : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+				<p th:if="${i != curPage}">
+					<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${i} + ')'"
+						style="color:white; background:#d6d6d6;" th:text="${i}"></a>
+				</p>
+				<p th:if="${i == curPage}" class="on" th:text="${i}"></p>
+			</th:block>
+			<p th:if="${paging.nextBlockPage gt 0}">
+				<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${paging.nextBlockPage} + ')'"
+					title="다음 블럭" style="color: white; font-size:17px;">>></a>
+			</p>
+			<!-- 페이지 종료 -->		
+		</div>
+
+	</div>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+			// 검색 버튼 클릭 시
+			$("#searchBtn").on("click", function () {
+				// 검색조건만 선택 후 검색값은 입력 안 했을 때 리스트 초기화됨
+				
+				document.searchForm.curPage.value = "1";
+				document.searchForm.action = "/board/reviewBoard";
+				document.searchForm.submit();
+			});
+			
+			// 리뷰 버튼 클릭 시  (채팅 구현하면 뺄 것)
+			$("#writeBtn").on("click", function() {
+				location.href = "/board/writeReview";
+			})
+		});
+
+		// 페이징 처리
+		function fn_paging(curPage) {
+		    document.searchForm.curPage.value = curPage;
+			document.searchForm.action = "/board/reviewBoard";
+		    document.searchForm.submit();
+		}
+
+		// 별점 기능
+		// 페이지 로드 시 별점 표시하기
+		document.addEventListener("DOMContentLoaded", function () {
+			var starElements = document.querySelectorAll(".star-rating"); // 별점을 표시할 요소들 선택
+			starElements.forEach(function (starElement) {
+				var score = parseInt(starElement.textContent); // 요소의 텍스트를 숫자로 변환하여 별점으로 사용
+				starElement.textContent = displayStars(score); // 별점으로 표시된 문자열로 변경
+			});
+		});
+
+		// 별점 숫자를 받아와서 별 모양으로 표시하는 함수
+		function displayStars(score) {
+			var stars = "";
+			for (var i = 0; i < 5; i++) {
+				if (i < score) {
+					stars += "★"; // 현재 별점보다 작은 인덱스는 별 모양으로 표시
+				} else {
+					stars += "☆"; // 현재 별점보다 크거나 같은 인덱스는 빈 별 모양으로 표시
+				}
+			}
+			return stars;
+		}
+		
+		// 리뷰 삭제 처리
+		function deleteBtn(reviewNum) {
+			if(confirm("이 게시물을 삭제하시겠습니까? ") == true){
+				$.ajax({
+					type:"POST",
+					url:"/review/delete",
+					data:{
+						reviewNum: reviewNum		// $("#reviewNum").val()   
+					},
+					datatype:"JSON",
+					beforeSend:function(xhr){
+						xhr.setRequestHeader("AJAX", "true");
+					},
+					success:function(res){
+						if(res.code == 0){
+							alert("리뷰가 삭제되었습니다.");
+							location.href = "/board/reviewBoard";
+						} else if(res.code == 400){
+							alert("리뷰가 존재하지 않습니다.");
+						} else if(res.code == 500){
+							alert("게시물 삭제 처리 중 오류가 발생하였습니다.");
+							location.href = "/board/reviewBoard";
+						} else {
+							alert("오류 발생: error");							
+						}
+					},
+					error:function(xhr, status, error){
+						icia.common.error(error);
+					}
+				});
+			}
+		}	
+	</script>
+</body>
+
+</html>

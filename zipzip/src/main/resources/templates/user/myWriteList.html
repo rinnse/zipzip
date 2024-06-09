@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+       /*나의글 자유게시판 css 시작*/ 
+	    .board-Page-container {
+				display: flex;
+				position: relative;
+				justify-content: center;
+				/* 가로로 중앙 정렬 */
+				align-items: center;
+				/* 세로로 중앙 정렬 */
+				min-height: 565px;
+				/* 최소 세로 크기 */
+				width: 100%;
+				/*     margin-bottom:10px !important;  */
+			}
+
+		.board-container {
+			display: flex;
+			position: relative;
+			justify-content: center;
+			/* 가로로 중앙 정렬 */
+			align-items: center;
+			/* 세로로 중앙 정렬 */
+			min-height: 500px;
+			/* 최소 세로 크기 */
+			/* 	max-height: 1000px; */
+			width: 97%;
+			border-radius: 10px;
+			margin-bottom: 1.5%;
+			background-color: #fafafa;
+			box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.1);
+			/* 그림자 추가 */
+		}
+
+		.board-content-container {
+			display: flex;
+			position: relative;
+			/* 	justify-content: center; */
+			/* 	align-items: center; */
+			min-height: 450px;
+			width: 70%;
+			margin-top: 30px;
+			margin-bottom: 30px;
+			padding-right: 7%;
+			padding-left: 7%;
+			/* 	background-color:lightgray; */
+			flex-direction: column;
+
+		}
+
+		.board-head {
+			display: flex;
+			position: relative;
+			justify-content: space-between;
+			align-items: center;
+			width: 90%;
+			margin: auto;
+			margin-bottom: 0px;
+			margin-top: 0px;
+			margin-left: 200px;
+		}
+
+		.board-head-name {
+			font-size: 25px;
+			font-weight: bold;
+			margin-top: 16px;
+			margin-bottom: 16px;
+			margin-left: 1%;
+			margin-right: auto;
+			/* 왼쪽 정렬을 위해 오른쪽 여백을 최대화 */
+			text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.3);
+			/* 그림자 추가 */
+			cursor: pointer;
+		}
+
+		.board-head-align {
+			display: flex;
+			align-items: center;
+			/* 세로로 중앙 정렬 */
+			margin-right: 20px;
+		}
+
+		.board-head-align-new {
+			cursor: pointer;
+			/* margin-left: -300px; */
+		}
+
+		.board-head-align-new2 {
+			cursor: pointer;
+			margin-left:30px;
+			margin-right:300px;
+		}
+
+		.button-write-container {
+			display: flex;
+			height: 100%;
+			align-items: center;
+			/* 세로 중앙 정렬 */
+			justify-content: flex-end;
+			/* 가로 오른쪽 정렬 */
+		}
+
+		.button-write {
+			background-color: #ccc;
+			/* 그레이 색상 */
+			color: #fff;
+			/* 텍스트 색상 */
+			border: none;
+			/* 테두리 없음 */
+			border-radius: 5px;
+			/* 둥근 모서리 */
+			padding: 8px 16px;
+			/* 내부 여백 */
+			cursor: pointer;
+			/* 커서를 포인터로 변경하여 클릭 가능한 모양으로 표시 */
+			transition: background-color 0.3s ease;
+			/* 배경색 변경에 대한 transition 효과 */
+		}
+
+		.board-bottom {
+			display: flex;
+			position: relative;
+			justify-content: space-between;
+			align-items: center;
+			width: 90%;
+			margin: auto;
+			margin-top: 20px;
+			margin-bottom: 30px;
+		}
+
+		.board-input-container {
+			display: flex;
+			height: 100%;
+			width: 50%;
+			align-items: center;
+			/* 세로 중앙 정렬 */
+			justify-content: flex-start;
+			margin-left:130px;
+		}
+
+		.board-select {
+			/* 배경색 및 테두리 */
+			background-color: #ffffff;
+			border: 1px solid gray;
+			border-radius: 5px;
+			/* 둥근 테두리 */
+			margin-right: 10px;
+
+			height: 30px;
+			/* 세로 크기 조절 */
+
+			/* 패딩 */
+			padding: 3px 10px;
+
+			/* 폰트 및 텍스트 스타일 */
+			font-size: 12px;
+			color: #333333;
+
+			/* 드롭다운 화살표 호버 스타일 */
+			&:hover {
+				background-color: #fafafa;
+			}
+		}
+
+		.board-input {
+			display: flex;
+			location: relative;
+			height: 30px;
+			width: 60%;
+			border-radius: 5px;
+			border: 1.5px solid gray;
+			/* 테두리 색상 및 두께 설정 */
+			outline: none;
+			padding: 5px;
+			margin-right: 10px;
+			font-size: 12px;
+		}
+
+		.search-button {
+			background-color: gray;
+			/* 배경색 */
+			color: #fff;
+			/* 텍스트 색상 */
+			border: none;
+			/* 테두리 없음 */
+			border-radius: 5px;
+			/* 둥근 모서리 */
+			height: 30px;
+			width: 50px;
+			font-size: 12px;
+			/* 글꼴 크기 */
+			cursor: pointer;
+			/* 커서를 포인터로 변경하여 클릭 가능한 모양으로 표시 */
+			box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+			/* 그림자 */
+			transition: background-color 0.3s ease;
+			/* 배경색 변경에 대한 transition 효과 */
+		}
+
+		.search-button:hover {
+			background-color: #555;
+			/* 호버 시 배경색 변경 */
+			transform: translateY(-2px);
+			/* 호버 시 버튼이 위로 약간 이동하는 효과 */
+			cursor: pointer;
+		}
+
+		.board-paging-container {}
+
+		/* ----- 페이징 ----- */
+		.page_wrap {
+			text-align: center;
+			font-size: 0;
+			margin-right:100px;
+		}
+
+		.page_nation {
+			display: inline-block;
+		}
+
+		.page_nation .none {
+			display: none;
+		}
+
+		.page_nation a {
+			display: block;
+			margin: 0 3px;
+			float: left;
+			border: 1px solid #e6e6e6;
+			width: 28px;
+			height: 28px;
+			line-height: 28px;
+			text-align: center;
+			background-color: #fff;
+			font-size: 13px;
+			color: #999999;
+			text-decoration: none;
+		}
+
+		.page_nation .arrow {
+			border: 1px solid #ccc;
+		}
+
+		.page_nation .pprev {
+			background: #f8f8f8 url('img/page_pprev.png') no-repeat center center;
+			margin-left: 0;
+		}
+
+		.page_nation .prev {
+			background: #f8f8f8 url('img/page_prev.png') no-repeat center center;
+			margin-right: 7px;
+		}
+
+		.page_nation .next {
+			background: #f8f8f8 url('img/page_next.png') no-repeat center center;
+			margin-left: 7px;
+		}
+
+		.page_nation .nnext {
+			background: #f8f8f8 url('img/page_nnext.png') no-repeat center center;
+			margin-right: 0;
+		}
+
+		.page_nation a.active {
+			background-color: #42454c;
+			color: #fff;
+			border: 1px solid #42454c;
+		}
+
+
+		/*========================테이블css======================*/
+
+		table {
+			border: 1px #a39485 solid;
+			font-size: .9em;
+			border: none;
+			/* 테두리 없애기 */
+			width: 100%;
+			border-collapse: collapse;
+			overflow: hidden;
+			font-size: 14px;
+			width: 90%;
+			margin: auto;
+		}
+
+		thead {
+			/*   font-weight: bold; */
+			/*   color: #fff; */
+			background: lightgray;
+		}
+
+		td,
+		th {
+			padding: 0.5em .0.5em;
+			vertical-align: middle;
+		}
+
+		th {
+			border-right: 1px solid #fff;
+			height: 80%;
+
+		}
+
+		td {
+			border-bottom: 1px solid rgba(0, 0, 0, .1);
+		}
+
+		tr:hover {
+			background-color: rgba(0, 0, 0, 0.1);
+			/* 호버 시 배경색 변경 */
+		}
+
+		.td-num {
+			font-size: 12px;
+			color: gray;
+		}
+
+		.td-text {
+			text-align: left;
+			padding-left: 15px;
+		}
+	/*나의글 자유게시판 css 시작*/
+	
+	/*나의글 건의사항 css 시작*/
+		section .container {
+        	width: 100%;
+        }
+        
+		.form-control {
+            height: 40px;
+        }
+	/*나의글 건의사항 css 시작*/
+				
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+   
+    <!-- 나의 글(자유게시판)시작  -->
+    <div id="freeBoardSection2" class="section">
+        <div class="container">
+            <div class="row mb-5 align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="font-weight-bold text-primary heading"></h2>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 라디오 버튼 -->	  
+        <div class="text-center">
+		    <input type="radio" id="freeBoardRadio" name="boardType" value="F" checked >
+		    <label for="freeBoardRadio">나의 글(자유게시판)</label>
+		     <!-- <label>나의 글(자유게시판)</label> -->
+		
+		    <input type="radio" id="suggestBoardRadio" name="boardType" value="S" >
+		    <label for="suggestBoardRadio">나의 글(건의사항)</label>
+		    <!-- <label>나의 글(건의사항)</label> -->
+		    
+		   	<input type="radio" id="reviewBoardRadio" name="boardType" value="R">
+    		<label for="reviewBoardRadio">나의 글(리뷰게시판)</label>
+		</div>	
+		
+		<div id="freeBoardSection">
+		<!-- head(검색창 등) -->		
+		<div class="board-head">
+			<a class="board-head-name">나의 글(자유 게시판) </a>				
+		</div>
+
+		<!-- 테이블 내용 -->
+		<div style="text-align: center; position:relative; margin-top:0%; margin-left:120px; margin-right:120px">
+			<table>
+				<thead>
+					<tr>
+						<th style="width: 70px;">번호</th>
+						<th style="width: 70px;">글쓴이</th>
+						<th style="width: 270px;">제목</th>
+						<th style="width: 80px;">등록일</th>
+						<th style="width: 50px;">추천</th>
+						<th style="width: 50px;">조회</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:if="${list != null}" th:each="list : ${list}">
+						<td th:text="${list.rnum}" class="td-num">글번호값</td>
+						<td th:text="${list.userId} != null ? ${list.userId} : ${list.agentId} " class="td-text">작성자값</td>
+						<td th:text="${list.communityTitle}" class="td-text"th:onclick="'fn_view(' + ${list.communityNum} + ')'" style="cursor:pointer;">글제목값 </td>
+						<td th:text="${list.regDate}" class="td-num">작성일값</td>
+						<td th:text="${list.likeCnt}" class="td-num">추천수값</td>
+						<td th:text="${list.readCnt}" class="td-num">조회수값</td>
+					</tr>			
+				</tbody>
+			</table>
+		</div>
+
+		<!-- bottom -->
+		<div class="board-bottom">
+			<div class="board-input-container">
+				<select id="searchSelect" name="searchSelect" class="board-select">
+					<option value="all" th:selected="${searchType} == 'all'">통합검색</option>
+					<option value="title" th:selected="${searchType} == 'title'">제목</option>
+					<option value="content" th:selected="${searchType} == 'content'">내용</option>
+
+				</select>
+				<input id="searchInput" class="board-input" type="text" th:value="${searchValue}">
+				<button class="search-button" id="btnSearch">검색</button>
+			</div>
+
+			<div class="board-paging-container">
+				<div class="page_wrap">
+					<div class="page_nation" th:if="${paging != null}">
+						<th:block th:if="${paging.prevBlockPage gt 0}">
+							<a class="" href="#" th:onclick="'fn_pageClick(' + 1 + ',' + ${sort} + ')'">
+								<< </a>
+							<a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.prevBlockPage} + ',' + ${sort} + ')'">
+								< </a>
+						</th:block>
+						<th:block th:each="i: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+							<a class="active" th:if="${i == paging.curPage}" th:text="${i}">1</a>
+							<a href="#" th:if="${i != paging.curPage}" th:text="${i}"
+								th:onclick="'fn_pageClick(' + ${i} + ',' + ${sort} + ')'">2</a>
+						</th:block>
+						<th:block th:if="${paging.nextBlockPage gt 0}">
+							<a class="" href="#"
+								th:onclick="'fn_pageClick(' + ${paging.nextBlockPage} + ',' + ${sort} + ')'">></a>
+							<a class="" href="#"
+								th:onclick="'fn_pageClick(' + ${paging.totalCount - paging.listCount - 2} + ',' + ${sort} + ')'">>></a>
+						</th:block>
+					</div>
+				</div>
+				<form id="searchForm" name="searchForm" method="post">
+					<input type="hidden" id="communityNum" name="communityNum" value="${communityNum}" />
+					<input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+					<input type="hidden" id="searchType" name="searchType" th:value="${searchType}" />
+					<input type="hidden" id="searchValue" name="searchValue" th:value="${searchValue}" />
+					<input type="hidden" id="sort" name="sort" th:value="${sort}" />
+					<input type="hidden" id="checkRadio" name="checkRadio" value="" /> 
+				</form>
+			</div>		
+		</div>		
+	</div>
+	
+	<!-- 나의 글(자유게시판)종료  -->
+	
+	<!-- 나의 글(건의사항)시작  -->
+	<div id="suggestBoardSection" style="display: none;">
+	
+   	<section style="min-height: 565px;">
+      <div class="container p-4">
+         <!-- 타이틀 -->
+         <p class="text-left h3 fw-bold  mx-1 mt-3">나의 글(건의사항)</p>      
+
+         <div class="d-flex align-items-center justify-content-between mb-3">
+            <!-- 전체수 -->
+            <div>
+               <span>전체 <b th:text="${totalCnt2}"></b>건</span>
+            </div>
+            
+            <!-- 검색 -->
+           <form>
+               <input class="form-control" type="search" id="searchValue2" name="searchValue2" th:value="${searchValue2}" placeholder="Search" aria-label="Search">
+            </form> 
+         </div>
+
+         <!-- 테이블 시작 -->
+         <table class="table table-hover fs-6">
+            <thead>
+               <tr class="text-center">
+                  <th scope="col" width="10%">번호</th>
+                  <th scope="col" width="50%">제목</th>
+                  <th scope="col" width="15%">작성자</th>
+                  <th scope="col" width="15%">작성일</th>
+                  <th scope="col" width="10%">조회</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr class="text-center" th:each="suggest : ${suggestList}">
+                  <th th:text="${suggest.suggestNum}"></th>
+                  <td class="text-start ps-5">
+                    <!--24.05.17 소스수정 시작 
+                     <a th:text="${suggest.suggestTitle}" th:href="@{|/user/myWriteList/${suggest.suggestNum}.|}"></a>
+                 	24.05.17 소스수정 종료-->
+                 			
+                 	<a th:text="${suggest.suggestTitle}" th:onclick="'fn_view2(' + ${suggest.suggestNum} + ')'" ></a>
+                 		
+                  </td>
+                  <td th:text="${suggest.userId}"></td>
+                  <td th:text="${suggest.regDate}"></td>
+                  <td th:text="${suggest.suggestHit}"></td>
+               </tr>
+
+               <tr th:if="${#lists.isEmpty(suggestList)}">
+                  <td colspan="5" class="text-center">결과가 존재하지 않습니다</td>
+               </tr>
+            </tbody>
+         </table>
+         <!-- 테이블 끝 -->
+    
+         <!-- 페이징 시작 -->
+			<nav aria-label="Page navigation example">
+				<ul class="pagination justify-content-center" th:if="${paging2 != null}">
+					<li class="page-item" th:if="${paging2.prevBlockPage gt 0}">
+						<a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${paging2.prevBlockPage}+')'" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+						</a>
+					</li>
+					<th:block th:each="i : ${#numbers.sequence(paging2.startPage, paging2.endPage)}">
+					<li class="page-item active" th:if="${i == curPage2}"><span class="page-link" th:text="${i}"></span></li>
+					<li class="page-item" th:if="${i != curPage2}"><a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${i}+')'" th:text="${i}"></a></li>
+					</th:block>
+					<li class="page-item" th:if="${paging2.nextBlockPage gt 0}">
+						<a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${paging2.nextBlockPage}+')'" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		<!-- 페이징 끝 -->
+		<form name="bbsForm" id="bbsForm" method="POST">
+			<input type="hidden" name="suggestNum" value="">
+			<input type="hidden" name="searchValue2" th:value="${searchValue}" />
+			<input type="hidden" name="curPage2" th:value="${curPage}" />
+			<input type="hidden" id="checkRadio" name="checkRadio" value="S" />
+		</form>
+		
+       <form id="searchForm2" name="searchForm2" method="post">
+			<input type="hidden" id="suggestNum" name="suggestNum" value="" />
+			<input type="hidden" id="checkRadio" name="checkRadio" value="" />
+			<input type="hidden" name="searchValue2" th:value="${searchValue}" /> 
+		</form>
+		 	 
+      </div>
+   </section>
+   
+   </div>
+	<!-- 나의 글(건의사항)종료  -->
+	
+		<!-- 나의 글(리뷰게시판) 시작 -->
+	<div id="reviewBoardSection" style="display: none;">
+	
+	    <div class="container">
+            <div class="row mb-5 align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="font-weight-bold text-primary heading"></h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+             <div class="row mb-5 align-items-center">
+                 <div class="col-lg-6">
+                     <h2 class="font-weight-bold text-primary heading"></h2>
+                 </div>
+             </div>
+        </div>
+		
+	  <!-- head(검색창 등) -->		
+	  <div class="board-head">
+		 <a class="board-head-name">나의 글(리뷰 게시판) </a>				
+	  </div>	
+	  
+	  <!-- 리뷰게시판 리스트 -->
+	  <!-- 테이블 내용 -->
+	  <div style="text-align: center; position:relative; margin-top:0%; margin-left:120px; margin-right:120px">
+		 <table>
+			 <thead>
+				<tr>
+				  <th style="width: 70px;">번호</th>
+				  <th style="width: 70px;">작성자</th>
+				  <th style="width: 70px;">중개사</th>
+				  <th style="width: 300px;">리뷰내용</th>
+				  <th style="width: 90px;">평가점수</th>
+				  <th style="width: 80px;">등록일</th>
+				</tr>
+			 </thead>
+			 <tbody>
+				<tr th:each="myReview : ${myReview}">
+				   <td class="td-num" th:text="${myReview.reviewNum}"></td>
+				   <td class="td-text" th:text="${myReview.userId}"></td>
+				   <td class="td-text" th:text="${myReview.agentName}"></td>
+				   <td class="td-num" th:text="${myReview.reviewContent}" style="cursor: pointer;"
+				       th:onclick="'fn_view3(' + ${myReview.reviewNum} + ')'"></td>
+				   <td class="td-num" th:text="${myReview.reviewScore}"></td>
+				   <td class="td-num" th:text="${myReview.regDate}"></td>
+				</tr>	
+				
+				<!-- 리스트가 없을 경우 -->
+				<tr th:if="${myReview == null or myReview.isEmpty()}">
+				  <td colspan="6">등록된 리뷰 정보가 없습니다.</td>
+				</tr>   		
+			 </tbody>
+		  </table>
+	  </div>
+	  <br />
+	  
+	  <div class="board-bottom">
+	    <div class="board-input-container">
+	      <select id="searchOption" name="searchOption" class="board-select">
+			  <option value="">통합검색</option>
+			  <option value="1" th:selected="${searchOption == '1'}">중개인</option>
+			  <option value="2" th:selected="${searchOption == '2'}">리뷰 내용</option>
+		  </select>
+		  <input id="searchContent" class="searchContent" type="text" th:value="${searchContent}">
+		  <button class="search-button" id="searchBtn" style="margin-left: 1%;">검색</button>
+	  </div>
+	   
+	  <!-- 페이징 시작 -->
+	  <div class="board-paging-container" style="margin-right: -30%;">
+		   <div class="page_wrap">
+			   <div class="page_nation" th:if="${paging != null}">
+				   <th:block th:if="${paging.prevBlockPage gt 0}">
+					  <a href="javascript:void(0)" th:onclick="'fn_paging2(' + ${paging.prevBlockPage} + ')'">
+							 << </a>
+				   </th:block>
+				   <th:block th:each="i : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+					    <a class="active" th:if="${i == paging.curPage}" th:text="${i}"></a>
+					    <a th:if="${i != paging.curPage}" th:onclick="'fn_paging2(' + ${i} + ')'"
+					       style="cursor: pointer;" th:text="${i}"></a>
+				   </th:block>
+				   <th:block th:if="${paging.nextBlockPage gt 0}">
+						<a href="javascript:void(0)" th:onclick="'fn_paging2(' + ${paging.nextBlockPage} + ')'">
+							>></a>
+				   </th:block>
+			   </div>
+			   <form id="searchForm3" name="searchForm3" method="post">
+				   <input type="hidden" id="reviewNum" name="reviewNum" value="${reviewNum}" />
+		           <input type="hidden" id="searchOption" name="searchOption" th:value="${searchOption}" />
+		           <input type="hidden" id="searchContent" name="searchContent" th:value="${searchContent}" />
+		           <input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+		           <input type="hidden" id="checkRadio" name="checkRadio" th:value="${checkRadio}" /> 
+			   </form>
+		   </div>
+	    </div>
+	   <!-- 페이징 종료 -->
+	   <br />
+	 </div>
+   </div>
+   <!-- 나의 글(리뷰게시판) 종료 -->
+	
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script type="text/javascript">
+    $(document).ready(function () {
+    	$("#searchValue2").keypress(function(e){
+    		//검색어 입력 후 엔터키 입력하면 조회버튼 클릭
+    		if(e.keyCode && e.keyCode == 13){
+    			fn_search();
+    			return false;
+    		}
+    		
+    	});
+    	
+		//검색버튼 클릭시
+		$("#btnSearch").on("click", function () {
+
+			document.searchForm.searchType.value = $("#searchSelect").val();
+			document.searchForm.searchValue.value = $("#searchInput").val();
+			document.searchForm.curPage.value = "1";
+			document.searchForm.action = "/user/myWriteList";
+			document.searchForm.submit();
+
+		});
+		
+		// 나의 글(리뷰게시판) 검색 버튼 클릭 시
+		$("#searchBtn").on("click", function() {
+			document.searchForm3.searchOption.value = $("#searchOption").val();
+			document.searchForm3.searchContent.value = $("#searchContent").val();
+			document.searchForm3.curPage.value = "1";
+			document.searchForm3.checkRadio.value = 'R';
+			document.searchForm3.action = "/user/myWriteList";
+			document.searchForm3.submit();
+		});
+	});
+
+	function fn_pageClick(curPage, sort) {
+		document.searchForm.curPage.value = curPage;
+		document.searchForm.sort.value = sort;
+		document.searchForm.action = "/user/myWriteList";
+		document.searchForm.submit();
+	}
+
+	function fn_view(communityNum) {
+		document.searchForm.communityNum.value = communityNum;	
+		document.searchForm.action = "/user/myFreeBoardDetail";
+		document.searchForm.submit();
+	}
+	
+	//24.05.17 소스 수정 시작
+	function fn_view2(suggestNum) {
+		document.searchForm2.suggestNum.value = suggestNum;	
+		document.searchForm2.checkRadio.value = 'S';
+		document.searchForm2.searchValue2.value = $("#searchValue2").val();
+		document.searchForm2.action = "/user/mySuggestDetail";
+		document.searchForm2.submit();
+	}
+	
+	// 나의 글(리뷰게시판) 페이징 처리 함수
+	function fn_paging2(curPage){
+		document.searchForm3.curPage.value = curPage;
+		document.searchForm3.checkRadio.value = 'R';
+		document.searchForm3.action = "/user/myWriteList";
+		document.searchForm3.submit();
+	}
+	
+	// 나의 글(리뷰게시판) 상세 페이지 이동 함수
+	function fn_view3(reviewNum){
+		// alert(reviewNum);
+		document.searchForm3.reviewNum.value = reviewNum;
+		document.searchForm3.action = "/user/myReviewBoardDetail";
+		document.searchForm3.submit();
+	}
+	
+	//24.05.17 소스 수정 종료  
+	
+	//24/05.21 소스 수정 시작
+	function fn_paging(curPage){
+	    document.bbsForm.curPage2.value = curPage;
+		document.bbsForm.action = "/user/myWriteList";
+	    document.bbsForm.submit();
+		}
+		
+	function fn_search(){
+		document.bbsForm.suggestNum.value = "";
+		document.bbsForm.searchValue2.value = $("#searchValue2").val();
+		document.bbsForm.curPage2.value = "1";
+		document.bbsForm.checkRadio.value = "S";
+		document.bbsForm.action = "/user/myWriteList";
+		document.bbsForm.submit();
+	}
+	//24/05.21 소스 수정 종료
+		
+    // 라디오 버튼 이벤트 핸들러
+	document.querySelectorAll('input[name="boardType"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (document.getElementById('freeBoardRadio').checked) 
+            {
+                document.getElementById('freeBoardSection').style.display = 'block';
+                document.getElementById('suggestBoardSection').style.display = 'none';
+                document.getElementById('reviewBoardSection').style.display = 'none';
+                $("input:radio[name='boardType'][value='F']").prop("checked", true);
+                document.getElementById('checkRadio').value = 'F'; 
+            }
+            
+            else if (document.getElementById('suggestBoardRadio').checked) 
+            {
+                document.getElementById('freeBoardSection').style.display = 'none';
+                document.getElementById('suggestBoardSection').style.display = 'block';
+                document.getElementById('reviewBoardSection').style.display = 'none';
+                $("input:radio[name='boardType'][value='S']").prop("checked", true);
+               	document.getElementById('checkRadio').value = 'S'; 
+               	
+            }
+            
+            else if (document.getElementById('reviewBoardRadio').checked) 
+            {
+                document.getElementById('freeBoardSection').style.display = 'none';
+                document.getElementById('suggestBoardSection').style.display = 'none';
+                document.getElementById('reviewBoardSection').style.display = 'block';
+                $("input:radio[name='boardType'][value='R']").prop("checked", true);
+               	document.getElementById('checkRadio').value = 'R'; 
+               	
+            }
+            
+            else
+            {
+            	$("input:radio[name='boardType'][value='F']").prop("checked", true);
+            }
+        });
+    }); 
+		   
+    // 페이지 로드시 초기 설정
+    window.onload = function() 
+    { 	
+	  var checkRadio = "[[${checkRadio}]]";
+	
+    	  if (checkRadio == "F")
+    	  {		
+    		   document.getElementById('freeBoardSection').style.display = 'block';
+    	       document.getElementById('suggestBoardSection').style.display = 'none';
+    	       document.getElementById('reviewBoardSection').style.display = 'none';
+    	       $("input:radio[name='boardType'][value='F']").prop("checked", true);
+    	       document.getElementById('checkRadio').value = 'F'; 
+    	  }
+    	  
+    	  else if(checkRadio == "S")
+    	  {
+    		  document.getElementById('freeBoardSection').style.display = 'none';
+    	      document.getElementById('suggestBoardSection').style.display = 'block';
+    	      document.getElementById('reviewBoardSection').style.display = 'none';
+    	      $("input:radio[name='boardType'][value='S']").prop("checked", true);		
+    	      document.getElementById('checkRadio').value = 'S'; 
+    	  }
+    	  
+    	  else if(checkRadio == "R")
+    	  {
+    		  document.getElementById('freeBoardSection').style.display = 'none';
+    	      document.getElementById('suggestBoardSection').style.display = 'none';
+    	      document.getElementById('reviewBoardSection').style.display = 'block';
+    	      $("input:radio[name='boardType'][value='S']").prop("checked", true);		
+    	      document.getElementById('checkRadio').value = 'R'; 
+    	  }
+    	  
+    	  else
+    	  {
+    		  document.getElementById('freeBoardSection').style.display = 'block';
+    	      document.getElementById('suggestBoardSection').style.display = 'none';
+    	      document.getElementById('reviewBoardSection').style.display = 'none';
+    	      $("input:radio[name='boardType'][value='F']").prop("checked", true);
+   	       	  document.getElementById('checkRadio').value = 'F'; 
+    	  } 	  
+    };
+
+    </script>
+</body>
+
+</html>

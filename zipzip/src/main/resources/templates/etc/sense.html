@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		section .container {
+        	width: 100%;
+        }
+        
+		.form-control {
+            height: 40px;
+        }
+        
+        .content {
+        	overflow: hidden;
+			text-overflow: ellipsis;
+			display: -webkit-box;
+			-webkit-line-clamp: 4;
+			-webkit-box-orient: vertical;
+        }
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+		<section style="min-height: 565px;">
+		<div class="container p-5">
+			<!-- 타이틀 -->
+			<p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">부동산상식</p>
+
+			<div class="d-flex align-items-center justify-content-between mb-3">
+				<!-- 전체수 -->
+				<div>
+					<span>전체 <b th:text="${totalCnt}"></b>건</span>
+				</div>
+				
+				<!-- 검색 -->
+				<form action="" method="POST" onsubmit="return fn_search()">
+					<input class="form-control" type="search" id="searchValue" name="searchValue" placeholder="Search" aria-label="Search">
+				</form>
+			</div>
+
+			<!-- 테이블 시작 -->
+			<table class="table table-hover fs-6">
+				<thead>
+					<tr class="text-center">
+						<th scope="col" width="10%">번호</th>
+						<th scope="col" width="50%">제목</th>
+						<th scope="col" width="15%">작성자</th>
+						<th scope="col" width="15%">작성일</th>
+						<th scope="col" width="10%">조회</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="text-center" th:each="sense : ${senseList}">
+						<th th:text="${sense.senseNum}"></th>
+						<td class="text-start ps-5">
+							<a th:text="${sense.senseTitle}" th:onclick="'fn_detail('+${sense.senseNum}+')'" style="cursor: pointer;"></a>
+						</td>
+						<td th:text="${sense.userId}"></td>
+						<td th:text="${sense.regDate}"></td>
+						<td th:text="${sense.senseHit}"></td>
+					</tr>
+					<tr th:if="${#lists.isEmpty(senseList)}">
+						<td colspan="5" class="text-center">결과가 존재하지 않습니다</td>
+					</tr>
+				</tbody>
+			</table>
+			<!-- 테이블 끝 -->
+
+			<!-- ROLE_MANAGER만 보임 -->
+			<input sec:authorize="hasRole('ROLE_MANAGER')" type="button" id="btnInsert" name="btnInsert" value="글쓰기">
+
+			<!-- 페이징 시작 -->
+			<nav aria-label="Page navigation example">
+				<ul class="pagination justify-content-center" th:if="${paging != null}">
+					<li class="page-item" th:if="${paging.prevBlockPage gt 0}">
+						<a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${paging.prevBlockPage}+')'" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+						</a>
+					</li>
+					<th:block th:each="i : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+					<li class="page-item active" th:if="${i == curPage}"><span class="page-link" th:text="${i}"></span></li>
+					<li class="page-item" th:if="${i != curPage}"><a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${i}+')'" th:text="${i}"></a></li>
+					</th:block>
+					<li class="page-item" th:if="${paging.nextBlockPage gt 0}">
+						<a class="page-link" href="javascript:void(0)" th:onclick="'fn_paging('+${paging.nextBlockPage}+')'" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+			<!-- 페이징 끝 -->
+		</div>
+		<form name="bbsForm" id="bbsForm" method="POST">
+			<input type="hidden" name="senseNum" value="">
+			<input type="hidden" name="searchValue" th:value="${searchValue}" />
+			<input type="hidden" name="curPage" th:value="${curPage}" />
+		</form>
+	</section>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#btnInsert").on("click", function () {
+				location.href = "/etc/senseInsert";
+			});
+		});
+		
+		function fn_paging(curPage) {
+		    document.bbsForm.curPage.value = curPage;
+			document.bbsForm.action = "/etc/sense";
+		    document.bbsForm.submit();
+		}
+		
+		function fn_search() {
+			//alert($("#searchValue").val());
+			document.bbsForm.noticeNum.value = "";
+			document.bbsForm.searchValue.value = $("#searchValue").val();
+			document.bbsForm.curPage.value = "1";
+			document.bbsForm.action = "/etc/sense";
+			document.bbsForm.submit();
+		}
+		
+		function fn_detail(senseNum) {
+			//alert(senseNum);
+			document.bbsForm.senseNum.value = senseNum;
+			document.bbsForm.action = "/etc/sense/" + senseNum;
+		    document.bbsForm.submit();
+		}
+	</script>
+</body>
+
+</html>

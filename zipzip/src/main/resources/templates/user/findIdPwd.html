@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+        #form2 {
+            display: none;
+        }
+        
+        #background_modal {
+        	display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <section class="vh-100">
+        <div class="container w-50 p-5 h-100">
+            <div class="row d-flex align-items-center justify-content-center h-100">
+                <div class="col-md-7 col-lg-5 col-xl-5">
+
+                    <p class="text-center h3 fw-bold mb-5">아이디/비밀번호 찾기</p>
+
+                    <div class="d-flex column align-items-center justify-content-center mb-3">
+                        <div class="form-check me-3">
+                            <input class="form-check-input" type="radio" name="findIdPwd" id="findId" value="id" checked>
+                            <label class="form-check-label" for="findId">
+                                아이디 찾기
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="findIdPwd" id="findPwd" value="pwd">
+                            <label class="form-check-label" for="findPwd">
+                                비밀번호 찾기
+                            </label>
+                        </div>
+                    </div>
+		            <div class="py-2 mb-3 text-center">
+		            	<!-- 
+		            	<span th:if="${check == 0}">일치하는 아이디가 없습니다</span>
+						<span th:if="${check == 1}">당신의 아이디는 <b th:text="${userId}"></b> 입니다</span>
+						<span th:if="${check == 2}">일치하는 이메일이 없습니다</span>
+						<span th:if="${check == 3}"><b th:text="${userEmail}"></b> 로 이메일 발송</span>
+						 -->
+						<span id="msg" name="msg"></span>
+		            </div>       
+                    <div id="form1">
+                        <form action="/user/findId" id="findIdForm" name="findIdForm" method="POST">
+                            <div class="form-floating mb-4">
+                                <input type="text" class="form-control" id="userName" name="userName" placeholder="">
+                                <label for="userName">이름</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="text" class="form-control" id="userPhone" name="userPhone"
+                                    placeholder="">
+                                <label for="userPhone">전화번호 (- 제외)</label>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100 py-2 mb-3" id="checkId">확인</button>
+                            <button type="button" class="btn btn-primary w-100 py-2 mb-3"
+                                onclick="history.back()">취소</button>
+                        </form>
+                    </div>
+
+                    <div id="form2">
+                        <form action="/user/findPwd" id="findPwdForm" name="findPwdForm" method="POST">
+                            <div class="form-floating mb-4">
+                                <input type="text" class="form-control" id="userId" name="userId" placeholder="">
+                                <label for="userId">아이디</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="text" class="form-control" id="userName2" name="userName2" placeholder="">
+                                <label for="userName2">이름</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="text" class="form-control" id="userEmail" name="userEmail" placeholder="">
+                                <label for="userEmail">이메일</label>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100 py-2 mb-3" id="checkEmail">확인</button>
+                            <button type="button" class="btn btn-primary w-100 py-2 mb-3"
+                                onclick="history.back()">취소</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script th:inline="javascript">
+	    $(document).ready(function () {
+	        $("#checkId").on("click", function() {
+	        	//alert("클릭");
+	    		if ($.trim($("#userName").val()).length <= 0) {
+					alert("이름을 입력하세요");
+					$("#userName").val("");
+					$("#userName").focus();
+					return false;
+				}
+	    		
+	    		if ($.trim($("#userPhone").val()).length <= 0) {
+					alert("전화번호를 입력하세요");
+					$("#userPhone").val("");
+					$("#userPhone").focus();
+					return false;
+				}
+	    		
+	    		$.ajax({
+	    			type: "POST",
+	    			url: "/user/findId",
+	    			data: {
+	    				userName : $("#userName").val(),
+	    				userPhone : $("#userPhone").val()
+	    			},
+	    			success: function(res) {
+	    				if (res == 0) {
+	    					$("#msg").text("일치하는 아이디가 없습니다");
+	    					return;
+	    				}
+	    				
+	    				else {
+	    					$("#msg").html("당신의 아이디는 <b>" + res + "</b> 입니다");
+	    					return;
+	    				}
+	    			}
+	    		});
+	        });
+	        
+			$("#checkEmail").on("click", function() {
+				$.ajax({
+					type: "POST",
+					url: "/user/findPwd",
+					data: {
+						userId : $("#userId").val(),
+						userName : $("#userName2").val(),
+						userEmail : $("#userEmail").val()
+					},
+					success: function(res) {
+						if (res == 0) {
+							$("#msg").text("일치하는 이메일이 없습니다");
+						}
+						
+						else {
+							$("#msg").text("임시 비밀번호를 발송중입니다");
+							$.ajax({
+								type: "POST",
+								url: "/mail/tempPwd",
+								data: {
+									userId : $("#userId").val(),
+									userEmail : $("#userEmail").val()
+								},
+								success: function(res) {
+									$("#msg").html("임시 비밀번호를 발송했습니다 <a href='/user/login' style='color:blue'>로그인으로</a>");
+								},
+								error: function(request, status, error) {
+									alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+								}
+							});
+						}
+					}
+				});
+			});
+	    });
+	    
+        $("input[type=radio][name=findIdPwd]").on("click", function () {
+            var chk = $("input[type=radio][name=findIdPwd]:checked").val();
+
+            if (chk == "id") {
+                //alert("id");
+                $("#form1").css("display", "block");
+                $("#form2").css("display", "none");
+            }
+
+            else if (chk == "pwd") {
+                //alert("pwd");
+                $("#form1").css("display", "none");
+                $("#form2").css("display", "block");
+            }
+        });
+        
+        // 전화번호 하이픈(-) 자동
+        function addHyphenToPhoneNumber(phoneNumberInput) {
+            const phoneNumber = phoneNumberInput.value;
+            const length = phoneNumber.length;
+
+            if (length >= 9) {
+                let numbers = phoneNumber.replace(/[^0-9]/g, "").replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+                phoneNumberInput.value = numbers;
+            }
+        }
+
+        const phoneInput = document.getElementById("userPhone");
+        phoneInput.addEventListener("input", () => {
+            addHyphenToPhoneNumber(phoneInput);
+        });
+    </script>
+</body>
+
+</html>

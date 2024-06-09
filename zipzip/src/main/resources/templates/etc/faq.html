@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+        body {
+            margin-top: 100px;
+        }
+
+        .section_padding_130 {
+            padding-top: 130px;
+            padding-bottom: 130px;
+        }
+
+        .faq_area {
+            position: relative;
+            z-index: 1;
+            background-color: #f5f5ff;
+        }
+
+        .faq-accordian {
+            position: relative;
+            z-index: 1;
+        }
+
+        .faq-accordian .card {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-accordian .card:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-accordian .card .card-header {
+            background-color: #ffffff;
+            padding: 0;
+            border-bottom-color: #ebebeb;
+        }
+
+        .faq-accordian .card .card-header h6 {
+            cursor: pointer;
+            padding: 1.75rem 2rem;
+            color: #3f43fd;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            -ms-grid-row-align: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            -ms-flex-pack: justify;
+            justify-content: space-between;
+        }
+
+        .faq-accordian .card .card-header h6 span {
+            font-size: 1.5rem;
+        }
+
+        .faq-accordian .card .card-header h6.collapsed {
+            color: #070a57;
+        }
+
+        .faq-accordian .card .card-header h6.collapsed span {
+            -webkit-transform: rotate(-180deg);
+            transform: rotate(-180deg);
+        }
+
+        .faq-accordian .card .card-body {
+            padding: 1.75rem 2rem;
+        }
+
+        .faq-accordian .card .card-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        @media only screen and (max-width: 575px) {
+            .support-button p {
+                font-size: 14px;
+            }
+        }
+
+        .support-button i {
+            color: #3f43fd;
+            font-size: 1.25rem;
+        }
+
+        @media only screen and (max-width: 575px) {
+            .support-button i {
+                font-size: 1rem;
+            }
+        }
+
+        .support-button a {
+            text-transform: capitalize;
+            color: #2ecc71;
+        }
+
+        @media only screen and (max-width: 575px) {
+            .support-button a {
+                font-size: 13px;
+            }
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <div class="faq_area section_padding_130" id="faq">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-8 col-lg-6">
+                    <!-- FAQ Head-->
+                    <div class="section_heading text-center wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                        <h3><span>자주 묻는 질문(FAQ)</span></h3>
+                        <p>사이트 이용간 궁금했던 부분을 빠르게 해결해드립니다.</p>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <!-- FQA 본문-->
+                <div class="col-12 col-sm-10 col-lg-8">
+                    <div class="accordion faq-accordian" id="faqAccordion">
+
+                        <div class="card border-0 wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                            <div class="card-header" id="headingOne">
+                                <h6 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Q1. ZIPZIP 사이트는 무슨 사이트인가요?<span class="lni-chevron-up"></span></h6>
+                            </div>
+                            <div class="collapse" id="collapseOne" aria-labelledby="headingOne" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    <p>부동산 매물 정보를 제공해주는 사이트 입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 wow fadeInUp" data-wow-delay="0.3s" style="visibility: visible; animation-delay: 0.3s; animation-name: fadeInUp;">
+                            <div class="card-header" id="headingTwo">
+                                <h6 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">Q2. 회원정보는 어떻게 변경하나요?<span class="lni-chevron-up"></span></h6>
+                            </div>
+                            <div class="collapse" id="collapseTwo" aria-labelledby="headingTwo" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    <p>로그인 하신후, 마이페이지에 회원정보수정 페이지에서 진행하실수 있습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+                            <div class="card-header" id="headingThree">
+                                <h6 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">Q3. 회원 탈퇴후 재가입이 가능한가요?<span class="lni-chevron-up"></span></h6>
+                            </div>
+                            <div class="collapse" id="collapseThree" aria-labelledby="headingThree" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    <p>네 가능합니다. 그러나 문제에 소지가 있어 탈퇴 처리된 사용자에 한하여 관리자의 권한으로 재가입이 제한 될수도 있습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+                            <div class="card-header" id="headingFour">
+                                <h6 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapsefour">Q4. 중개인이 매물등록은 어떻게 하나요?<span class="lni-chevron-up"></span></h6>
+                            </div>
+                            <div class="collapse" id="collapseFour" aria-labelledby="headingFour" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    <p>매물등록에서 매물을 등록하실 수 있습니다.</p>
+                           <p>매물 정보가 사용자 필터검색시에 반영이 되므로 꼼꼼하고 자세하게 매물정보를 기입하시면 광고노출이 더 많아질 수 있습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 wow fadeInUp" data-wow-delay="0.4s" style="visibility: visible; animation-delay: 0.4s; animation-name: fadeInUp;">
+                            <div class="card-header" id="headingFive">
+                                <h6 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">Q5. 허위 매물은 어떻게 관리 되나요?<span class="lni-chevron-up"></span></h6>
+                            </div>
+                            <div class="collapse" id="collapseFive" aria-labelledby="headingFive" data-parent="#faqAccordion">
+                                <div class="card-body">
+                                    <p>허위 매물 신고 접수와 허위매물 전담팀이 수시로 매물을 살펴보고 필터링하고 있습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="support-button text-center d-flex align-items-center justify-content-center mt-4 wow fadeInUp" data-wow-delay="0.5s" style="visibility: visible; animation-delay: 0.5s; animation-name: fadeInUp;">
+                        <i class="lni-emoji-sad"></i>
+                        <p class="mb-0 px-2">원하시는 답변이 없으신가요?</p>
+                        <a href="/board/qna">문의하기</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script th:inline="javascript">
+        $(document).ready(function () {
+           
+           $("#headingOne").on("click", function(){
+               $("#collapseOne").slideToggle("fast");
+            });
+           
+           $("#headingTwo").on("click", function(){
+               $("#collapseTwo").slideToggle("fast");
+            });
+           
+           $("#headingThree").on("click", function(){
+               $("#collapseThree").slideToggle("fast");
+            });
+           
+           $("#headingFour").on("click", function(){
+               $("#collapseFour").slideToggle("fast");
+            });
+           
+           $("#headingFive").on("click", function(){
+               $("#collapseFive").slideToggle("fast");
+            });
+            
+        });
+    </script>
+</body>
+
+</html>

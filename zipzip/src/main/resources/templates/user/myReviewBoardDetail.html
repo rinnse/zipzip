@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+   <!-- 헤더 시작 -->
+   <div th:replace="/common/header :: header"></div>
+   <!-- 헤더 끝 -->
+
+   <!-- 개별 css -->
+   <style type="text/css">
+      section .container {
+           width: 100%;
+      }
+        
+      ul {
+         margin-bottom: 0;
+      }
+
+      li {
+         list-style: none;
+      }
+      
+      p {
+         margin-bottom: 0;
+      }
+
+      .ib {
+         display: inline-block;
+      }
+      
+      .img {
+         width: 100%;
+         height: 100%;
+         object-fit: cover;
+      }
+      
+      pre {
+         font-family: 'Ha';
+            src: url('/resources/fonts/kor/HANAMDAUM_Body.woff2') format('woff');
+      }
+      
+      .text-center {
+      	text-shadow: 0px 0px 2px gray;
+      }
+      
+      /* 별점 스타일 */
+	  #star {
+		 border-width: 2px; /* 테두리 두께 조절 */
+		 font-size: 1.5rem;
+		 margin-top: 2%;
+		 margin: 10px 0;
+		 display: flex;
+	  }
+		
+	  #star:not(.on) {
+		 color: #ffee00;
+	  }
+   </style>
+</head>
+
+<body>
+   <!-- 네비 시작 -->
+   <div th:replace="/common/nav :: nav"></div>
+   <!-- 네비 끝 -->
+
+   <!-- 본문 시작 -->
+   <div style="height: 13vh;"></div>
+   <section style="min-height: 565px;">
+      <div class="container p-5">
+         <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">나의 글(리뷰게시판)</p>
+         <table class="table">
+            <tbody>
+               <tr>
+                  <td>
+                     <ul class="row justify-content-between p-3">
+                        <li class="col-4 fs-7">
+                           <b>작성자</b>
+                           <p class="ib px-2" th:text="${agentReview.userId}"></p>
+                           <b>중개인</b>
+                           <p class="ib px-2" th:text="${agentReview.agentName}"></p>
+                           <br />
+                           <div>
+	                           <div style="display: flex;">
+		                           <b style="margin-top: 5%;">평가점수</b>
+		                           <p class="ib px-1" id="star" 
+		                           	  th:text="${agentReview.reviewScore}"></p>    
+		                       </div>      	                      	
+		                           <b>등록일</b>                    
+		                           <p class="ib px-1" th:text="${agentReview.regDate}"></p>  
+	                       </div>                                                	  
+                        </li>
+                     </ul>
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <ul class="p-3">
+                       <li class="col-4 fs-7 text-end">
+                         <p th:text="${agentReview.reviewContent}" 
+                            style="text-align: left;"></p>
+                       </li>
+                     </ul>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <div>
+            <input type="button" id="btnList" name="btnList" value="목록">
+            <span th:if="${agentReview != null and agentReview.userId == userId}">
+               <input type="button" th:onclick="'btnDelete(\'' + ${agentReview.reviewNum} + '\')'" value="삭제">
+            </span>
+         </div>
+      </div>
+      
+      <form id="myWriteListForm" name="myWriteListForm" method="post">
+          <input type="hidden" id="reviewNum" name="reviewNum" value="${reviewNum}" />
+          <input type="hidden" id="searchOption" name="searchOption" th:value="${searchOption}" />
+          <input type="hidden" id="searchContent" name="searchContent" value="${searchContent}" />
+          <input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+          <input type="hidden" id="checkRadio" name="checkRadio" th:value="${checkRadio}" />
+      </form>
+      
+   </section>
+   <!-- 본문 끝 -->
+
+   <!-- 푸터 시작 -->
+   <footer th:replace="/common/footer :: footer"></footer>
+   <!-- 푸터 끝 -->
+
+   <!-- 개별 js -->   
+   <script type="text/javascript" th:inline="javascript">
+       $(document).ready(function () {
+    	  // 리스트 이동
+          $("#btnList").on("click", function () {
+        	 document.myWriteListForm.checkRadio.value = 'R';  // 리뷰게시판 리스트
+        	 document.myWriteListForm.action = "/user/myWriteList";
+ 			 document.myWriteListForm.submit();       
+          });
+       });
+       
+       // 리뷰 삭제
+       function btnDelete(reviewNum){
+    	   if(confirm("이 게시물을 삭제하시겠습니까? ") == true){
+				$.ajax({
+					type:"POST",
+					url:"/user/reviewDelete",
+					data:{
+						reviewNum: reviewNum		
+					},
+					datatype:"JSON",
+					beforeSend:function(xhr){
+						xhr.setRequestHeader("AJAX", "true");
+					},
+					success:function(res){
+						if(res.code == 0){
+							alert("리뷰가 삭제되었습니다.");
+							location.href = "/user/myWriteList";
+						} else if(res.code == 400){
+							alert("리뷰가 존재하지 않습니다.");
+							location.href = "/user/myReviewBoardDetail";
+						} else if(res.code == 500){
+							alert("게시물 삭제 처리 중 오류가 발생하였습니다.");
+							location.href = "/user/myReviewBoardDetail";
+						} else {
+							alert("오류 발생: error");		
+							location.href = "/user/myReviewBoardDetail";
+						}
+					},
+					error:function(xhr, status, error){
+						icia.common.error(error);
+					}
+				});
+			 }
+       }
+
+       function fn_myWriteList(){
+           document.myWriteListForm.action = "/user/myWriteList";
+           document.myWriteListForm.submit();
+        }
+      
+   	    // 평가점수 별점 기능
+		// 페이지 로드 시 별점 표시하기
+		document.addEventListener("DOMContentLoaded", function () {
+			var starElements = document.querySelectorAll("#star"); // 별점을 표시할 요소들 선택
+			starElements.forEach(function (starElement) {
+				var score = parseInt(starElement.textContent); // 요소의 텍스트를 숫자로 변환하여 별점으로 사용
+				starElement.textContent = displayStars(score); // 별점으로 표시된 문자열로 변경
+			});
+		});
+
+		// 별점 숫자를 받아와서 별 모양으로 표시하는 함수
+		function displayStars(score) {
+			var stars = "";
+			for (var i = 0; i < 5; i++) {
+				if (i < score) {
+					stars += "★"; // 현재 별점보다 작은 인덱스는 별 모양으로 표시
+				} else {
+					stars += "☆"; // 현재 별점보다 크거나 같은 인덱스는 빈 별 모양으로 표시
+				}
+			}
+			return stars;
+		}
+   </script>
+</body>
+
+</html>

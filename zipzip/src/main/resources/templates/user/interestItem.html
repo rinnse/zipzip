@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <div class="section">
+
+        <div class="container">
+            <div class="row mb-5 align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="font-weight-bold text-primary heading"></h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h4>찜한 매물</h4>
+            <table class="table table-hover" style="border:1px solid #c4c2c2;">
+                <thead style="border-bottom: 1px solid #c4c2c2;" bgcolor="#dcdcdc">
+                    <tr class="table-thead-main">
+                        <th scope="col">중개인 정보</th>
+                        <th scope="col">매물 정보</th>
+                        <th scope="col">찜 목록 등록일</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="interestItem : ${interestItem}" style="cursor: pointer;">
+                        <td th:text="${interestItem.agentInfo}"></td>
+                        <td class="item-info" th:text="${interestItem.itemInfo}"></td>
+                        <td class="item-num" style="display: none;" th:text="${interestItem.itemNum}"></td>
+                        <td th:text="${interestItem.regDate}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(interestItem)}">
+                        <td colspan="5">찜한 매물 정보가 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // 매물 정보 칼럼  클릭시 해당매물 번호 출력
+            $(".item-info").click(function () {
+                var itemNum = $(this).closest("tr").find(".item-num").text();
+           		findItemNum(itemNum);
+                  
+            });
+
+        });
+
+        function findItemNum(itemNum) {
+            /* alert("매물 번호 : " + itemNum); */
+            location.href = "/user/interestItemDetail?itemNum="+itemNum;
+        } 
+    </script>
+</body>
+
+</html>

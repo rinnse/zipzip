@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+html,body {
+	height: 100%;
+  padding:1.5em;
+  background: #f5f5f5
+}
+
+table {
+  border: 1px #a39485 solid;
+  font-size: .9em;
+  box-shadow: 0 2px 5px rgba(0,0,0,.25);
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+th {
+  text-align: center;
+}
+  
+thead {
+  font-weight: bold;
+  color: #fff;
+  background: #6d74b3;
+}
+  
+ td, th {
+  padding: 1em .5em;
+  vertical-align: middle;
+}
+  
+ td {
+  border-bottom: 1px solid rgba(0,0,0,.1);
+  background: #fff;
+  text-align: center;
+}
+
+a {
+  color: #73685d;
+}
+  
+ @media all and (max-width: 768px) {
+    
+  table, thead, tbody, th, td, tr {
+
+  }
+  
+  th {
+    text-align: right;
+  }
+  
+  table {
+    position: relative; 
+    padding-bottom: 0;
+    border: none;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+  }
+  
+  thead {
+    float: left;
+    white-space: nowrap;
+  }
+  
+  tbody {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    white-space: nowrap;
+  }
+  
+  tr {
+    display: inline-block;
+    vertical-align: top;
+  }
+  
+  th {
+    border-bottom: 1px solid #7fb089;
+  }
+  
+  td {
+    border-bottom: 1px solid #e5e5e5;
+  }
+  }
+  /* ----- 페이징 ----- */
+		.page_wrap {
+			text-align: center;
+			font-size: 0;
+		}
+
+		.page_nation {
+			display: inline-block;
+		}
+
+		.page_nation .none {
+			display: none;
+		}
+
+		.page_nation a {
+			display: block;
+			margin: 0 3px;
+			float: left;
+			border: 1px solid #e6e6e6;
+			width: 28px;
+			height: 28px;
+			line-height: 28px;
+			text-align: center;
+			background-color: #fff;
+			font-size: 13px;
+			color: #999999;
+			text-decoration: none;
+		}
+
+		.page_nation .arrow {
+			border: 1px solid #ccc;
+		}
+
+
+		.page_nation a.active {
+			background-color: #42454c;
+			color: #fff;
+			border: 1px solid #42454c;
+		}
+.modalContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex; /* 수정 */
+  justify-content: center; 
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+   z-index: 10000;
+}
+
+.modalContent {
+  position: relative;
+  background-color: #ffffff;
+  width: 20%;
+  height: 30%;
+  position: fixed;
+  padding: 15px;
+  top: 50%;
+  left: 50%; /* 수정 */
+  transform: translate(-50%, -50%); /* 수정 */
+  border-radius: 10px;
+   z-index: 10001;
+}
+
+.modalContainer.hidden {
+  display: none;
+}
+.modalCloseButton {
+	margin-left:1%;
+    border-radius: .2em;
+    outline: none;
+    background-color: #EEE;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    transition: .2s;
+    box-shadow: 0em 0em 3em rgba(0,0,0,0);
+}
+.modelCloseButton :hover {
+	border-radius: 0em;
+	color: rgb(150, 150, 150);
+    background:#fff;
+    box-shadow: .1em .1em 3em rgba(0,0,0, 0.2);
+}
+
+/* 서치바  */
+input.search-text {
+  color: #222;
+  position:relative;
+  z-index:5;
+  transition: z-index 0.8s, width 0.5s, background 0.3s ease, border 0.3s;
+  height: 45px;
+  width: 0;
+  margin: 0;
+  padding: 5px 0 5px 40px;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 30px;
+  border: 1px solid transparent;
+  /*background: url(search.png) no-repeat left 9px center transparent;*/
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDUxMiA1MTIiIGhlaWdodD0iNTEycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxwYXRoIGQ9Ik01MDMuODY2LDQ3Ny45NzRMMzYwLjk1OCwzMzUuMDUyYzI4LjcyNS0zNC41NDQsNDYuMDE3LTc4LjkxMiw0Ni4wMTctMTI3LjMzNiAgYzAtMTEwLjA4NC04OS4yMjctMTk5LjMxMi0xOTkuMzEyLTE5OS4zMTJDOTcuNTk5LDguNDAzLDguMzUxLDk3LjYzMSw4LjM1MSwyMDcuNzE1YzAsMTEwLjA2NCw4OS4yNDgsMTk5LjMxMiwxOTkuMzEyLDE5OS4zMTIgIGM0OC40MzUsMCw5Mi43OTItMTcuMjkyLDEyNy4zMzYtNDYuMDE3bDE0Mi45MDgsMTQyLjkyMkw1MDMuODY2LDQ3Ny45NzR6IE0yOS4zMzEsMjA3LjcxNWMwLTk4LjMzNCw3OS45ODctMTc4LjMzMiwxNzguMzMyLTE3OC4zMzIgIGM5OC4zMjUsMCwxNzguMzMyLDc5Ljk5OCwxNzguMzMyLDE3OC4zMzJzLTgwLjAwNywxNzguMzMyLTE3OC4zMzIsMTc4LjMzMkMxMDkuMzE4LDM4Ni4wNDcsMjkuMzMxLDMwNi4wNSwyOS4zMzEsMjA3LjcxNXoiIGZpbGw9IiMzNzQwNEQiLz48L3N2Zz4=) no-repeat left 9px center transparent;
+  background-size:24px;
+}
+input.search-text:focus {
+  z-index:3; 
+  width: 270px;
+  border: 1px solid #666;  
+  background-color: white;
+  outline: none;
+  cursor:auto;
+  padding-right: 10px;
+}
+
+input.search-submit {
+  position: relative;
+  z-index: 4;
+  top:17px;
+  left: 49px;
+  width: 45px;
+  height: 45px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 30px;
+  cursor: pointer; 
+  background: none;
+  margin-left:-30px;
+}
+
+input.search-text::-webkit-search-cancel-button {
+  cursor:pointer;
+}
+.searchBox{
+position:relative;
+margin-left:10px;
+margin-bottom:10px;
+}
+/* 검색창 */
+.wrap {
+  width: auto;
+  margin: 3em auto;
+}
+
+.custom-select {
+  border: 1px solid #CCC;
+  border-radius: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  margin: 0 auto;
+  padding: 10px;
+  color: #666;
+}
+.table-img{
+	width:200px;
+	height:150px;
+}
+.button-container .btn-layer-3_1 {
+  box-shadow: 0 0 12px rgba(108, 92, 234, 0.33);
+}
+.button-container .btn-layer-3_1 i {
+  position: relative;
+  left: 30px;
+  padding: inherit;
+  background: #6C5CEA;
+  color: #A099FB;
+  border-radius: 5px;
+}
+.button-container .btn-primary {
+  background: #A099FB;
+  color: #6C5CEA;
+}
+.button-container .btn-outline-primary {
+  background: none;
+  border: 1px solid #A099FB;
+  color: #6C5CEA;
+}
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adjust spacing between rows as needed */
+}
+	</style>
+</head>
+
+<body>
+
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+
+<div style="height: 13vh;"></div>
+	<div id="modalContainer" class="modalContainer" style="width: 100%; height: 100%;display:none; background: rgba(0, 0, 0, 0.5);">
+  <div id="modalContent" class="modalContent">
+  <div style="text-align:center;" class="user-info">
+  	<div style="margin-top:10px;">📍 매물번호 : <span id="thisItemNum"></span></div>
+  	<hr/>
+  	<div><input type="button" class="btn btn-primary btn-layer-3_1" value="해당 매물 확인하기 🔍" onclick="goThatPage()"></div>
+  	<br/>
+  	<div>
+	  	상태: <select id="thisItemStatus" class="custom-select">
+			<option value="Y">정상거래중</option>
+			<option value="N">거래완료(비공개)</option>
+		</select>
+	</div>
+	<input type="hidden" id="thisItemItype" value="">
+	<br/>
+	<div>
+		<button id="submit" class="modalCloseButton" style="width:80px; color:navy;">적용</button>
+	     <button id="modalCloseButton" class="modalCloseButton" style="width:80px; color:red;">닫기</button>
+  	</div>
+  </div>
+  </div>
+</div>
+<div class="searchBox">
+<div class="wrap">
+<select id="thisSearchType" class="custom-select">
+	<option value='0'>등록자 아이디</option>
+	<option value='1'>등록번호</option>
+	<option value='2'>주소</option>
+	<option value='3'>지불방식(M/Y/S)</option>
+	<option value='4'>매물종류(O/T/F/A)</option>
+	<option value='5'>상태(Y/N)</option>
+</select>
+
+<input type="submit" value="" class="search-submit">
+<input type="search" id="thisSearchValue" name="q" class="search-text" placeholder="Search..." autocomplete="off">
+</div>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>등록번호</th>
+        <th>등록유저</th>
+        <th>대표사진</th>
+        <th>매물명</th>
+        <th>매물종류</th>
+        <th>매물주소</th>
+        <th>지불방식(M:월세 Y:전세 S:매매)</th>
+		<th>보증금/월세</th>
+		<th>매물상태(Y:거래중 N:거래완료)</th>
+		<th>등록일</th>
+    </tr>
+    </thead>
+     <tbody>
+        <tr th:each="item : ${list}" class="modal-trigger" 
+        	th:itemNum="${item.itemNum}" 
+            th:itemStatus="${item.itemStatus}"
+            th:itemItype="${item.itemItype}"
+            th:onclick="openModal(this.getAttribute('itemNum'),this.getAttribute('itemStatus'),this.getAttribute('itemItype'))">            
+            <td th:text="${item.itemNum}"></td>
+            <td th:text="${item.userId}"></td>
+            <td>
+            	<img class="table-img" th:src="@{'/resources/upload/item/' + ${item.fileName}}" alt="Image">
+            </td>
+            <td th:text="${item.itemName}"></td>
+            <td th:text="${item.itemItype}"></td>
+            <td th:text="${item.itemAddress}"></td>
+            <td th:text="${item.itemPtype}"></td>
+            <td>
+            	<span class="transD" th:text="' '+ ${item.transD}" id="transD"></span><span th:if="${item.itemPtype == '월세'}" th:text="' / '+ ${item.transM}"></span>
+            </td>
+            <td th:text="${item.itemStatus}"></td>
+            <td th:text="${item.regDate}"></td>
+        </tr>
+    </tbody>
+</table>
+<div class="board-paging-container" style="margin-top:10px;">
+	<div class="page_wrap">
+		<div class="page_nation" th:if="${paging != null}">
+			<th:block th:if="${paging.prevBlockPage gt 0}">
+				<a class="" href="#" th:onclick="'fn_pageClick(1)'"></a>
+				<a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.prevBlockPage} + ')'"></a>
+			</th:block>
+			<th:block th:each="i: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+				<a class="active" th:if="${i == paging.curPage}" th:text="${i}">1</a>
+				<a href="#" th:if="${i != paging.curPage}" th:text="${i}" th:onclick="'fn_pageClick(' + ${i} + ',' + ${sort} + ')'">2</a>
+			</th:block>
+			<th:block th:if="${paging.nextBlockPage gt 0}">
+				<a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.nextBlockPage} + ')'">></a>
+			</th:block>
+		</div>
+	</div>
+	<form id="searchForm" name="searchForm" method="post">
+		<input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+		<input type="hidden" id="searchValue" name="searchValue" th:value="${searchValue}" />
+		<input type="hidden" id="searchType" name="searchType" th:value="${searchType}" />
+	</form>
+</div>
+
+	<!-- 개별 js -->
+	<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$("#modalOpenButton").on("click",function(){
+	    	$("#modalContainer").show();
+	    });
+	    $("#modalCloseButton").on("click",function(){
+	    	$("#modalContainer").hide();
+	    });
+	    $("#modalContainer").on("click",function(){
+	    	if ($("#modalContainer").css("display") === "block") {
+	            $("#modalContainer").hide();
+	        }
+	    });
+	    $(".searchBox").on("keyup",function(key){         
+	    	if(key.keyCode==13) {   
+	    		fn_pageClick(1);      
+	    	}
+	    });
+	    $("#submit").on("click",function(){
+	    	if(confirm("이대로 변경할까요?")){
+	    		updateState();
+	    	}
+	    });
+	});
+	function updateState (){
+		var status = $("#thisItemStatus").val();
+		var itemNum = $("#thisItemNum").text();
+		
+		console.log(status);
+		console.log(itemNum);
+		
+		$.ajax({
+			url:"/itemUpdate",
+			type:'POST',
+			data:{
+				itemNum:itemNum,
+				status:status
+			},
+			success: function(data){
+
+				if(data == -1){
+					console.log("-1");
+				}
+				else if(data > 0){
+					alert("완료");
+					console.log("1");
+					$("#modalContainer").hide();
+					window.location.href = "/manager/item";
+				}
+				else {
+					console.log(data);
+				}
+			},
+			error: function(data){
+				alert("에러");	
+			}
+		});
+	}
+function openModal(itemNum, itemStatus, itemItype){
+
+	console.log(itemNum);
+	$("#thisItemNum").text(itemNum);
+	$("#thisItemStatus").val(itemStatus)
+	$("#thisItemItype").val(itemItype);
+
+	$("#modalContainer").show();
+	
+}
+function goThatPage(){
+	var itemNum = $("#thisItemNum").text();
+	console.log(itemNum);
+	var type = $("#thisItemItype").val();
+	console.log(type);
+	var src = '/detail?itemNum='+itemNum+'&type='+type;
+	console.log(src);
+	$("#checkDetail").attr("src", src);
+	window.open(src, '_blank',"width=300,top=0,left=10");
+}
+function fn_pageClick(page){
+	console.log('fn_pageClick');
+	document.searchForm.curPage.value = page;
+	document.searchForm.searchValue.value = $("#thisSearchValue").val();
+	document.searchForm.searchType.value = $("#thisSearchType").val();
+	
+	console.log('fn_pageClick');
+	document.searchForm.curPage.value = page;
+	document.searchForm.action = "/manager/item";
+	document.searchForm.submit();
+}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+   <style type="text/css">
+      .board-Page-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 565px;
+         width: 100%;
+      }
+      .board-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 500px;
+         width:96%;
+         border-radius: 10px;
+         margin-bottom: 1.5%;
+         background-color: #fffff;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08);
+         margin-top:-8px;
+      }
+      .board-content-container {
+           background-color: white;
+            display: flex;
+          position: relative;
+          justify-content: center;
+          align-items: center;
+          height: 50%;
+          width: 70%;
+          margin-top: 100px;
+          margin-bottom: 30px;
+          flex-direction: column;
+        }
+        .title-container {
+           font-size:38px;
+           font-weight:bold;
+           color:gray;
+           margin-bottom:50px;
+           text-align: left;
+        }
+        
+       table {
+           border-collapse: collapse;
+           width: 100%;
+           border-radius: 10px;
+           overflow: hidden;
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+           background-color: #fff;
+       }
+   
+       th, td {
+           padding: 12px;
+           text-align: center;
+       }
+   
+       th {
+           border-left:1px dashed #fff;
+           background-color: #ffcccc;
+           color: #333;
+           font-weight: bold;
+       }
+       
+       td {
+          border-top: 1px solid #ffe6e6; /* td 요소에 대해 1픽셀 두께의 회색 윗선 추가 */
+       }
+       tr:hover {
+           background-color: #ffe6e6;
+       }
+       .button-css {
+            background-color: #ffcccc;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin:5px;
+        }
+        
+        /* 페이징 */
+      .pagination {
+          text-align: center; 
+          height: 37px; 
+          line-height: 37px;
+          position: relative; 
+          left: 50%; /* 왼쪽 여백을 50%로 설정합니다. */
+          transform: translateX(-50%); /* 가운데 정렬을 위해 x축으로 -50%만큼 이동합니다. */
+          width: auto; /* 필요한 만큼의 너비를 가지도록 설정합니다. */
+          bottom: -5%;
+          margin-top:20px;
+          margin-right:30px;
+          justify-content: center;
+      }
+      .pagination p {
+         display:inline-block; 
+         border:1px solid #d6d6d6; 
+         height:35px; width:35px;  
+         vertical-align:middle; 
+         text-align:center; 
+         text-decoration:none; 
+         font-size:15px; 
+         color:white;
+         background:#d6d6d6;
+         border-radius: 20px;
+         margin-left: 4px;
+         cursor: pointer;
+      }
+      .pagination .on {
+         color:#fff; 
+         font-weight:bold; 
+         background:#ffcccc;
+         cursor: pointer;
+         border-color:#ffcccc;
+      }
+      .pagination .next{
+         height:35px; 
+         width:35px; 
+         border:1px solid #d4d4d4;
+         overflow:hidden;
+         position:relative; 
+         font-size:0;
+      }
+      .pagination .next{
+         background:#ebebeb url("") no-repeat center center; 
+         margin-left:4px; 
+         border-left:0;
+      }
+      /* 페이징 끝 */
+
+      /* 모달 */
+      .modalContainer {
+         position: fixed;
+         top: 0;
+         left: 0;
+         display: flex; /* 수정 */
+         justify-content: center; 
+         align-items: center;
+         background: rgba(0, 0, 0, 0.5);
+         z-index: 10000;
+      }
+      .modalContent {
+          position: relative;
+          background-color: #ffffff;
+          width: 30%;
+          height: 80%;
+          position: fixed;
+          padding: 15px;
+          top: 50%;
+          left: 50%; /* 수정 */
+          transform: translate(-50%, -50%); /* 수정 */
+          border-radius: 10px;
+          z-index: 10001;
+         overflow-y: auto;
+      }
+      .modalContainer.hidden {
+         display: none;
+      }
+      .modalCloseButton {
+         margin-left:1%;
+          border-radius: .2em;
+          outline: none;
+          background-color: #EEE;
+          border: none;
+          color: #555;
+          cursor: pointer;
+          transition: .2s;
+          box-shadow: 0em 0em 3em rgba(0,0,0,0);
+      }
+      .modelCloseButton :hover {
+         border-radius: 0em;
+         color: rgb(150, 150, 150);
+          background:#fff;
+          box-shadow: .1em .1em 3em rgba(0,0,0, 0.2);
+      }
+         /* 모달 내용 */
+         .img-box{
+            width:75vw;
+            height:300px;
+            margin-top:100px;
+            margin-bottom:20px;
+            margin-left:200px;
+            margin-right:0px;
+         }
+         .image-container {
+             position: relative;
+             display: inline-block;
+             margin-left:12px;
+         }
+         .property-details {
+             padding: 30px;
+             border: 1px solid #ccc;
+             border-radius: 10px;
+         }
+         .property-header {
+            
+             justify-content: space-between;
+             align-items: center;
+         }
+         .registration-number {
+             font-weight: bold;
+             background-color: gray;
+             color: white;
+             padding: 5px 10px;
+             border-radius: 5px;
+             display: inline-block;
+             margin-top: 10px;
+             margin-bottom: 10px;
+         }
+         .address-date {
+             display: flex;
+             align-items: center;
+             margin-top: 10px;
+             margin-bottom: 10px;
+             font-weight:bold;
+             font-size:15px;
+         }
+         .date{
+            position: relative;
+            font-size:17px;
+            color:gray;
+            margin-top: 12px;
+         }
+
+         .rent{
+             font-size: 30px;
+             font-weight: bold;
+             margin-bottom: 10px;
+             bottom: 10px;
+         }
+         .maintenance-fee {
+             display: flex;
+             align-items: center;
+             margin-bottom: 10px;
+         }
+         hr {
+             margin-top: 20px;
+             margin-bottom: 20px;
+             border-top: 1px solid #ccc;
+         }
+         .property-intro, .property-description, .location, .agency-info {
+             margin-top: 20px;
+         }
+         .property-description .heading {
+             font-size: 18px;
+             font-weight: bold;
+             margin-bottom: 10px;
+         }
+         .property-description .content {
+             color: #666;
+         }
+         .content-pre {
+            color: #666;
+            width: 450px; /* 텍스트가 표시될 공간의 최대 너비 */
+            overflow: hidden; /* 넘친 텍스트를 감출 수 있도록 설정 */
+            white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 설정 */
+            text-overflow: ellipsis; /* 넘친 텍스트를 생략 부호(...)로 표시 */
+         }
+         .read-more {
+            position:absolute;
+            right:27px;
+             cursor: pointer;
+             color: #d698b1;
+             font-weight: bold;
+             margin-right:30px;
+         }
+         .smallMap{
+            width:100%;
+            height:300px;
+            align-self: center;
+            margin-top: 15px;
+         }
+         .agency-info {
+             display: flex;
+             align-items: center;
+         }
+         .agent-photo{
+            position: relative;
+            width: 100px; /* 지름 설정 */
+             height: 100px; /* 지름 설정 */
+             border-radius: 50%; 
+             overflow: hidden;
+             margin-right: 20px;
+         }
+         .agent-photo-inner{
+            width: 100%;
+             height: 100%;
+            object-fit: cover;
+         }
+         .agency-details {
+             flex: 1; 
+         }
+         .agency-name {
+             font-weight: bold;
+         }
+         .agent-intro {
+             color: gray;
+             font-size: 14px;
+         }
+         .warning{
+            color: lightgrey;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top:8px;
+            margin-left:20px
+         }
+         .option-container{
+            margin-top:30px;
+            display: flex;
+            flex-direction: column;
+         }
+         .option-col{
+            margin-bottom:30px;
+            vertical-align: middle;
+         }
+         .option-img{
+            width:30px;
+            height:30px;
+            margin-right:15px;
+            vertical-align: middle
+         }
+         .option-img-siren{
+            width:30px;
+            height:30px;
+            margin-left:210px;
+            vertical-align: middle
+         }
+         .contact-button {
+             position: static;
+             width:48%;
+             bottom: 20px;
+             right: 20px;
+             color: white;
+             padding: 10px 20px;
+             border-radius: 5px;
+             cursor: pointer;
+             z-index: 1000; /* 다른 요소 위에 표시되도록 설정 */
+             background-color: #ffcccc;
+             text-align:center;
+         }
+         .icon-overlay-cancel {
+            position: absolute;
+            left:0%;
+            top: 5%;
+            cursor: pointer;
+            width: 20px; /* 너비 조정 */
+         }
+         .icon-overlay { 
+             position: absolute;
+             top: 10%;
+             left: 95%;
+             transform: translate(-50%, -50%);
+             border-radius: 50%;
+             padding: 5px; 
+             cursor: pointer;
+         }
+         .icon-overlay2 { 
+             position: absolute;
+             top: 10%;
+             left: 90%;
+             transform: translate(-50%, -50%);
+             /*background-color: rgba(255, 255, 255, 0.3); */
+             border-radius: 50%; 
+             padding: 5px; 
+             cursor: pointer;
+         }
+         .inner-icon{
+            width:30px;
+            height:30px;
+            margin-top:150px;
+         }
+         .icon-overlay-side0{
+            position: absolute;
+             top: 10%;
+             transform: translate(-50%, -50%);
+             padding: 5px; 
+             left:16%;
+             cursor: pointer;
+         }
+         .icon-overlay-side1{
+            position: absolute;
+             top: 50%;
+             transform: translate(-50%, -50%);
+             padding: 5px; 
+             left:92%;
+             cursor: pointer;
+         }
+         .icon-overlay-side2{
+            position: absolute;
+             top: 50%;
+             transform: translate(-50%, -50%);
+             padding: 5px; 
+             cursor: pointer;
+             left:20%;
+         }
+         
+         /* 옵션 아이콘 */
+         .icon-container {
+             display: grid;
+             grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개의 열을 생성합니다. */
+             gap: 10px;
+         }
+         
+         .option-icon {
+             width: 50px; 
+             height: auto; 
+             margin: 0 auto; 
+             font-size: 14px;
+         }
+         .option-icon-img {
+             width: 30px;
+             height: auto; 
+             display: flex;
+             margin: 0 auto;
+             margin-bottom:10px;
+         }
+         .option-info {
+             text-align: center; 
+             margin: 0 auto; 
+         }
+         .img-css {
+            position:relative;
+            width:100%;
+            height:300px;
+            margin-bottom:10px;
+            border-radius:5px;
+         }
+         .modalContent::-webkit-scrollbar {
+           width: 10px;
+           /* 스크롤바의 너비 */
+         }
+         
+         .modalContent::-webkit-scrollbar-track {
+           background: #fafaf;
+           /* 스크롤바의 트랙 배경색 */
+         }
+         
+         .modalContent::-webkit-scrollbar-thumb {
+           background: lightgray;
+           /* 스크롤바 썸의 배경색 */
+           border-radius: 20px;
+         }
+         .floor-layer {
+            display: flex;
+             justify-content: space-between;
+         }
+         .item-intro-detail {
+             border: none; /* 외각선 제거 */
+             resize: none; /* 크기 조정 비활성화 */
+             width: 100%; /* 부모 요소의 가로 90%로 설정 */
+            overflow-y: hidden; 
+             outline: none;
+         }
+         /* 모달 내용 끝 */
+      /* 모달 끝 */
+    input[type="radio"]:checked + label {
+       font-weight: bold;
+       color: #5066a5; /* 선택된 라벨의 텍스트 색상 변경 */
+   }
+   input[type="radio"] + label {
+       margin-left:8px;
+       margin-right: 10px;
+   }
+    input[type="radio"] {
+        display: inline;
+        margin-left:10px;
+        appearance: none;
+      width: 15px;
+      height: 15px;
+      box-shadow: 0 0 0 1px #ccc;
+      border-radius: 50%;
+    }
+   [type="radio"]:checked {
+        width: 15px;
+        height: 15px;
+        background-color: #6c86ba;
+        box-shadow: 0 0 0 2px #6c86ba;
+        border: 4px solid white;
+        border-radius: 50%;
+   }
+    
+   #btnMore {
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      height: 40px;
+      background-color: #c2c0c1;
+      color: white;
+      font-size: 17px;
+      margin-top:20px;
+   }   
+    </style>
+
+    
+</head>
+<body>
+   <!-- 네비 시작 -->
+   <div th:replace="/common/nav :: nav"></div>
+   <!-- 네비 끝 -->
+   
+    <!-- 본문 시작 -->
+       <div style="height: 13vh;"></div>
+
+       <div class="board-Page-container">
+           <div class="board-container">
+              <div class="board-content-container">
+                 
+                 <div class="title-container">매물 등록 현황 🔍</div>
+               
+               <div style="display: flex;justify-content:space-between;width:100%;">
+                  <div style="display:flex; float:left;">
+                      <input type="radio" name="sortI" value="" id="sortAll" th:checked="${sortItype == ''}">
+                     <label for="sortAll">전체</label>
+                     
+                     <input type="radio" name="sortI" value="A" id="sortA" th:checked="${sortItype == 'A'}">
+                     <label for="sortA">아파트</label>
+                     
+                     <input type="radio" name="sortI" value="F" id="sortF" th:checked="${sortItype == 'F'}">
+                     <label for="sortF">오피스텔</label>
+                     
+                     <input type="radio" name="sortI" value="T" id="sortT" th:checked="${sortItype == 'T'}">
+                     <label for="sortT">투룸</label>
+                     
+                     <input type="radio" name="sortI" value="O" id="sortO" th:checked="${sortItype == 'O'}">
+                     <label for="sortO">원룸</label>
+                  </div>
+                  
+                  <div style="display:flex; float:left;">
+                     <input type="radio" name="sortP" value="" id="sortS" th:checked="${sortPtype == ''}">
+                     <label for="sortS">전체</label>
+                     <input type="radio" name="sortP" value="S" id="sortS" th:checked="${sortPtype == 'S'}">
+                     <label for="sortS">매매</label>
+                     <input type="radio" name="sortP" value="Y" id="sortY" th:checked="${sortPtype == 'Y'}">
+                     <label for="sortY">전세</label>
+                     <input type="radio" name="sortP" value="M" id="sortM" th:checked="${sortPtype == 'M'}">
+                     <label for="sortM">월세</label>
+                  </div>
+                </div><br/>
+               
+               <table id="itemTable">
+                   <tr>
+                       <th style="width:10%">매물 번호</th>
+                       <th style="width:9%">매물 유형</th>
+                       <th style="width:10%">매물 사진</th>
+                       <th style="width:12%">매물 이름</th>
+                       <th style="width:18%">매물 위치</th>
+                       <th style="width:7%">거래 유형</th>
+                       <th style="width:9%">가격(만원)</th>
+                       <th style="width:7%">상태</th>
+                       <th style="width:9%">등록일</th>
+                       <th></th>
+                   </tr>
+<th:block th:if="${list != null}" th:each="item : ${list}">
+                   <tr class="item-list">
+                       <td th:text="${#numbers.formatInteger(item.itemNum, 10)}"></td>
+                       <td th:if="${item.itemItype == 'O'}">원룸</td>
+                       <td th:if="${item.itemItype == 'T'}">투룸</td>
+                       <td th:if="${item.itemItype == 'F'}">오피스텔</td>
+                       <td th:if="${item.itemItype == 'A'}">아파트</td>
+                       <td style="cursor:pointer;"><img th:src="@{'/resources/upload/item/' + ${item.fileName}}" th:onclick="'fn_itemDetail('+ ${item.itemNum} +')'" style="width:120px;height:90px;"></td>
+                       <td th:text="${item.itemName}" th:onclick="'fn_itemDetail('+ ${item.itemNum} +')'" style="cursor:pointer;">가성비 원룸</td>
+                       <td th:text="${item.itemAddress}" th:onclick="'fn_itemDetail('+ ${item.itemNum} +')'" style="cursor:pointer;">서울특별시 마포구 동교동</td>
+                       <td th:if="${item.itemPtype == 'M'}">월세</td>
+                       <td th:if="${item.itemPtype == 'Y'}">전세</td>
+                       <td th:if="${item.itemPtype == 'S'}">매매</td>
+                       <td th:text="${item.itemDeposit}">5000/60</td>
+                       <td th:if="${item.itemStatus == 'Y'}">거래중</td>
+                       <td th:if="${item.itemStatus == 'N'}">거래완료</td>
+                       <td th:text="${item.regDate}">216</td>
+                       <td>
+                          <button id="btnItemUpdate" class="button-css" th:onclick="'fn_itemUpdate('+ ${item.itemNum} +')'">수정</button>
+                          <button id="btnItemDelete" class="button-css" th:onclick="'fn_itemDelete('+ ${item.itemNum} +')'">삭제</button>
+                       </td>
+                   </tr>
+</th:block>
+<th:block th:if="${list == null}">
+                   <tr>
+                       <td colspan="10" style="height:300px;font-size:20px;color:gray;">등록된 매물이 없습니다.</td>
+                   </tr>
+</th:block>
+<th:block th:if="${#lists.size(list) <= 0}">
+                   <tr>
+                       <td colspan="10" style="height:300px;font-size:20px;color:gray;">조건에 부합하는 매물을 찾을 수 없습니다.</td>
+                   </tr>
+</th:block>
+               </table>
+               <button id="btnMore" name="btnMore">더 보기</button>
+               
+            </div>
+         </div>
+      </div>
+
+<!-- 모달 -->
+<div id="modalContainer" class="modalContainer" style="width: 100%; height: 100%;display:none; background: rgba(0, 0, 0, 0.5);">
+   <div id="modalContent" class="modalContent">
+      <div>
+
+         <div class="property-details">
+            <div style="font-weight:bold;font-size:30px;margin-bottom:20px;color:gray;"><span class="item-itype" >매물 유형</span></div>
+            <!-- 이미지 -->
+            <div>
+                 <div class="slick-slider">
+                     <div> 
+                         <img src="/resources/upload/item/100_4.jpg" alt="Your Image" class="img-css">
+                     </div>
+                 </div>
+                 <div class="slick-slider-dots"></div>
+             </div>
+            <!-- 이미지끝 -->
+         
+             <div class="property-header">
+                <div style="display: flex;justify-content: space-between;">
+                    <div class="registration-number"><span>매물번호</span></div>
+                    <span class="date">등록일값</span>
+                 </div>
+                 <div class="address-date">
+                     <div ><span class="address">주소</span>&nbsp;&nbsp;<span class="address-detail">주소 상세</span></div>
+                 </div>
+                 
+                 
+                 <div class="rent">
+                     <span class="item-deposit">전세/보증금 금액</span> 
+                     <span class="item-month-price">월세가격</span>
+                 </div>       
+                 <div class="maintenance-fee">관리비 <span class="maintenance-fee-modal">관리비금액</span></div>  
+             </div>
+             <hr/>
+             <div class="property-intro">
+                 <div class="one-line-intro"><span>intro</span></div>
+
+               <div class="option-container" id="longO">
+                   <div class="option-col">
+                       <img src="/resources/images/icon/size.png" class="option-img">
+                       <b>전용 <span class="item-area-modal">면적값</span> m²</b>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/room.png" class="option-img">
+                       <b><span class="item-itype">아파트</span></b>
+                   </div>
+                   <div class="option-col">
+                         <img src="/resources/images/icon/building.png" class="option-img">
+                         <span class="item-floor-modal">층값</span> 층
+                   </div>
+                   <div class="option-col">
+                       <span>
+                           <img src="/resources/images/icon/p.png" class="option-img">
+                           주차 - <span  class="item-parking-YN">가능/불가능</span>
+                       </span>
+                   </div>
+                   <div class="option-col">
+                       <span>
+                           <img src="/resources/images/icon/cal.png" class="option-img">
+                           즉시입주가능 - <span class="item-move-itemMoveAvbl">가능/불가능</span>
+                       </span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/direc.png" class="option-img">
+                       방향 - <span class="item-direction">남동향</span>
+                   </div>
+                   <div class="option-col">
+                       <span>
+                           <img src="/resources/images/icon/elevator.png" class="option-img">
+                           엘레베이터 - <span class="item-elevator-YN">있음</span>
+                       </span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/home.png" class="option-img">
+                       건축물대장 주용도 - <span class="item-kind">상가주택</span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/pet.png" class="option-img">
+                       반려견 동반 - <span class="item-pet">가능</span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/task.png" class="option-img">
+                       준공일 - <span class="item-build-date">준공일</span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/house.png" class="option-img">
+                       <span class="address">주소</span> <span class="address-detail">상세주소</span>
+                   </div>
+                   <div class="option-col">
+                       <img src="/resources/images/icon/checked.png" class="option-img">
+                       등록번호 <span>등록번호</span>
+                   </div>
+               </div>   
+             </div>
+             
+             <br/>
+             <hr/>
+             
+             <div class="property-description">
+                 <div class="heading">상세 설명</div>
+                 <div class="content" id="originC">
+                    <textarea class="item-intro-detail" rows="15" readonly >상세소개</textarea>
+                 </div>
+             </div>
+             
+             <br/>
+             <hr/>
+             <div class="location">
+                 <b style="margin-bottom:20px;">위치</b>
+                 <br/>
+                 <div class="address">서울시 마포구 연남동</div>
+                 <div class="smallMap" id="map">지도</div>
+             </div>
+             <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=726dfc318a4b673936280508718242cf&libraries=services&autoload=false"></script>
+             <script>
+            kakao.maps.load(function() {
+                var mapContainer = document.getElementById('map'),
+                mapOption = { 
+                    center: new kakao.maps.LatLng(33.450701, 126.570667),
+                    level: 5
+                };
+                var map = new kakao.maps.Map(mapContainer, mapOption); 
+                var geocoder = new kakao.maps.services.Geocoder();
+                var marker = new daum.maps.Marker({
+                    map: map
+                });
+                var address = '서울 강남구 역삼동 603-5';
+                geocoder.addressSearch(address, function(result, status) {
+                  if (status === kakao.maps.services.Status.OK) {
+                  var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                     var marker = new kakao.maps.Marker({
+                        map: map,
+                           position: coords
+                       });
+                  }
+                  map.setCenter(coords);
+                  map.setDraggable(false);
+                  map.setZoomable(false); 
+                });
+            });
+            </script>
+             <hr/>
+             <div>
+                 <div style="font-weight: bold; font-size: 20px; margin-bottom:30px;">옵션</div>
+                 <div class="icon-container">
+                     <div>   <!--  th:if="${io.air == 'Y'}" -->
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/air-48.png" class="option-icon-img">
+                            <div class="option-info">에어컨</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/bed-48.png" class="option-icon-img">
+                            <div class="option-info">침대</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/cctv-48.png" class="option-icon-img">
+                            <div class="option-info">CCTV</div>
+                         </div>
+                      </div>
+                      <div>
+                      <div class="option-icon">
+                         <img src="/resources/images/icon/option/closet-48.png" class="option-icon-img">
+                         <div class="option-info">옷장</div>
+                      </div>
+                    </div>
+                    <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/desk-48.png" class="option-icon-img">
+                            <div class="option-info">책상</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/entrance-48.png" class="option-icon-img">
+                            <div class="option-info">공동문</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/gasstove-48.png" class="option-icon-img">
+                            <div class="option-info">가스불</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/induction-48 .png" class="option-icon-img">
+                            <div class="option-info">인덕션</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/intercom.png" class="option-icon-img">
+                            <div class="option-info">인터폰</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/laundry-48.png" class="option-icon-img">
+                            <div class="option-info">세탁기</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                           <img src="/resources/images/icon/option/micro-48.png" class="option-icon-img">
+                           <div class="option-info">렌지</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                           <img src="/resources/images/icon/option/refrigerator-48.png" class="option-icon-img">
+                           <div class="option-info">냉장고</div>
+                         </div>
+                      </div>
+                      <div>
+                         <div class="option-icon">
+                            <img src="/resources/images/icon/option/sink-48.png" class="option-icon-img">
+                           <div class="option-info">싱크대</div>
+                         </div>
+                      </div>   
+                 </div>
+             </div>
+             <br/>
+             <hr/>
+            <div class="floor-layer">
+                 <div class="contact-button" id="btn-update">수정하기</div>
+                 <div class="contact-button" id="btn-delete">삭제하기</div>
+                 
+             </div>
+         </div>
+
+      </div>
+   </div>
+</div>
+
+<form id="itemForm" name="itemForm" method="POST">
+   <input type="hidden" id="itemNum" name="itemNum" />
+   <input type="hidden" id="sortItype" name="sortItype" th:value="${sortItype}"/>
+   <input type="hidden" id="sortPtype" name="sortPtype"th:value="${sortPtype}">
+   <input type="hidden" id="searchT" name="searchT" />
+   <input type="hidden" id="searchV" name="searchV" />
+</form>
+
+      
+   <!-- 본문 끝 -->
+   
+<!--    <!-- 푸터 시작 --> -->
+<!--    <footer th:replace="/common/footer :: footer"></footer> -->
+<!--    <!-- 푸터 끝 --> -->
+   
+   <!-- 개별 js -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script type="text/javascript">
+         
+   $(document).ready(function() {
+      
+      var listSize = [[${#lists.size(list)}]]; 
+       console.log("List size: " + listSize);
+       
+       
+       // 더보기
+       var initialLoadCount = 10;
+       var totalReviews = $(".item-list").length;
+       loadMore(initialLoadCount);
+   
+       $("#btnMore").on("click", function() {
+           initialLoadCount += 3; 
+           loadMore(initialLoadCount);
+       });
+       function loadMore(count) {
+           $(".item-list").hide();
+           $(".item-list").slice(0, count).show();
+   
+           if (count >= totalReviews) { 
+               $("#btnMore").hide();
+           } else {
+               $("#btnMore").show();
+           }
+       }
+      
+      // 모달 내 수정 버튼
+      $("#btn-update").on("click", function(){
+         //alert('모달 수정  itemNum --' + $("#itemNum").val());
+         fn_itemUpdate($("#itemNum").val());
+      });
+      
+      // 모달 내 삭제 버튼
+      $("#btn-delete").on("click", function(){
+         //alert('모달 삭제  itemNum --' + $("#itemNum").val());
+         fn_itemDelete($("#itemNum").val());
+      });      
+      
+
+   });
+   
+   $("input[name='sortI']").change(function() {
+       var itypeValue = $("input[name='sortI']:checked").val();
+       document.itemForm.sortItype.value = itypeValue;
+       fn_sort();
+   });
+
+   $("input[name='sortP']").change(function() {
+       var ptypeValue = $("input[name='sortP']:checked").val();
+       document.itemForm.sortPtype.value = ptypeValue;
+       fn_sort();
+   });      
+
+   function fn_sort() {
+       document.itemForm.action = "/agent/itemList";
+       document.itemForm.submit();
+   }
+   
+   // 모달 열기
+   function fn_itemDetail(itemNum){
+      //alert(">>>>" + itemNum);
+      
+      document.documentElement.style.overflow = 'hidden';
+      
+      $.ajax({
+         url: "/getItemDetail",
+         type: "POST",
+         data: { itemNum: itemNum },
+         success:function(itemData){
+            //alert("성공");
+            $("#qwer").replaceWith(itemData);
+            console.log(itemData.itemFileName[0].fileName);
+            console.log(itemData.itemName);
+            
+            
+            $('.img-css').attr('src', '/resources/upload/item/' + itemData.itemFileName[0].fileName);
+            
+             var itemName = itemData.itemName;
+            
+            var itemNum = itemData.itemNum;
+            $('.registration-number').text(String(itemNum).padStart(10, '0'));
+            
+             $('.address').text(itemData.itemAddress);
+             $('.address-detail').text(itemData.itemAddressDetail);
+             $('.item-deposit').text(itemData.itemDeposit);
+             $('.date').text('등록일 : ' + itemData.regDate);
+             var deposit = itemData.itemDeposit;
+             
+             if (deposit >= 10000) {
+                 var quotient = Math.floor(deposit / 10000);
+                 var remainder = deposit % 10000;
+                 var shortDeposit = quotient + '억 ';
+                 
+                 if (remainder !== 0) {
+                     shortDeposit += ' ' + remainder;
+                 }
+                 $('.item-deposit').text(shortDeposit);
+             } else {
+                 $('.item-deposit').text(deposit);
+             }
+             
+             if(itemData.itemMonthPrice != null && itemData.itemMonthPrice != 0){
+                $('.item-month-price').text(' / ' + itemData.itemMonthPrice);
+             }else{
+                $('.item-month-price').text(' ');
+             }
+             
+             $('.maintenance-fee-modal').text(' - ' + itemData.itemMaintainPrice + ' 만원');
+             $('.one-line-intro').text(itemData.itemIntro);
+             $('.item-area-modal').text(itemData.itemArea);
+             
+             if(itemData.itemItype == 'O'){
+                $('.item-itype').text('원룸 ' + '- ' + itemName );
+             }else if(itemData.itemItype == 'T'){
+                $('.item-itype').text('투룸 ' + '- ' + itemName );
+             }else if(itemData.itemItype == 'A'){
+                $('.item-itype').text('아파트 ' + '- ' + itemName );
+             }else if(itemData.itemItype == 'F'){
+                $('.item-itype').text('오피스텔 ' + '- ' + itemName );
+             }
+             
+             $('.item-floor-modal').text(itemData.itemFloor);
+             
+             if(itemData.itemParking == 'Y'){
+                $('.item-parking-YN').text('가능');
+             }else{
+                $('.item-parking-YN').text('불가능');
+             }
+             
+             if(itemData.itemMoveAvbl == 'Y'){
+                $('.item-move-itemMoveAvbl').text('가능');
+             }else{
+                $('.item-move-itemMoveAvbl').text('불가능');
+             }
+             
+             $('.item-direction').text(itemData.itemDirection);
+             
+             if(itemData.itemElevator == 'Y'){
+                $('.item-elevator-YN').text('있음');
+             }else{
+                $('.item-elevator-YN').text('없음');
+             }
+             
+             $('.item-kind').text(itemData.itemKind);
+             
+             if(itemData.itemPet == 'Y'){
+                $('.item-pet').text('가능');
+             }else if(itemData.itemPet == 'N'){
+                $('.item-pet').text('불가능');
+             }
+             
+             $('.item-build-date').text(itemData.itemBuildDate);
+             $('.item-intro').text(itemData.itemIntro);
+             //$('.item-intro-detail').text(itemData.itemIntroDetail);
+             $('.item-intro-detail').text($('<div>').text(itemData.itemIntroDetail).html());
+
+             $('#itemNum').val(itemNum);
+             
+             console.log($("#itemNum").val());
+             
+             
+            $(".modalContainer").show();    //jQuery("#modalContainer").show();
+            $('.modalContent').scrollTop(0);
+            
+         },
+         error:function(error){
+            alert("실패");
+         }
+      });
+
+      
+   }
+   
+   //map
+   function itemMap(){
+      
+   }
+   
+   var modalContent = document.getElementById("modalContent");
+   var modalContainer = document.getElementById("modalContainer");
+
+   // 모달 닫기
+   modalContainer.onclick = function(event) {
+      if (event.target == modalContainer) {
+         modalContainer.style.display = "none";
+         document.documentElement.style.overflow = '';
+      }
+   }
+   
+   
+   
+   //수정
+   function fn_itemUpdate(itemNum){
+      //alert(">>>>" + itemNum);
+      
+        if(confirm("매물을 수정하시겠습니까?")){
+           document.getElementById("itemNum").value = itemNum;
+           document.itemForm.action = "/agent/itemUpdate?" + itemNum;
+           document.itemForm.submit();
+      }else{
+         return;
+      }
+      
+   }
+   
+   //삭제
+   function fn_itemDelete(itemNum){
+      
+      $("#btnDelete").prop("disabled", true);
+      
+        if(confirm("매물을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.")){
+            $.ajax({
+               type:"POST",
+               url:"/agent/itemDeleteProc",
+               data:{
+                  itemNum: itemNum
+               },
+               datatype:"JSON",
+               cache:false,
+               beforeSend:function(xhr){
+                  xhr.setRequestHeader("AJAX", "true");
+               },
+               success:function(res){
+                  if(res == 200){
+                      alert("매물이 삭제되었습니다.");
+                      $("#btnDelete").prop("disabled", false);
+                      location.href = "/agent/itemList";
+                  }
+                  else if(res == 404){
+                     alert("사용자 또는 매물이 존재하지 않습니다.");
+                     $("#btnDelete").prop("disabled", false);
+                     return;
+                  }
+                  else{
+                     alert("매물 삭제 중 오류가 발생하였습니다.");
+                     $("#btnDelete").prop("disabled", false);
+                     return;
+                  }
+               },
+               error:function(error){
+                  alert("매물 삭제 중 예상치 못한 오류가 발생하였습니다.");
+                  $("#btnDelete").prop("disabled", false);
+                  return;
+               }
+            });
+         }else{
+            $("#btnDelete").prop("disabled", false);
+            return;
+         }
+   }
+   
+   
+   
+   </script>
+      
+</body>
+</html>

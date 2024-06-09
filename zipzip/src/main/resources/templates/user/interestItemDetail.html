@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+  
+<!-- 헤더 시작--> 
+    <div th:replace="/common/header :: header"></div>
+<!-- 헤더 끝 -->
+
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="/resources/css/interestItemDetail.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="property">
+<!-- 네비 시작 --> 
+    <div th:replace="/common/nav :: nav"></div>
+<!-- 네비 끝 -->
+
+<!-- 이미지 캐러셀 관련 소스 시작-->
+<div style="height: 70px;"></div>
+<div class="image-container slick-slider">
+    <div><img src="/resources/upload/item/24_1.jpg" alt="Image 1" style="margin-left: 210px; width: 1290px; height: 400px;" ></div>
+    <div><img src="/resources/upload/item/24_2.jpg" alt="Image 2" style="margin-left: 210px; width: 1290px; height: 400px;"></div>
+    <div><img src="/resources/upload/item/24_3.jpg" alt="Image 3" style="margin-left: 210px; width: 1290px; height: 400px;"></div>
+    <div><img src="/resources/upload/item/125_4.jpg" alt="Image 4" style="margin-left: 210px; width: 1290px; height: 400px;"></div>
+</div>
+      
+<div>
+   <div class="icon-overlay">
+        <img src="/resources/images/icon/filledHeart.png" class="inner-icon" id="heart"> <!-- 하트 -->
+   </div>
+   <div class="icon-overlay-side0" id="test">
+       <img src="/resources/images/icon/goBack.png" class="inner-icon" id="goBack"> <!-- 뒤로가기 -->
+    </div>
+   
+   <input type="hidden" id="interestUserId" name="interestUserId" th:value="${userId}" />
+   <input type="hidden" id="interestItemNum" name="interestItemNum" th:value="${itemNum}" />
+</div>
+<!-- 이미지 캐러셀 관련 소스 종료-->
+
+
+    <div class="property-header">
+        <div class="registration-number"><span th:text="${item.iNum}"></span></div>
+        <div class="address-date">
+            <div class="address"><span th:text="${item.itemAddress}"></span></div>
+            <div class="date"><span th:text="${item.regDate}"></span>일전</div>
+        </div>
+
+        <div class="rent"><span th:text="${item.itemPtype}"></span> <span th:text="${item.transD}"></span>
+        <span th:if="${item.transM != null}" th:text="${item.transM}"></span></div>        
+        <div class="maintenance-fee">관리비 <span th:text="${item.itemMaintainPrice}"></span>만원</div>
+    </div>
+    <hr/>
+    <div class="property-intro">
+        <div class="one-line-intro"><span th:text="${item.itemIntro}"></span></div>
+        
+          <div class="option-container" id="shortO"><!-- 미리보기 -->
+            <div class="option-col">
+              <!-- 아이콘 -->
+              <img src="/resources/images/icon/size.png" class="option-img">
+              <!-- 이름 --><b>전용 <span th:text="${item.itemArea}"></span> m²</b>
+              </div>
+              <div class="option-col">
+              <!-- 아이콘 -->
+              <img src="/resources/images/icon/room.png" class="option-img">
+              <!-- 이름 --><b><span>아파트</span></b>
+              </div>
+              <div class="option-col">
+              <!-- 아이콘 -->
+              <img src="/resources/images/icon/building.png" class="option-img">
+              <!-- 이름 --><span th:text="${item.itemFloor}"></span> 층
+              </div>
+           </div>
+           
+        <!-- 원본 -->
+        <div class="option-container" id="longO" style="display:none;">
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/size.png" class="option-img">
+           <!-- 이름 --><b>전용 <span th:text="${item.itemArea}"></span> m²</b>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/room.png" class="option-img">
+           <!-- 이름 --><b><span>아파트</span></b>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/building.png" class="option-img">
+           <!-- 이름 --><span th:text="${item.itemFloor}"></span> 층
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+          <span th:if="${item.itemParking}!=null">
+              <img src="/resources/images/icon/p.png" class="option-img">
+           <!-- 이름 -->주차 <span th:if="${item.itemParking} == 'Y'">가능</span>
+                       <span th:unless="${item.itemParking} == 'Y'">가능</span>
+              </span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <span th:if="${item.itemMoveAvbl}!=null">
+              <img src="/resources/images/icon/cal.png" class="option-img">
+              <!-- 이름 --><span th:if="${item.itemMoveAvbl} == 'Y'">즉시입주가능</span>
+              <span th:unless="${item.itemMoveAvbl} == 'Y'"><span th:text="${item.itemMoveDate}"></span></span>
+           </span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/direc.png" class="option-img">
+           <!-- 이름 --><span th:text="${item.itemDirection}"></span>
+           </div>
+           <div class="option-col">
+           <span th:if="${item.itemElevator}!=null">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/elevator.png" class="option-img">
+           <!-- 이름 -->엘레베이터 <span th:if="${item.itemElevator} == 'Y'">있음</span>
+                            <span th:unless="${item.itemElevator} == 'Y'">없음</span>
+           </span>
+           </div>
+           <div class="option-col">
+           <span th:if="${item.itemElevator}!=null">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/home.png" class="option-img">
+           <!-- 이름 --><span th:text="${item.itemKind}"></span>
+           </span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/pet.png" class="option-img">
+           <!-- 이름 -->반려견 동반 <span th:if="${item.itemPet} == 'Y'">가능</span>
+                            <span th:unless="${item.itemPet} == 'Y'">불가능</span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <span th:if="${item.itemBuildDate}!=null">
+           <img src="/resources/images/icon/task.png" class="option-img">
+           <!-- 이름 --><span th:text="${item.itemBuildDate}"></span>
+           </span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/house.png" class="option-img">
+           <!-- 이름 --><span th:text="${item.itemAddress}"></span> <span th:text="${item.itemAddressDetail}"></span>
+           </div>
+           <div class="option-col">
+           <!-- 아이콘 -->
+           <img src="/resources/images/icon/checked.png" class="option-img">
+           <!-- 이름 -->등록번호 <span th:text="${item.iNum}"></span>
+           </div>
+        </div>   
+    </div>
+<div class="read-more" id="moreBtn2">더보기 ></div>
+    <br/>
+    <hr/>
+    <!-- 여기부터 상세설명 -->
+    <div class="property-description">
+        <div class="heading">상세 설명</div>
+        <div class="content" id="shortC">
+        <!-- 여기는 150자만 보여줍니다. 상세 설명을 잘라서 넣으세요 -->
+        <span th:if="${item.itemIntroDetail != null}" 
+        th:text="${#strings.substring(item.itemIntroDetail, 0, 10)} + '...'"></span></div>
+
+        <div class="content" id="originC" style="display:none;">
+        <!-- 여기가 상세 정보 모두가 들어가는 공간입니다. 원본 상세 설명을 그대로 넣으세요. -->
+        <span th:text="${item.itemIntroDetail}"></span></div>
+    </div>
+    <div class="read-more" id="moreBtn1">더보기 ></div>
+    <!-- 여기까지 상세설명 -->
+    <br/>
+    <hr/>
+    <div class="location">
+        <b style="margin-bottom:20px;">위치</b>
+        <br/>
+        <div th:text="${item.itemAddress}">서울시 마포구 연남동</div>
+        <div class="smallMap" id="map">지도</div>
+    </div>   
+    <!-- 지도 키는 각자 발급받아서 사용하시면 됩니다. 아래 src 에서 appkey=(본인 카카오 개발자 자바스크립트 키) -->
+<script type="text/javascript" 
+src="//dapi.kakao.com/v2/maps/sdk.js?appkey=272e230f3ef7cdac70a0cdd9a4d9fd77&libraries=services&autoload=false"></script>
+<script>
+kakao.maps.load(function() {
+    var mapContainer = document.getElementById('map'),
+    mapOption = { 
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 3
+    };
+    var map = new kakao.maps.Map(mapContainer, mapOption); 
+    var geocoder = new kakao.maps.services.Geocoder();
+    
+    geocoder.addressSearch('[[${item.itemAddress}]]', function(result, status) {
+      if (status === kakao.maps.services.Status.OK) {
+      var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+         var marker = new kakao.maps.Marker({
+            map: map,
+               position: coords
+           });
+      }
+      map.setCenter(coords);
+      map.setDraggable(false);
+      map.setZoomable(false); 
+    });
+});
+</script>
+    <hr/>
+    <div>
+      <div style="font-weight: bold; font-size: 20px; margin-bottom:30px; margin-left:220px;">옵션</div>
+      <div class="icon-container">
+             <div th:if="${io.air == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/air-48.png" class="option-icon-img">
+                   <div class="option-info">에어컨</div>
+                </div>
+             </div>
+             <div th:if="${io.bed == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/bed-48.png" class="option-icon-img">
+                   <div class="option-info">침대</div>
+                </div>
+             </div>
+             <div th:if="${io.cameratv == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/cctv-48.png" class="option-icon-img">
+                   <div class="option-info">CCTV</div>
+                </div>
+             </div>
+             <div th:if="${io.closet == 'Y'}">
+             <div class="option-icon">
+                <img src="/resources/images/icon/option/closet-48.png" class="option-icon-img">
+                <div class="option-info">옷장</div>
+             </div>
+           </div>
+           <div th:if="${io.desk == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/desk-48.png" class="option-icon-img">
+                   <div class="option-info">책상</div>
+                </div>
+             </div>
+             <div th:if="${io.entrance == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/entrance-48.png" class="option-icon-img">
+                   <div class="option-info">공동문</div>
+                </div>
+             </div>
+             <div th:if="${io.gasrange == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/gasstove-48.png" class="option-icon-img">
+                   <div class="option-info">가스불</div>
+                </div>
+             </div>
+             <div th:if="${io.induction == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/induction-48 .png" class="option-icon-img">
+                   <div class="option-info">인덕션</div>
+                </div>
+             </div>
+             <div th:if="${io.intercom == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/intercom.png" class="option-icon-img">
+                   <div class="option-info">인터폰</div>
+                </div>
+             </div>
+             <div th:if="${io.laundry == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/laundry-48.png" class="option-icon-img">
+                   <div class="option-info">세탁기</div>
+                </div>
+             </div>
+             <div th:if="${io.micro == 'Y'}">
+                <div class="option-icon">
+                  <img src="/resources/images/icon/option/micro-48.png" class="option-icon-img">
+                  <div class="option-info">렌지</div>
+                </div>
+             </div>
+             <div th:if="${io.refrigerator == 'Y'}">
+                <div class="option-icon">
+                  <img src="/resources/images/icon/option/refrigerator-48.png" class="option-icon-img">
+                  <div class="option-info">냉장고</div>
+                </div>
+             </div>
+             <div th:if="${io.sink == 'Y'}">
+                <div class="option-icon">
+                   <img src="/resources/images/icon/option/sink-48.png" class="option-icon-img">
+                  <div class="option-info">싱크대</div>
+                </div>
+             </div>   
+       </div>
+    </div>
+    
+    <!-- <div class="read-more">더보기 ></div> -->
+   <br/><!-- 중개인 모달 -->
+   <div id="modalContainer" class="hidden modalContainer">
+  <div id="modalContent" class="modalContent" style="width: 30%; height: auto; margin: 0 auto;">
+  	<b><span th:if="${item.agentName != null}">
+	    	<span th:text="${item.agentName}" style="margin-left:45%;"></span>
+		</span>
+	</b>
+	<hr/>
+	<div>
+		<div style="display:flex;flex-direction:row;justify-content: center;">
+			<div style="display: flex; justify-content: center; align-items: center;" th:if="${item.fileName == null}">
+				<img class="profile" id="profile" name="profile" src="/resources/images/icons8-administrator-male.png">
+			</div>
+			<div style="display: flex; justify-content: center; align-items: center;" th:if="${item.fileName != null}">
+				<img class="profile" id="profile" name="profile" th:src="@{|/resources/upload/agent/${item.fileName}|}">
+			</div>
+			<div style="margin-left:20px;">
+				<div style="display:flex;lign-items:center;margin:7px;">
+					<img src="/resources/images/icons8-name-48.png" style="width:30px;height:30px">
+					<span th:if="${item.agentName != null}" th:text="${item.agentName}"
+						  style="display:flex;align-items:center;margin-left:10px;">이름</span>
+				</div>
+				<div style="display:flex;lign-items:center;margin:7px;">
+					<img src="/resources/images/icons8-phone-48.png" style="width:30px;height:30px">
+					<span th:if="${item.agnetPhone != null}" th:text="${item.agnetPhone}"
+						  style="display:flex;align-items:center;margin-left:10px;">010-0000-0000</span>
+				</div>
+				<div style="display:flex;lign-items:center;margin:7px;">
+					<img src="/resources/images/icons8-email-48.png" style="width:30px;height:30px">
+					<span th:if="${item.agentEmail != null}" th:text="${item.agentEmail}"
+						  style="display:flex;align-items:center;margin-left:10px;">aaa@email.com</span>
+				</div>
+			</div>
+		</div>
+		
+		<br />
+		<div style="display:flex;lign-items:center;margin:7px;">
+			<img src="/resources/images/icons8-text-48.png" style="width:30px;height:30px">
+			<span th:if="${item.agentIntro != null}" th:text="${item.agentIntro}" 
+				  style="display:flex;align-items:center;margin-left:10px;">소개</span>
+		</div>
+		<div style="display:flex;lign-items:center;margin:7px;">
+			<img src="/resources/images/icons8-home-48.png" style="width:30px;height:30px">
+			<span th:if="${item.agentOfficeName != null}" th:text="${item.agentOfficeName}" 
+				  style="display:flex;align-items:center;margin-left:10px;">사무실 이름 값</span>
+		</div>
+		<div style="display:flex;lign-items:center;margin:7px;">
+			<img src="/resources/images/icons8-address-48.png" style="width:30px;height:30px">
+			<span th:if="${item.agentAddress != null && item.agentAddressDetail != null}" 
+				  th:text="${item.agentAddress + '  ' + item.agentAddressDetail}"
+				  style="display:flex;align-items:center;margin-left:10px;">사무실 주소 값</span>
+		</div>
+	</div>
+	<br/>
+	<br/>
+	     <button id="modalCloseButton" class="modalCloseButton" style="width:80px;">닫기</button>
+  </div>
+</div>
+<!-- 중개인 모달 끝-->
+    <hr/>
+    <div class="agency-info">
+        <div class="agent-photo">
+			<div th:if="${item.fileName == null}">
+				<img class="profile" id="profile" name="profile" src="/resources/images/icons8-administrator-male.png">
+			</div>
+			<div th:if="${item.fileName != null}">
+				<img class="profile" id="profile" name="profile" th:src="@{|/resources/upload/agent/${item.fileName}|}">
+			</div>
+        </div>
+        <div class="agency-details">
+           <div class="agency-name">
+              <span th:if="${item.agentName != null}">
+                 <span th:text="${item.agentName}"></span>
+              </span>
+              <span th:unless="${item.agentName != null}">이름 미등록 중개인</span>
+           </div>
+           <div class="agent-intro">
+            <span th:if="${item.agentIntro != null && #strings.length(item.agentIntro)>10}" >
+                 <span th:text="${#strings.substring(item.agentIntro, 0, 10)} + '...'"></span>
+              </span>
+            <span th:unless="${item.agentIntro != null && #strings.length(item.agentIntro)>10}" >
+                 아직 프로필을 등록하지 않은 중개인입니다.
+              </span>
+         </div>
+            <div class="read-more" id="modalOpenButton">더보기 ></div>
+       </div>
+    </div>
+    <br/>
+    <hr/>
+    
+    <hr/>  
+ 
+</div>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script>
+   $(document).ready(function(){
+       $(".slick-slider").slick({
+           infinite: true,
+           dots: true,
+           appendArrows: $(".slick-slider-nav"),
+           appendDots: $(".slick-slider-dots"),
+           prevArrow : $('.prevArrow'), 
+           nextArrow : $('.nextArrow')
+       });
+       
+       $("#modalOpenButton").on("click",function(){
+          $("#modalContainer").show();
+       });
+       $("#modalCloseButton").on("click",function(){
+          $("#modalContainer").hide();
+       });
+       $("#modalContainer").on("click",function(){
+          if ($("#modalContainer").css("display") === "block") {
+               $("#modalContainer").hide();
+           }
+       });             
+   });      
+
+   document.addEventListener("DOMContentLoaded", function() {
+   //뒤로 가기
+      var goBack = document.getElementById("goBack");
+      
+      goBack.addEventListener("click", function() {
+       location.href="/user/interestItem";
+      });
+      
+   //찜목록 해제하기
+   var share = document.getElementById("heart");
+   share.addEventListener("click", function() {
+
+        var itemNum = document.getElementById("interestItemNum").value; 
+           
+           $.ajax({
+               type: "POST",
+               url: "/user/interestDeleteProc",
+               data: {
+                     itemNum: itemNum 
+               },             
+               success: function (response) {
+                  var code = response;
+            
+                    if(code == "200")
+                    {
+                       alert("찜목록에서 해제 완료하였습니다.");
+                      location.href = "/user/interestItem";    
+                    }
+                    else if(code == "500")
+                    {
+                       alert("찜목록상에 존재하지 않는 데이터입니다.");                       
+                    }
+                    else
+                    {
+                       alert("찜목록 해제 중 오류가 발생하였습니다.");      
+                        location.href = "/user/interestItem";
+                    }
+                   
+               },
+               error: function () {
+                   alert("오류발생");
+               }
+           });
+        
+       }); 
+     
+   //옵션 더보기
+   var shortOption = document.getElementById("shortO");
+    var fullOption = document.getElementById("longO");
+    var moreBtn2 = document.getElementById("moreBtn2");
+
+    moreBtn2.addEventListener("click", function() {
+        if (fullOption.style.display === "none") {
+           fullOption.style.display = "block";
+            shortOption.style.display = "none";
+            moreBtn2.textContent = "간략히 보기";
+        } else {
+           fullOption.style.display = "none";
+            shortOption.style.display = "block";
+            moreBtn2.textContent = "더 보기";
+        }
+    });
+    
+    //상세설명 더보기
+    var shortText = document.getElementById("shortC");
+    var fullText = document.getElementById("originC");
+    var moreBtn = document.getElementById("moreBtn1");
+
+    moreBtn.addEventListener("click", function() {
+        if (fullText.style.display === "none") 
+        {
+            fullText.style.display = "block";
+            shortText.style.display = "none";
+            moreBtn.textContent = "간략히 보기";
+        } 
+        else 
+        {
+            fullText.style.display = "none";
+            shortText.style.display = "block";
+            moreBtn.textContent = "더 보기";
+        }
+    });    
+    
+});
+</script>
+
+</body>
+</html>

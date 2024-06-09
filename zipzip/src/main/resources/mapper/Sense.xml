@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Sense">
+
+	<insert id="insert" parameterType="com.example.demo.dto.Sense">
+		<selectKey resultType="long" keyProperty="senseNum" order="BEFORE">
+			SELECT ZIP_SENSE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_SENSE (
+		    SENSE_NUM,
+		    USER_ID,
+		    SENSE_TITLE,
+		    SENSE_CONTENT,
+		    REG_DATE,
+		    SENSE_HIT
+		) VALUES (
+			#{senseNum},
+			#{userId},
+			#{senseTitle},
+			#{senseContent},
+			SYSDATE,
+			0
+		)
+	</insert>
+	
+	<select id="selectList" resultType="com.example.demo.dto.Sense">
+		SELECT SENSE_NUM,
+		    USER_ID,
+		    SENSE_TITLE,
+		    SENSE_CONTENT,
+		    REG_DATE,
+		    SENSE_HIT
+		FROM (SELECT ROWNUM RNUM,
+		            SENSE_NUM,
+		            USER_ID,
+		            SENSE_TITLE,
+		            SENSE_CONTENT,
+		            REG_DATE,
+		            SENSE_HIT
+		        FROM (SELECT SENSE_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(SENSE_TITLE, '') SENSE_TITLE,
+		                    NVL(SENSE_CONTENT, '') SENSE_CONTENT,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(SENSE_HIT, 0) SENSE_HIT
+		                FROM ZIP_SENSE
+		                WHERE 1=1
+		                ORDER BY SENSE_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> 1
+		AND RNUM <![CDATA[<=]]> 4
+	</select>
+	
+	<select id="selectAll" resultType="com.example.demo.dto.Sense">
+		SELECT SENSE_NUM,
+		    USER_ID,
+		    SENSE_TITLE,
+		    SENSE_CONTENT,
+		    REG_DATE,
+		    SENSE_HIT
+		FROM (SELECT ROWNUM RNUM,
+		            SENSE_NUM,
+		            USER_ID,
+		            SENSE_TITLE,
+		            SENSE_CONTENT,
+		            REG_DATE,
+		            SENSE_HIT
+		        FROM (SELECT SENSE_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(SENSE_TITLE, '') SENSE_TITLE,
+		                    NVL(SENSE_CONTENT, '') SENSE_CONTENT,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(SENSE_HIT, 0) SENSE_HIT
+		                FROM ZIP_SENSE
+		                WHERE 1=1
+		                <if test='searchValue != null and searchValue != "" '>
+		                AND SENSE_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(SENSE_CONTENT, #{searchValue}) > 0
+		                </if>
+		                ORDER BY SENSE_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<select id="listCnt" parameterType="com.example.demo.dto.Sense" resultType="long">
+		SELECT COUNT(*) CNT
+		FROM ZIP_SENSE
+		WHERE 1=1
+		<if test='searchValue != null and searchValue != "" '>
+		AND SENSE_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(SENSE_CONTENT, #{searchValue}) > 0
+		</if>
+	</select>
+	
+	<update id="updateHit" parameterType="long">
+		UPDATE ZIP_SENSE
+		SET SENSE_HIT = SENSE_HIT + 1
+		WHERE SENSE_NUM = #{senseNum}
+	</update>
+	
+	<select id="selectOne" parameterType="long" resultType="com.example.demo.dto.Sense">
+		SELECT SENSE_NUM,
+		    NVL(USER_ID, '') USER_ID,
+		    NVL(SENSE_TITLE, '') SENSE_TITLE,
+		    NVL(SENSE_CONTENT, '') SENSE_CONTENT,
+		    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		    NVL(SENSE_HIT, 0) SENSE_HIT
+		FROM ZIP_SENSE
+		WHERE SENSE_NUM = #{senseNum}
+	</select>
+	
+	<update id="update">
+		UPDATE ZIP_SENSE
+		SET SENSE_TITLE = #{senseTitle},
+		SENSE_CONTENT = #{senseContent}
+		WHERE SENSE_NUM = #{senseNum}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM ZIP_SENSE
+		WHERE SENSE_NUM = #{senseNum}
+	</delete>
+</mapper>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+   <!-- 헤더 시작 -->
+   <div th:replace="/common/header :: header"></div>
+   <!-- 헤더 끝 -->
+
+   <!-- 개별 css -->
+   <style type="text/css">
+   		.search-container {
+   			text-align: center;
+   		}
+		/* 검색창 */
+		input[type="text"] {
+		    border: 1px solid #d698b1; /* 테두리 색상 */
+		    border-radius: 4px; /* 모서리 둥근 처리 */
+		    width: calc(100% - 60%); /* 버튼 너비 조정 */
+		    padding: 10px; /* 내부 여백 */
+		    margin-bottom: 10px; /* 아래쪽 여백 */
+		    color: #000; /* 텍스트 색상 - 검정색으로 변경 */
+		}
+		
+		/* 검색창에 포커스가 되었을 때의 스타일 */
+		.search-bar_input:focus {
+		    border-color: #d698b1; /* 포커스가 되었을 때의 테두리 색상 */
+		    outline: none; /* 기본 포커스 효과 제거 */
+		}
+		
+		/* 검색버튼 스타일 수정 */
+		.sBtn {
+		    background-color: #d698b1; /* 배경색 */
+		    border: 1px solid #d698b1; /* 테두리 색상 일치 */
+		    border-left: none; /* 왼쪽 테두리 제거 */
+		    border-radius: 0 6px 6px 0; /* 왼쪽 모서리 둥근 처리 제거 */
+		    padding: 10px; /* 내부 여백 */
+		    width: 45px; /* 버튼 너비 조정 */
+		    height: 45px; /* 버튼 높이 조정 */
+		    cursor: pointer; /* 커서 모양 변경 */
+		    margin-left: -2%;
+		    margin-top: 5px;
+		    align-items: center; /* 중앙 정렬 */
+		    justify-content: center; /* 중앙 정렬 */
+		}
+		
+		/* 버튼 안 검색 아이콘 위치 설정 */
+		img[src="/resources/images/search_icon.png"] {
+		    width: 90%; 
+		    height: auto; 
+		}
+		
+		/* 리뷰관리 리스트 */
+		.reviewManage-list {
+			box-shadow: 0 4px 4px rgba(0, 0.1, 0.2, 0.2);
+			border-radius: 8px;
+			width: 85%;
+			margin-left: 8%;
+			margin-top: 30px;
+		}
+		
+		
+		/* 리뷰 내용 */
+		.review_content {
+		    word-wrap: break-word; /* 긴 단어 줄바꿈 */
+		    white-space: normal;   /* 줄바꿈 허용 */
+		    width: 50%;      /* 필요에 따라 너비 조정 */
+		    max-width: 50%;  /* 최대 너비 설정 */
+		}
+		
+		/* 다른 칼럼의 고정된 너비 설정 */
+		.table-hover th:nth-child(1),
+		.table-hover th:nth-child(2),
+		.table-hover th:nth-child(3),
+		.table-hover th:nth-child(6),
+		.table-hover th:nth-child(7),
+		.table-hover th:nth-child(8) {
+		    width: 8%; /* 다른 칼럼의 너비를 좁게 설정 */
+		}
+		
+		.table-hover th:nth-child(5){
+			width: 10%;
+		}
+			
+		/* 테이블 스타일 */
+		.table-hover {
+		    table-layout: fixed; /* 고정된 테이블 레이아웃 */
+		    width: 100%; /* 테이블 전체 너비 설정 */
+		}
+		
+		.table-hover th, td {
+		    border: 1px solid #f2f2ed;
+		    text-align: center;
+		}
+
+		
+		.table-thead-main th {
+			background-color: #403f3f; 
+			color: white;
+			border: 1px solid #e0e0e0;
+			width: auto;
+			height: 40px;
+			text-align: center;
+		}
+		
+		.list-table th, td {
+		    text-align: center;
+		    vertical-align: middle; /* 수직 가운데 정렬을 위한 속성 */
+		}
+
+		/* 리뷰 삭제 버튼 */
+		.deleteBtn {
+			background-color:#ba4c4c; 
+			border-radius: 20px;
+			border: none;
+			color: white;
+			height: 30px;
+		}
+		
+		/* 리뷰내용 비공개 버튼 */
+		.hideBtn {
+			background-color: #4f75b8;
+			border-radius: 20px;
+			border: none;
+			color: white;
+			height: 30px;
+		}
+		
+		/* 페이징 버튼 */
+		.pagination {
+		    text-align: center; 
+		    height: 37px; 
+		    line-height: 37px;
+		    position: relative; 
+		    left: 50%; /* 왼쪽 여백을 50%로 설정합니다. */
+		    transform: translateX(-50%); /* 가운데 정렬을 위해 x축으로 -50%만큼 이동합니다. */
+		    width: auto; /* 필요한 만큼의 너비를 가지도록 설정합니다. */
+		    bottom: 2%;
+		    justify-content: center;
+		}
+		
+		.pagination p {
+			display:inline-block; 
+			border:1px solid #d6d6d6; 
+			height:35px; width:35px;  
+			vertical-align:middle; 
+			text-align:center; 
+			text-decoration:none; 
+			font-size:15px; 
+			color:white;
+			background:#d6d6d6;
+			border-radius: 20px;
+			margin-left: 4px;
+			cursor: pointer;
+		}
+		
+		.pagination .on {
+			color:#fff; 
+			font-weight:bold; 
+			background:#403f3f;
+			cursor: pointer;
+		}
+		
+		.pagination .next{
+			height:35px; 
+			width:35px; 
+			border:1px solid #d4d4d4;
+			overflow:hidden;
+			position:relative; 
+			font-size:0;
+		}
+		
+		.pagination .next{
+			background:#ebebeb url("") no-repeat center center; 
+			margin-left:4px; 
+			border-left:0;
+		}
+		
+		/* 별점 스타일 */
+		#star {
+		  	font-size: 1.5rem;
+		  	border-bottom: none;
+		}
+		
+		#star:not(.on) {
+		  color: #fcd703;
+		}
+   </style>
+</head>
+
+<body>
+   <!-- 네비 시작 -->
+   <div th:replace="/common/nav :: nav"></div>
+   <!-- 네비 끝 -->
+
+   <!-- 본문 시작 -->
+   <div class="section" style="margin-top: 60px;">
+	  <!-- 검색창 -->
+	  <div class="search-container">
+		 <form id="searchForm" name="searchForm" method="POST">
+			<!-- 검색 조건 -->
+			<select id="searchType" name="searchType"
+					style="font-size:0.8rem; width:6.5rem; height:2.5rem; margin-left:0.5rem; cursor:pointer;">
+				<!-- 리뷰 내용과 중개사 이름으로 검색 가능 -->
+				<option value="">검색조건</option>
+				<option value="1" th:selected="${searchType == '1'}">회원 아이디</option>
+				<option value="2" th:selected="${searchType == '2'}">중개인 아이디</option>
+				<option value="3" th:selected="${searchType == '3'}">리뷰 내용</option>
+			</select>
+			<!-- 검색 값 -->
+			<input class="search-bar_input" type="text" id="searchValue" name="searchValue"
+				   th:value="${searchValue}" placeholder="검색어를 입력하세요." autocomplete="off" />
+			<button type="button" class="sBtn">
+				<img src="/resources/images/search_icon.png" alt="검색 아이콘" id="searchBtn" />
+			</button>
+			<input type="hidden" name="curPage" value="${curPage}" />
+		</form>
+	  </div>
+	  
+	  <!-- 리뷰관리 리스트 -->
+	  <div class="reviewManage-list">
+	  	 <table class="table table-hover">
+			<thead>
+			   <tr class="table-thead-main">
+				  <th scope="col" style="width:5%;">번호</th>
+				  <th scope="col">작성자 아이디</th>
+				  <th scope="col">중개사</th>
+				  <th scope="col" class="review_content">리뷰 내용</th>
+				  <th scope="col">리뷰 점수</th>
+				  <th scope="col">등록일</th>
+				  <th scope="col">리뷰 비공개</th>
+				  <th scope="col">리뷰 삭제</th>
+			    </tr>
+			</thead>
+			<tbody class="list-table">
+		       <!-- 리뷰관리 리스트 시작 -->
+			   <tr th:each="agList : ${agList}">
+				  <th scope="row" th:text="${agList.reviewNum}"></th>
+				  <td th:text="${agList.userId}"></td>
+				  <td th:text="${agList.agentId}"></td>
+				  
+				  <!-- 리뷰 내용 -->
+				  <td th:id="'reviewContent-' + ${agList.reviewNum}">
+				    <span th:text="${agList.reviewContent}"></span>
+				  </td>
+	              <td class="star-rating" id="star" th:text="${agList.reviewScore}"></td>
+	              <td th:text="${agList.regDate}"></td>
+	              <td>
+	                <button class="hideBtn" th:if="${agList.hidden == 1}" th:onclick="'unhideReview(' + ${agList.reviewNum} + ')'">비공개 해제</button>
+	                <button class="hideBtn" th:unless="${agList.hidden == 1}" th:onclick="'hideReview(' + ${agList.reviewNum} + ')'">비공개</button>
+	              </td>
+				  <td>									
+				    <button type="button" class="deleteBtn" th:onclick="'deleteBtn(' + ${agList.reviewNum} + ')'">삭제하기</button>
+				    <input type="hidden" id="reviewNum" name="reviewNum" th:value="${agList.reviewNum}" />
+				  </td>
+			   </tr>
+			 
+				<!-- 리스트가 없을 경우 -->
+				<tr th:if="${agList == null or agList.isEmpty()}">
+				  <td colspan="8">등록된 리뷰 정보가 없습니다.</td>
+				</tr>   
+			</tbody>
+	     </table>
+	  </div>
+	  <br />
+	  <!-- 페이징 처리 -->
+	  <div class="pagination mt0">
+		 <!-- 페이지 시작 -->
+		 <p th:if="${paging.prevBlockPage gt 0}">
+			<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${paging.prevBlockPage} + ')'"
+			   title="이전 블럭" style="color: white; font-size:17px;"><<</a>
+		 </p>
+		 <th:block th:each="i : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+			 <p th:if="${i != curPage}">
+				<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${i} + ')'"
+				   style="color:white;" th:text="${i}"></a>
+			 </p>
+			 <p th:if="${i == curPage}" class="on" th:text="${i}"></p>
+		 </th:block>
+		 <p th:if="${paging.nextBlockPage gt 0}">
+			<a href="javascript:void(0)" th:onclick="'fn_paging(' + ${paging.nextBlockPage} + ')'"
+			   title="다음 블럭" style="color: white; font-size:17px;">>></a>
+		 </p>
+		 <!-- 페이지 종료 -->		
+	  </div>
+	  
+   </div>
+   <!-- 본문 끝 -->
+
+   <!-- 푸터 시작 -->
+   <footer th:replace="/common/footer :: footer"></footer>
+   <!-- 푸터 끝 -->
+
+   <!-- 개별 js -->
+   <script type="text/javascript">
+      $(document).ready(function () {
+    	// 검색 버튼 클릭 시
+		$("#searchBtn").on("click", function () {
+			// 검색조건만 선택 후 검색값은 입력 안 했을 때 리스트 초기화됨
+			document.searchForm.curPage.value = "1";
+			document.searchForm.action = "/manager/review";
+			document.searchForm.submit();
+		}); 
+    	  
+      });
+      
+   	  // 페이징 처리
+	  function fn_paging(curPage) {
+		 document.searchForm.curPage.value = curPage;
+		 document.searchForm.action = "/manager/review";
+		 document.searchForm.submit();
+	  }
+   	  
+	  // 별점 기능
+      // 페이지 로드 시 별점 표시하기
+	  document.addEventListener("DOMContentLoaded", function () {
+		 var starElements = document.querySelectorAll(".star-rating"); // 별점을 표시할 요소들 선택
+		 starElements.forEach(function (starElement) {
+			var score = parseInt(starElement.textContent); // 요소의 텍스트를 숫자로 변환하여 별점으로 사용
+			starElement.textContent = displayStars(score); // 별점으로 표시된 문자열로 변경
+		 });
+	  });
+	
+	  // 별점 숫자를 받아와서 별 모양으로 표시하는 함수
+	  function displayStars(score) {
+		 var stars = "";
+		 for (var i = 0; i < 5; i++) {
+			if (i < score) {
+				stars += "★"; // 현재 별점보다 작은 인덱스는 별 모양으로 표시
+			} else {
+				stars += "☆"; // 현재 별점보다 크거나 같은 인덱스는 빈 별 모양으로 표시
+			}
+		}
+		return stars;
+	  }
+   	  
+	  // 삭제 버튼 클릭 시 
+	  function deleteBtn(reviewNum){
+		  if(confirm("해당 리뷰를 삭제하시겠습니까? ") == true){
+				$.ajax({
+					type:"POST",
+					url:"/manager/mgtDelete",
+					data:{
+						reviewNum: reviewNum		
+					},
+					dataType:"JSON",
+					beforeSend:function(xhr){
+						xhr.setRequestHeader("AJAX", "true");
+					},
+					success:function(res) {
+						if(res.code == 0){
+							alert("해당 리뷰가 관리자에 의해 삭제되었습니다.");
+							location.href = "/manager/review";
+						} else if(res.code == 400){
+							alert("리뷰가 존재하지 않습니다.");
+						} else if(res.code == 500){
+							alert("리뷰 삭제 처리 중 오류가 발생하였습니다.");
+							location.href = "/manager/review";
+						} else {
+							alert("오류 발생: error");							
+						}
+					},
+					error:function(xhr, status, error){
+						icia.common.error(error);
+					}
+				});
+			}
+	  }
+	  
+	  // 비공개 처리 함수
+	  function hideReview(reviewNum) {
+	      $.ajax({
+	          url: '/manager/hideReview',
+	          type: 'POST',
+	          dataType: "json",
+	          data: {
+	              reviewNum: reviewNum
+	          },
+	          beforeSend: function (xhr) {
+	              xhr.setRequestHeader("AJAX", "true");
+	          },
+	          success: function (res) {
+	              if (res.code == 0) {
+	                  alert("해당 게시물은 비공개로 처리되었습니다.");
+	                  // 해당 버튼을 비공개 해제 버튼으로 변경
+// 	                  var hideBtn = document.getElementById('hideBtn-' + reviewNum);
+// 	                  hideBtn.innerText = '비공개 해제';
+// 	                  hideBtn.setAttribute('onclick', 'unhideReview(' + reviewNum + ')');
+	                  location.reload();
+	              } else if (res.code == 500) {
+	                  alert("비공개 처리에 실패했습니다.");
+	              } else if (res.code == 400) {
+	                  alert("비공개 처리 중 오류가 발생하였습니다.");
+	              } else {
+	                  alert("비공개 처리에 실패했습니다.");
+	              }
+	          },
+	          error: function () {
+	              alert('서버 요청에 실패했습니다.');
+	          }
+	      });
+	  }
+
+	  // 비공개 해제 시 버튼 변경
+	  function unhideReview(reviewNum) {
+	      $.ajax({
+	          url: '/manager/unhideReview',
+	          type: 'POST',
+	          dataType: "json",
+	          data: {
+	              reviewNum: reviewNum
+	          },
+	          beforeSend: function (xhr) {
+	              xhr.setRequestHeader("AJAX", "true");
+	          },
+	          success: function (res) {
+	              if (res.code == 0) {
+	                  alert("해당 게시물의 비공개가 해제되었습니다.");
+	                  // 해당 버튼을 다시 비공개 버튼으로 변경
+// 	                  var hideBtn = document.getElementById('hideBtn-' + reviewNum);
+// 	                  hideBtn.innerText = '비공개';
+// 	                  hideBtn.setAttribute('onclick', 'hideReview(' + reviewNum + ')');
+	                  location.reload();
+	              } else if (res.code == 500) {
+	                  alert("비공개 해제에 실패했습니다.");
+	              } else if (res.code == 400) {
+	                  alert("비공개 해제 중 오류가 발생하였습니다.");
+	              } else {
+	                  alert("비공개 해제에 실패했습니다.");
+	              }
+	          },
+	          error: function () {
+	              alert('서버 요청에 실패했습니다.');
+	          }
+	      });
+	  }
+   </script>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style>
+	@font-face {
+            font-family: 'Ha';
+            src: url('/resources/fonts/kor/HANAMDAUM_Body.woff2') format('woff');
+        }
+
+        body, h1, button {
+            font-family: 'Ha' !important;
+        }
+</style>
+</head>
+<body>
+ 
+<!-- <h1>결제해 주셔서 감사합니다</h1>
+결제일시:     [[${info.approved_at}]]<br/>
+주문번호:    [[${info.partner_order_id}]]<br/>
+주문자명:   [[${info.partner_user_id}]]<br>
+상품명:     [[${info.item_name}]]<br/>
+상품수량:    [[${info.quantity}]]<br/>
+결제금액:    [[${info.amount.total}]]<br/>
+결제방법:    [[${info.payment_method_type}]]<br/>
+<br> -->
+<div>
+	<div style="text-align: center;">
+		<h1>영수증</h1>
+	</div>
+	<hr style="width: 90%; border: 0px; border-top: 5px dashed;">
+	<div style="padding: 5%;">
+		<div style="display: flex; flex-direction: row; justify-content: space-between; padding-bottom: 5%;">
+			<div style="font-weight: bold;">
+				<span>결제일시 : </span>
+			</div>
+			<div>
+				<span>[[${info.approved_at}]]</span>
+			</div>
+		</div>
+		<div style="display: flex; flex-direction: row; justify-content: space-between; padding-bottom: 5%;">
+			<div style="font-weight: bold;">
+				<span>주문번호 : </span>
+			</div>
+			<div>
+				<span>[[${info.partner_order_id}]]</span>
+			</div>
+		</div>
+		<div style="display: flex; flex-direction: row; justify-content: space-between;">
+			<div style="font-weight: bold;">
+				<span>주문자명 : </span>
+			</div>
+			<div>
+				<span>[[${info.partner_user_id}]]</span>
+			</div>
+		</div>
+	</div>
+	<hr style="width: 90%; border: 0px; border-top: 5px dotted;">
+	<div style="padding: 5%;">
+		<div style="display: flex; flex-direction: row; padding-bottom: 5%;">
+			<div style="width: calc(100% / 3); font-weight: bold;">
+				<span>상품명</span>
+			</div>
+			<div style="width: calc(100% / 3); text-align: right; font-weight: bold;">
+				<span>수량</span>
+			</div>
+			<div style="width: calc(100% / 3); text-align: right; font-weight: bold;">
+				<span>결제금액</span>
+			</div>
+		</div>
+		<div style="display: flex; flex-direction: row;">
+			<div style="width: calc(100% / 3);">
+				<span>[[${info.item_name}]]</span>
+			</div>
+			<div style="width: calc(100% / 3); text-align: right;">
+				<span>[[${info.quantity}]]</span>
+			</div>
+			<div style="width: calc(100% / 3); text-align: right;">
+				<span id="money">&#8361;[[${info.amount.total}]]</span>
+			</div>
+		</div>
+	</div>
+	<hr style="width: 90%; border: 0px; border-top: 5px dotted;">
+	<div style="padding: 5%;">
+		<div style="display: flex; flex-direction: row; justify-content: space-between;">
+			<div style="font-weight: bold;">
+				<span>결제방법 : </span>
+			</div>
+			<div>
+				<span>[[${info.payment_method_type}]]</span>
+			</div>
+		</div>
+	</div>
+	<hr style="width: 90%; border: 0px; border-top: 5px dashed;">
+	<div style="padding: 5%;">
+		<div style="display: flex; flex-direction: row; justify-content: center; font-size: 30px; font-weight: bold;">
+			<div style="font-weight: bold;">
+				<span>결제금액</span>
+			</div>
+			&nbsp&nbsp&nbsp&nbsp&nbsp
+			<div>
+				<span id="money2">&#8361;[[${info.amount.total}]]</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="text-align: center;">
+	<button id="closeButton">닫기</button>
+</div>
+
+<script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+	//팝업 창 닫기 버튼 클릭 이벤트 핸들러
+	document.getElementById('closeButton').addEventListener('click', function() {
+	    // 부모 페이지로 리다이렉트
+	    window.opener.location.href = '/agent/home'; // 부모 페이지의 URL로 변경
+	    // 팝업 창 닫기
+	    window.close();
+	});
+
+	var money = $('#money').text();
+	var money2 = money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	$('#money').text(money2);
+
+	var money3 = $('#money2').text();
+	var money4 = money3.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	$('#money2').text(money4);
+</script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		img {
+			-webkit-user-drag: none;
+			-khtml-user-drag: none;
+			-moz-user-drag: none;
+			-o-user-drag: none;
+			user-drag: none;
+		}
+
+		.board-Page-container {
+			display: flex;
+			position: relative;
+			justify-content: center;
+			align-items: center;
+			min-height: 565px;
+			width: 100%;
+		}
+
+		.board-container {
+			display: flex;
+			position: relative;
+			justify-content: center;
+			align-items: center;
+			min-height: 500px;
+			width: 97%;
+			border-radius: 10px;
+			margin-bottom: 1.5%;
+			background-color: #fff;
+			/*fafafa*/
+			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.08);
+		}
+
+		.content-container {
+			display: flex;
+			width: 97%;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.home-list {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+		}
+
+		.task-box {
+			display: flex;
+			flex-direction: column;
+			/* 세로 방향 정렬 */
+			justify-content: center;
+			/* 세로 중앙 정렬 */
+			align-items: center;
+			position: relative;
+			border-radius: 12px;
+			width: 20%;
+			height: 200px;
+			margin: 20px 20px;
+			padding: 16px;
+			cursor: pointer;
+			background-color: #fcbdbb;
+			box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.15);
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.task-box:hover {
+			transform: translateY(-10px) scale(1.02);
+		}
+
+		.task-name {
+			font-size: 25px;
+			/* 		font-weight: bold; */
+			/* 		opacity: 0.6; */
+			color: white;
+		}
+
+		.more-button {
+			position: absolute;
+			width: 3px;
+			height: 3px;
+			border-radius: 50%;
+			background-color: #8e92a4;
+			box-shadow: 0 -4px 0 0 #8e92a4, 0 4px 0 0 #8e92a4;
+			opacity: 0.4;
+			right: 20px;
+			top: 30px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+	<div class="board-Page-container">
+		<div class="board-container">
+			<!-- section class="vh-100">
+		<div class="container p-5 h-100"-->
+			<div class="content-container">
+				<div sec:authorize="isAnonymous()">
+					<div class="pricing-header p-3 pb-mb-4 text-center">
+						<h1 class="display-5 fm-nomal">아직도 <b>ZIPZIP</b>의 회원이 아니신가요?</h1>
+						<p class="fs-3 text-muted"><b>ZIPZIP</b>의 파트너가 되어보세요</p>
+					</div>
+					<div class="row row-cols-2 row-cols-md-2 text-center">
+						<div class="col">
+							<div class="card mb-4 round-3 shdow-sm">
+								<div class="card-body m-3">
+									<img src="/resources/images/icons8-add-user-male.png" width="30%">
+									<ul class="list-unstyled mt-3 mb-4">
+										<li class="p-1"><b>ZIPZIP</b>의 파트너 중개사가 되어</li>
+										<li class="p-1"><b>ZIPZIP</b>의 광고효과를 직접 경험해 보세요</li>
+									</ul>
+									<button type="button" id="btnJoin" class="btn btn-primary py-2">회원가입</button>
+								</div>
+							</div>
+						</div>
+						<div class="col">
+							<div class="card mb-4 round-3 shdow-sm">
+								<div class="card-body m-3">
+									<img src="/resources/images/icons8-checked-user-male.png" width="30%">
+									<ul class="list-unstyled mt-3 mb-4">
+										<li class="p-1"><b>ZIPZIP</b>의 회원이신가요?</li>
+										<li class="p-1">광고효과를 원하시면 로그인 해주세요</li>
+									</ul>
+									<button type="button" id="btnLogin" class="btn btn-primary py-2">로그인</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div sec:authorize="hasRole('ROLE_AGENT')" style="width:100%;">
+					<div class="home-list" th:if="${agent.agentRight == 'P'}">
+
+						<div class="task-box" id="itemReg" style="background-color:#adc9ad">
+							<div class="task-name">매물 등록</div>
+							<div class="more-button"></div>
+						</div>
+
+						<div class="task-box" id="itemList" style="background-color:#ebb2ae;">
+							<div class="task-name">매물 조회</div>
+							<div class="more-button"></div>
+						</div>
+
+						<div class="task-box" id="agentReview" style="background-color:#f5ceab;">
+							<div class="task-name">리뷰 확인</div>
+							<div class="more-button"></div>
+						</div>
+					</div>
+					<div class="text-center w-50 m-auto" th:if="${agent.agentRight != 'P'}">
+						<div class="row mb-3 m-auto w-75">
+							<div class="col">
+								<div class="card mb-1 rounded-3 shadow-sm">
+									<div class="card-header py-3">
+										<h4 class="my-0 fw-normal">ZIPZIP 서비스 이용 결제</h4>
+									</div>
+									<div class="card-body">
+										<h1 class="card-title pricing-card-title">&#8361;36,800</h1>
+										<ul class="list-unstyled mt-3 mb-4">
+											<li class="p-1 fs-5"><b>ZIPZIP</b>의 파트너 중개사가 되어</li>
+											<li class="p-1 fs-5"><b>ZIPZIP</b>의 광고효과를 직접 경험해 보세요</li>
+										</ul>
+										<img src="/resources/images/CI_combination_with_BG.png" width="20%" onclick="openKakaoPayPopup()" style="cursor: pointer;">
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /div>
+	</section -->
+		</div>
+	</div>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#btnJoin").on("click", function () {
+				location.href = '/agent/join';
+			});
+
+			$("#btnLogin").on("click", function () {
+				location.href = '/agent/login';
+			});
+
+			$("#info").on("click", function () {
+				location.href = "/agent/info";
+			});
+
+			$("#itemList").on("click", function () {
+				window.location.href = "/agent/itemList";
+			});
+
+			$("#itemReg").on("click", function () {
+				window.location.href = "/agent/itemReg";
+			});
+
+			$("#agentReview").on("click", function () {
+				window.location.href = "/agent/agentReview";
+			});
+		});
+
+		function openKakaoPayPopup() {
+
+			// 팝업 창의 가로 크기와 세로 크기
+			var width = 450;
+			var height = 600;
+
+			// 화면의 가운데를 기준으로 팝업 창의 위치 계산
+			var left = (window.innerWidth - width) / 2;
+			var top = (window.innerHeight - height) / 2;
+
+			// 팝업 창을 열 때 위치와 크기 지정
+			var popup = window.open('', 'KakaoPayPopup', 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top);
+
+			// 결제 준비 요청을 서버로 보내고, 반환된 결제 승인 URL을 사용하여 팝업 열기
+			fetch('/payment/ready')
+				.then(response => response.text())
+				.then(paymentUrl => {
+					// 카카오페이 결제 팝업 열기
+					popup.location.href = paymentUrl;
+				})
+				.catch(error => console.error('Error:', error));
+		}
+	</script>
+</body>
+
+</html>

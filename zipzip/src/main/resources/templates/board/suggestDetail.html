@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		section .container {
+			width: 100%;
+		}
+
+		ul {
+			margin-bottom: 0;
+		}
+
+		li {
+			list-style: none;
+		}
+
+		p {
+			margin-bottom: 0;
+		}
+
+		.ib {
+			display: inline-block;
+		}
+
+		pre {
+			font-family: 'Ha';
+			src: url('/resources/fonts/kor/HANAMDAUM_Body.woff2') format('woff');
+		}
+
+		textarea {
+			resize: none;
+		}
+
+		.reply {
+			max-height: 100px;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+	<section style="min-height: 565px;">
+		<div class="container p-5">
+			<p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">건의사항</p>
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="fs-3 px-3" th:text="${suggest.suggestTitle}"></td>
+					</tr>
+					<tr>
+						<td>
+							<ul class="row justify-content-between p-3">
+								<li class="col-4 fs-6">
+									<b>작성자</b>
+									<p class="ib px-2" th:text="${suggest.userId}"></p>
+								</li>
+								<li class="col-4 fs-6 text-end">
+									<b>등록일</b>
+									<p class="ib px-1" th:text="${suggest.regDate}"></p>
+									<b>조회수</b>
+									<p class="ib px-1" th:text="${suggest.suggestHit}"></p>
+								</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
+						<td class="p-3">
+							<pre class="pb-1 fs-5" th:text="${suggest.suggestContent}"></pre>
+						</td>
+					</tr>
+					<!-- 
+					<tr>
+						<td class="row d-flex align-items-center justify-content-center">
+							<form action="">
+								<div class="pb-2">
+									<textarea class="form-control" placeholder="댓글을 입력하세요"></textarea>
+								</div>
+								<div>
+									<input type="submit" id="replyInsert" name="replyInsert" value="등록">
+								</div>
+							</form>
+						</td>
+					</tr>
+					<tr class="reply">
+						<td class="row">
+							<div class="pb-2">
+								<span>아이디</span>
+							</div>
+							<div class="pb-2">
+								<span>내용</span>
+							</div>
+							<div>
+								<input type="button" id="replyUpdate" name="replyUpdate" value="수정">
+								<input type="button" id="retplyDelete" name="retplyDelete" value="삭제">
+							</div>
+						</td>
+						<td class="row">
+							<div class="pb-2">
+								<span>아이디</span>
+							</div>
+							<div class="pb-2">
+								<span>내용</span>
+							</div>
+							<div>
+								<input type="button" id="replyUpdate" name="replyUpdate" value="수정">
+								<input type="button" id="retplyDelete" name="retplyDelete" value="삭제">
+							</div>
+						</td>
+					</tr>
+					 -->
+				</tbody>
+			</table>
+
+			<!-- 페이징 시작 
+			<nav aria-label="Page navigation example">
+				<ul class="pagination justify-content-center">
+					<li class="page-item disabled">
+						<a class="page-link" href="#" aria-label="Previous">
+							<span aria-hidden="true">&laquo;</span>
+						</a>
+					</li>
+					<li class="page-item active"><a class="page-link" href="#">1</a></li>
+					<li class="page-item"><a class="page-link" href="#">2</a></li>
+					<li class="page-item"><a class="page-link" href="#">3</a></li>
+					<li class="page-item">
+						<a class="page-link" href="#" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+			<!-- 페이징 끝 -->
+
+			<div>
+				<input type="button" id="btnList" name="btnList" value="목록">
+				<span th:if="${#authentication.name} == ${suggest.userId}">
+					<input type="button" id="btnUpdate" name="btnUpdate" value="수정">
+					<input type="button" id="btnDelete" name="btnDelete" value="삭제">
+				</span>
+				<span th:if="${#authentication.name} == manager">
+					<input type="button" id="btnDelete" name="btnDelete" value="삭제">
+				</span>
+			</div>
+		</div>
+
+	</section>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript" th:inline="javascript">
+		$(document).ready(function () {
+			$("#btnList").on("click", function () {
+				location.href = "/board/suggest";
+			});
+
+			$("#btnUpdate").on("click", function () {
+				location.href = "/board/suggestUpdate/[[${suggest.suggestNum}]]";
+			});
+
+			$("#btnDelete").on("click", function () {
+				if (confirm("삭제하시겠습니까?") == true) {
+					location.href = "/board/suggestDelete/[[${suggest.suggestNum}]]";
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

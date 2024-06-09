@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="Notice">
+
+	<insert id="insert" parameterType="com.example.demo.dto.Notice" useGeneratedKeys="true" keyProperty="noticeNum">
+		<selectKey resultType="long" keyProperty="noticeNum" order="BEFORE">
+			SELECT ZIP_NOTICE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_NOTICE (
+		    NOTICE_NUM,
+		    USER_ID,
+		    NOTICE_TITLE,
+		    NOTICE_CONTENT,
+		    REG_DATE,
+		    NOTICE_HIT,
+		    FILEATT
+		) VALUES (
+		    #{noticeNum},
+		   	#{userId},
+		    #{noticeTitle},
+		    #{noticeContent},
+		    SYSDATE,
+		    0,
+		    #{fileAtt}
+		)
+	</insert>
+	
+	<select id="selectList" resultType="com.example.demo.dto.Notice">
+		SELECT NOTICE_NUM,
+		    USER_ID,
+		    NOTICE_TITLE,
+		    NOTICE_CONTENT,
+		    REG_DATE,
+		    NOTICE_HIT,
+		    FILEATT
+		FROM ZIP_NOTICE
+		ORDER BY NOTICE_NUM DESC
+	</select>
+	
+	<select id="selectAll" resultType="com.example.demo.dto.Notice">
+		SELECT NOTICE_NUM,
+		    USER_ID,
+		    NOTICE_TITLE,
+		    NOTICE_CONTENT,
+		    REG_DATE,
+		    NOTICE_HIT,
+		    FILEATT
+		FROM (SELECT ROWNUM RNUM,
+		            NOTICE_NUM,
+		            USER_ID,
+		            NOTICE_TITLE,
+		            NOTICE_CONTENT,
+		            REG_DATE,
+		            NOTICE_HIT,
+		            FILEATT
+		        FROM (SELECT NOTICE_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(NOTICE_TITLE, '') NOTICE_TITLE,
+		                    NVL(NOTICE_CONTENT, '') NOTICE_CONTENT,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(NOTICE_HIT, 0) NOTICE_HIT,
+		                    NVL(FILEATT, 0) FILEATT
+		                FROM ZIP_NOTICE
+		                WHERE 1=1
+		                <if test='searchValue != null and searchValue != "" '>
+		                AND NOTICE_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(NOTICE_CONTENT, #{searchValue}) > 0
+		                </if>
+		                ORDER BY NOTICE_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<select id="listCnt" parameterType="com.example.demo.dto.Notice" resultType="long">
+		SELECT COUNT(*) CNT
+		FROM ZIP_NOTICE
+		WHERE 1=1
+		<if test='searchValue != null and searchValue != "" '>
+		AND NOTICE_TITLE LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(NOTICE_CONTENT, #{searchValue}) > 0
+		</if>
+	</select>
+	
+	<update id="updateHit" parameterType="long">
+		UPDATE ZIP_NOTICE
+		SET NOTICE_HIT = NOTICE_HIT + 1
+		WHERE NOTICE_NUM = #{noticeNum}
+	</update>
+	
+	<select id="selectOne" parameterType="long" resultType="com.example.demo.dto.Notice">
+		SELECT NOTICE_NUM,
+		    NVL(USER_ID, '') USER_ID,
+		    NVL(NOTICE_TITLE, '') NOTICE_TITLE,
+		    NVL(NOTICE_CONTENT, '') NOTICE_CONTENT,
+		    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		    NVL(NOTICE_HIT, 0) NOTICE_HIT,
+		    NVL(FILEATT, 0) FILEATT
+		FROM ZIP_NOTICE
+		WHERE NOTICE_NUM = #{noticeNum}
+	</select>
+
+	<update id="update">
+		UPDATE ZIP_NOTICE
+		SET NOTICE_TITLE = #{noticeTitle},
+		NOTICE_CONTENT = #{noticeContent}
+		WHERE NOTICE_NUM = #{noticeNum}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM ZIP_NOTICE
+		WHERE NOTICE_NUM = #{noticeNum}
+	</delete>
+	
+	<insert id="insertFile" parameterType="com.example.demo.dto.NoticeFile">
+		<selectKey resultType="long" keyProperty="fileNum" order="BEFORE">
+			SELECT ZIP_NOTICE_FILE_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO ZIP_NOTICE_FILE (
+		    NOTICE_NUM,
+		    FILE_NUM,
+		    FILE_IDX,
+		    FILE_ORG,
+		    FILE_NAME,
+		    FILE_DATE
+		) VALUES (
+		    #{noticeNum},
+		    #{fileNum},
+		    #{fileIdx},
+		    #{fileOrg},
+		    #{fileName},
+		    SYSDATE
+		)
+	</insert>
+	
+	<select id="selectFile" resultType="com.example.demo.dto.NoticeFile">
+		SELECT NOTICE_NUM,
+		    FILE_NUM,
+		    NVL(FILE_IDX, 0) FILE_IDX,
+		    NVL(FILE_ORG, '') FILE_ORG,
+		    NVL(FILE_NAME, '') FILE_NAME,
+		    NVL(TO_CHAR(FILE_DATE, 'YYYY-MM-DD'), '') FILE_DATE
+		FROM ZIP_NOTICE_FILE
+		WHERE NOTICE_NUM = #{noticeNum}
+	</select>
+	
+</mapper>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+       .board-Page-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 565px;
+         width: 100%;
+      }
+      .board-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         min-height: 500px;
+         width:96%;
+         border-radius: 10px;
+         margin-bottom: 1.5%;
+         background-color: #fffff;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+         margin-top:-8px;
+      }
+
+        .board-content-container {
+          display: flex;
+          position: relative;
+          justify-content: center;
+          align-items: center;
+          height: 50%;
+          width: 60%;
+          margin-top: 100px;
+          margin-bottom: 100px;
+          flex-direction: column;
+          box-shadow:  0px 0px 10px rgba(0, 0, 0, 0.2); /*  */
+        }
+        
+        .title-container {
+           margin-top:80px;
+           font-size:30px;
+           font-weight:bold;
+           color:#666666;
+           margin-bottom:50px;
+        }
+        
+        .label-container {
+           display: flex;
+           width:90%;
+           margin-top:10px;
+           flex-direction: column;
+          justify-content: center;
+        }
+
+        .label-write {
+            font-weight: bold;
+            font-size:15px;
+            float:left;
+            margin-left:5px;
+            margin-top:10px;
+            color:#666666;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            /* 포커스 시 기본적으로 제공되는 테두리 스타일 제거 */
+        }
+
+      /* textarea css */
+      .textarea-css1 {
+         box-sizing: border-box;
+         min-height: 100%;
+         width: 90%;
+         resize: none;
+         border: 1px solid #ccc;
+         outline: none;
+         overflow-y: auto;
+      }
+      .textarea-css2 {
+         box-sizing: border-box;
+         min-height: 100%;
+         width: 100%;
+         resize: none;
+         border: 1px solid #ccc;
+         outline: none;
+         overflow-y: auto;
+      }
+
+        .button-container {
+           width:90%;
+           margin-top:30px;
+           margin-bottom:30px;
+            text-align: right;
+            /* 버튼을 오른쪽으로 정렬 */
+        }
+
+        button {
+            background-color: gray;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left:5px;
+        }
+        button:hover {
+            background-color: #555;
+         transform: translateY(-2px);
+         cursor: pointer;
+        }
+
+
+        /* 에디터 스타일 */
+        .ck.ck-editor {
+        }
+
+        .ck-editor__editable {
+            height: 800px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <div layout:fragment="content">
+        <div style="height: 13vh;"></div>
+
+        <div class="board-Page-container">
+            <div class="board-container">
+                <!-- 게시판 전체 내용 div -->
+                <div class="board-content-container" th:if="${user != null}">
+                   <div class="title-container">💛 자유게시판 글쓰기 💛</div>
+                   <div class="label-container">
+                       <label class="label-write" for="title">작성자 😊</label>
+                       <input type="text" id="boardWriter" name="boardWriter" th:value="${user.userId}" readonly>
+                       <label class="label-write" for="title">제목 🍄</label>
+                       <input type="text" id="boardTitle" name="boardTitle" placeholder="제목을 입력하세요.">
+                       <label class="label-write" for="content">내용 🌴</label>
+                    </div>
+<div class="textarea-css1">
+   <div class="textarea-css2">
+                       <div id="editorContent" name="editorContent" ></div>
+<!--                    <textarea id="editorContent" name="editorContent" class="textarea-css"></textarea><br> -->
+                    
+                    <script src="/resources/js/ckeditor/build/ckeditor.js"></script>
+               <script>
+   //                import { SimpleUploadAdapter } from '@ckeditor/ckeditor5-upload';
+                  var myEditor;
+                  
+                  class MyUploadAdapter {
+                      constructor(loader) {
+                          this.loader = loader;
+                      }
+                  
+                      upload() {
+                          return this.loader.file
+                              .then(file => new Promise((resolve, reject) => {
+                                  this._initRequest();
+                                  this._initListeners(resolve, reject, file);
+                                  this._sendRequest(file);
+                              }));
+                      }
+                  
+                      abort() {
+                          if (this.xhr) {
+                              this.xhr.abort();
+                          }
+                      }
+                  
+                      _initRequest() {
+                          const xhr = this.xhr = new XMLHttpRequest();
+                  
+                          xhr.open('POST', '/upload', true);
+                          xhr.responseType = 'json';
+                      }
+                  
+                      _initListeners(resolve, reject, file) {
+                          const xhr = this.xhr;
+                          const loader = this.loader;
+                          const genericErrorText = `${file.name} 파일을 업로드할 수 없습니다.`;
+                  
+                          xhr.addEventListener('error', () => reject(genericErrorText));
+                          xhr.addEventListener('abort', () => reject());
+                          xhr.addEventListener('load', () => {
+                              const response = xhr.response;
+                  
+                              if (!response || response.error) {
+                                  return reject(response && response.error ? response.error.message : genericErrorText);
+                              }
+                  
+                              resolve({
+                                  default: response.url
+                              });
+                          });
+                  
+                          if (xhr.upload) {
+                              xhr.upload.addEventListener('progress', evt => {
+                                  if (evt.lengthComputable) {
+                                      loader.uploadTotal = evt.total;
+                                      loader.uploaded = evt.loaded;
+                                  }
+                              });
+                          }
+                      }
+                  
+                      _sendRequest(file) {
+                          const data = new FormData();
+                  
+                          data.append('upload', file);
+                  
+                          this.xhr.send(data);
+                      }
+                  }
+                  
+                  function MyCustomUploadAdapterPlugin(editor) {
+                      editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                          return new MyUploadAdapter(loader);
+                      };
+                  }
+   
+                  // 화면 연결
+                  ClassicEditor
+                     .create( document.querySelector( '#editorContent' ), {
+                          extraPlugins: [ MyCustomUploadAdapterPlugin ],
+                      })
+                           .then( editor => {
+                              myEditor = editor;
+                               console.log( 'Editor was initialized', editor );
+                           } )
+                           .catch( error => {
+                               console.error( 'There was a problem initializing the editor -- ', error );
+                           } );
+   
+   
+               </script>
+   </div>
+</div>
+                    <div class="button-container">
+                       <button id="back">돌아가기 👈</button>
+                        <button id="btnWrite">게시하기 📃</button>
+                    </div>
+                </div>
+                <!-- 게시판 전체 내용 div 끝 -->
+            </div>
+        </div>
+</div>
+
+        <!-- 본문 끝 -->
+
+        <!-- 푸터 시작 -->
+        <footer th:replace="/common/footer :: footer"></footer>
+        <!-- 푸터 끝 -->
+
+        <!-- 개별 js -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript">
+
+        $(document).ready(function() {
+           
+          if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+             alert("글을 작성하려면 회원 로그인이 필요합니다. ");
+             location.href = "/board/freeBoard";
+          }
+           
+           $("#btnWrite").on("click", function(){
+              
+              if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+                 alert("글을 작성하려면 회원 로그인이 필요합니다. ");
+                 location.href = "/board/freeBoard";
+              }
+              
+//               alert("dd");
+              $("#btnWrite").prop("disabled", true);
+              
+              var boardTitle = $("#boardTitle").val();
+              var editorData = myEditor.getData();
+              
+              if($.trim(boardTitle).length <= 0){
+                 alert("게시글 제목을 입력해주세요.");
+                 $("#boardTitle").val("");
+                 $("#boardTitle").focus();
+                 
+                 $("#btnWrite").prop("disabled", false);
+                 return;
+              }
+              
+              if($.trim(boardTitle).length > 33){
+                 alert("게시글 제목은 공백포함 30자 까지만 입력하실 수 있습니다.");
+                 $("#boardTitle").focus();
+                 
+                 $("#btnWrite").prop("disabled", false);
+                 return;
+              }
+              
+              if($.trim(editorData).length <= 0){
+                 alert("게시글 내용을 작성해주세요.")
+                 myEditor.focus();
+                 $("#btnWrite").prop("disabled", false);
+                 return;
+              }
+              
+
+              
+              $.ajax({
+                 type:"POST",
+                 url:"/board/writeProc",
+                 data:{
+                    boardWriter:$("#boardWriter").val(),
+                    boardTitle:$("#boardTitle").val(),
+                    boardContent:editorData
+                 },
+                 datatype:"JSON",
+                 cache:false,
+                 beforeSend:function(xhr){
+                    xhr.setRequestHeader("AJAX", "true");
+                 },
+                 success:function(res){
+                    if(res == 200){
+                       alert("게시글이 등록되었습니다.");
+                       location.href = "/board/freeBoard";   
+                    }
+                    else if(res == 400){
+                       alert("값이 올바르지 않습니다.");
+                       $("#boardTitle").focus();
+                       $("#btnWrite").prop("disabled", false);
+                    }
+                    else{
+                       alert("게시글 등록 중 오류가 발생하였습니다.");
+                       $("#boardTitle").focus();
+                       $("#btnWrite").prop("disabled", false);
+                    }
+                 },
+                 error:function(error){
+                    alert("게시글 등록 중 예상치 못한 오류가 발생하였습니다.");
+                    $("#btnWrite").prop("disabled", false);
+                 }
+              });      
+           });
+           
+           //돌아가기
+           $("#back").on("click", function(){
+              if(confirm("작성 취소시 작성하신 글은 저장되지 않습니다. \n정말로 글작성을 취소하고 돌아가시겠습니까? ")){
+                 location.href = "/board/freeBoard";
+              }
+           });
+           
+           
+        });
+
+        </script>
+</body>
+
+</html>

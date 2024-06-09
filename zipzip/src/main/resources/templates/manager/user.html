@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+html,body {
+	height: 100%;
+  padding:1.5em;
+  background: #f5f5f5
+}
+
+table {
+  border: 1px #a39485 solid;
+  font-size: .9em;
+  box-shadow: 0 2px 5px rgba(0,0,0,.25);
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+th {
+  text-align: left;
+}
+  
+thead {
+  font-weight: bold;
+  color: #fff;
+  background: #6d74b3;
+}
+  
+ td, th {
+  padding: 1em .5em;
+  vertical-align: middle;
+}
+  
+ td {
+  border-bottom: 1px solid rgba(0,0,0,.1);
+  background: #fff;
+}
+
+a {
+  color: #73685d;
+}
+  
+ @media all and (max-width: 768px) {
+    
+  table, thead, tbody, th, td, tr {
+
+  }
+  
+  th {
+    text-align: right;
+  }
+  
+  table {
+    position: relative; 
+    padding-bottom: 0;
+    border: none;
+    box-shadow: 0 0 10px rgba(0,0,0,.2);
+  }
+  
+  thead {
+    float: left;
+    white-space: nowrap;
+  }
+  
+  tbody {
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    white-space: nowrap;
+  }
+  
+  tr {
+    display: inline-block;
+    vertical-align: top;
+  }
+  
+  th {
+    border-bottom: 1px solid #a39485;
+  }
+  
+  td {
+    border-bottom: 1px solid #e5e5e5;
+  }
+  }
+  /* ----- 페이징 ----- */
+		.page_wrap {
+			text-align: center;
+			font-size: 0;
+		}
+
+		.page_nation {
+			display: inline-block;
+		}
+
+		.page_nation .none {
+			display: none;
+		}
+
+		.page_nation a {
+			display: block;
+			margin: 0 3px;
+			float: left;
+			border: 1px solid #e6e6e6;
+			width: 28px;
+			height: 28px;
+			line-height: 28px;
+			text-align: center;
+			background-color: #fff;
+			font-size: 13px;
+			color: #999999;
+			text-decoration: none;
+		}
+
+		.page_nation .arrow {
+			border: 1px solid #ccc;
+		}
+
+
+		.page_nation a.active {
+			background-color: #42454c;
+			color: #fff;
+			border: 1px solid #42454c;
+		}
+.modalContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex; /* 수정 */
+  justify-content: center; 
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+   z-index: 10000;
+}
+
+.modalContent {
+  position: relative;
+  background-color: #ffffff;
+  width: 40%;
+  height: 30%;
+  position: fixed;
+  padding: 15px;
+  top: 50%;
+  left: 50%; /* 수정 */
+  transform: translate(-50%, -50%); /* 수정 */
+  border-radius: 10px;
+   z-index: 10001;
+}
+
+.modalContainer.hidden {
+  display: none;
+}
+.modalCloseButton {
+	margin-left:1%;
+    border-radius: .2em;
+    outline: none;
+    background-color: #EEE;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    transition: .2s;
+    box-shadow: 0em 0em 3em rgba(0,0,0,0);
+}
+.modelCloseButton :hover {
+	border-radius: 0em;
+	color: rgb(150, 150, 150);
+    background:#fff;
+    box-shadow: .1em .1em 3em rgba(0,0,0, 0.2);
+}
+
+/* 서치바  */
+input.search-text {
+  color: #222;
+  position:relative;
+  z-index:5;
+  transition: z-index 0.8s, width 0.5s, background 0.3s ease, border 0.3s;
+  height: 45px;
+  width: 0;
+  margin: 0;
+  padding: 5px 0 5px 40px;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 30px;
+  border: 1px solid transparent;
+  /*background: url(search.png) no-repeat left 9px center transparent;*/
+  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDUxMiA1MTIiIGhlaWdodD0iNTEycHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiB3aWR0aD0iNTEycHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxwYXRoIGQ9Ik01MDMuODY2LDQ3Ny45NzRMMzYwLjk1OCwzMzUuMDUyYzI4LjcyNS0zNC41NDQsNDYuMDE3LTc4LjkxMiw0Ni4wMTctMTI3LjMzNiAgYzAtMTEwLjA4NC04OS4yMjctMTk5LjMxMi0xOTkuMzEyLTE5OS4zMTJDOTcuNTk5LDguNDAzLDguMzUxLDk3LjYzMSw4LjM1MSwyMDcuNzE1YzAsMTEwLjA2NCw4OS4yNDgsMTk5LjMxMiwxOTkuMzEyLDE5OS4zMTIgIGM0OC40MzUsMCw5Mi43OTItMTcuMjkyLDEyNy4zMzYtNDYuMDE3bDE0Mi45MDgsMTQyLjkyMkw1MDMuODY2LDQ3Ny45NzR6IE0yOS4zMzEsMjA3LjcxNWMwLTk4LjMzNCw3OS45ODctMTc4LjMzMiwxNzguMzMyLTE3OC4zMzIgIGM5OC4zMjUsMCwxNzguMzMyLDc5Ljk5OCwxNzguMzMyLDE3OC4zMzJzLTgwLjAwNywxNzguMzMyLTE3OC4zMzIsMTc4LjMzMkMxMDkuMzE4LDM4Ni4wNDcsMjkuMzMxLDMwNi4wNSwyOS4zMzEsMjA3LjcxNXoiIGZpbGw9IiMzNzQwNEQiLz48L3N2Zz4=) no-repeat left 9px center transparent;
+  background-size:24px;
+}
+input.search-text:focus {
+  z-index:3; 
+  width: 270px;
+  border: 1px solid #666;  
+  background-color: white;
+  outline: none;
+  cursor:auto;
+  padding-right: 10px;
+}
+
+input.search-submit {
+  position: relative;
+  z-index: 4;
+  top:17px;
+  left: 49px;
+  width: 45px;
+  height: 45px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 30px;
+  cursor: pointer; 
+  background: none;
+  margin-left:-30px;
+}
+
+input.search-text::-webkit-search-cancel-button {
+  cursor:pointer;
+}
+.searchBox{
+position:relative;
+margin-left:10px;
+margin-bottom:10px;
+}
+/* 검색창 */
+.wrap {
+  width: auto;
+  margin: 3em auto;
+}
+
+.custom-select {
+  border: 1px solid #CCC;
+  border-radius: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  margin: 0 auto;
+  padding: 10px;
+  color: #666;
+}
+.chart{
+	background-color:white;
+	border-radius: 30px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+	</style>
+</head>
+
+<body>
+
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+
+<div style="height: 13vh;"></div>
+	<div id="modalContainer" class="modalContainer" style="width: 100%; height: 100%;display:none; background: rgba(0, 0, 0, 0.5);">
+  <div id="modalContent" class="modalContent">
+	<div>아이디:<b id="thisUserId"></b></div>
+	<div>이름 : <b id="thisUserName"></b></div>
+	<div>전화번호 : <b id="thisUserPhone"></b></div>
+	<div>이메일 : <b id="thisUserEmail"></b></div>
+	<div>가입일 : <b id="thisregDate"></b></div>
+	상태 : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<select id="thisStatus">
+		<option value="Y" selected>정상</option>
+		<option value="N">정지</option>
+		<option value="Q">탈퇴</option>
+	</select>
+	<br/>
+	이메일인증 : <select id="thisEmailAuth">
+		<option value="Y" selected>미완</option>
+		<option value="N">완료</option>
+	</select>
+	<br/>
+	<br/>
+	<div style="display:flex;">
+		<button id="submit" class="modalCloseButton" style="width:80px; color:navy;">적용</button>
+	     <button id="modalCloseButton" class="modalCloseButton" style="width:80px; color:red;">닫기</button>
+  	</div>
+  </div>
+</div>
+
+    <h1 style="margin-left:50px; font-family: 'Ha' !important;"><b>신규 회원수</b> 변동 추이</h1><br/>
+
+    <!-- 차트를 그려줄 영역 -->
+    <div class="chart" id="chart" style="width: 100%; height:400px;"> </div>
+    <!-- 차트 끝 -->
+<div class="searchBox">
+<div class="wrap">
+<select id="thisSearchType" class="custom-select">
+	<option value='1'>유저아이디</option>
+	<option value='2'>이름</option>
+	<option value='3'>상태(Y/N/Q)</option>
+</select>
+
+<input type="submit" value="" class="search-submit">
+<input type="search" id="thisSearchValue" name="q" class="search-text" placeholder="Search..." autocomplete="off">
+</div>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>아이디</th>
+        <th>이름</th>
+        <th>전화번호</th>
+        <th>이메일</th>
+        <th>상태</th>
+		<th>가입일</th>
+		<th>인증여부</th>
+    </tr>
+    </thead>
+     <tbody>
+<tr th:each="item : ${list}" class="modal-trigger" 
+            th:userId="${item.userId}" 
+            th:userName="${item.userName}" 
+            th:userPhone="${item.userPhone}" 
+            th:userEmail="${item.userEmail}" 
+            th:status="${item.status}" 
+            th:regDate="${item.regDate}"
+            th:emailAuth="${item.emailAuth}"
+            th:onclick="openModal(this.getAttribute('userId'),this.getAttribute('userName'),
+            this.getAttribute('userPhone'),this.getAttribute('userEmail'),
+            this.getAttribute('status'),this.getAttribute('regDate'),
+            this.getAttribute('emailAuth'));">            
+            <td th:text="${item.userId}"></td>
+            <td th:text="${item.userName}"></td>
+            <td th:text="${item.userPhone}"></td>
+            <td th:text="${item.userEmail}"></td>
+            <td th:text="${item.status}"></td>
+            <td th:text="${item.regDate}"></td>
+            <td th:text="${item.emailAuth}"></td>
+        </tr>
+    </tbody>
+</table>
+<div class="board-paging-container" style="margin-top:10px;">
+	<div class="page_wrap">
+		<div class="page_nation" th:if="${paging != null}">
+			<th:block th:if="${paging.prevBlockPage gt 0}">
+				<a class="" href="#" th:onclick="'fn_pageClick(1)'"></a>
+				<a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.prevBlockPage} + ')'"></a>
+			</th:block>
+			<th:block th:each="i: ${#numbers.sequence(paging.startPage, paging.endPage)}">
+				<a class="active" th:if="${i == paging.curPage}" th:text="${i}">1</a>
+				<a href="#" th:if="${i != paging.curPage}" th:text="${i}" th:onclick="'fn_pageClick(' + ${i} + ',' + ${sort} + ')'">2</a>
+			</th:block>
+			<th:block th:if="${paging.nextBlockPage gt 0}">
+				<a class="" href="#" th:onclick="'fn_pageClick(' + ${paging.nextBlockPage} + ')'">></a>
+			</th:block>
+		</div>
+	</div>
+	<form id="searchForm" name="searchForm" method="post">
+		<input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+		<input type="hidden" id="searchType" name="searchType" th:value="${searchType}" />
+		<input type="hidden" id="searchValue" name="searchValue" th:value="${searchValue}" />
+	</form>
+</div>
+
+	<!-- 개별 js -->
+	<script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+	<script type="text/javascript">
+	
+	var month = '[[${month}]]'; // 모델에서 받은 문자열
+	month = month.replace(/&#39;/g, "'");
+	month = month.replace("[", "");
+	month = month.replace("]", "");
+	var monthStr = month.split(',');
+	console.log(monthStr);
+	var total = [[${total}]];
+	
+	console.log(total); 
+	
+	let xAxisData =monthStr; // x축 데이터 배열 생성
+	let seriesData = total; // 값 데이터 배열 생성
+
+	$(document).ready(function(){
+
+		drawChart();
+		 $("#modalCloseButton").on("click",function(){
+		    	$("#modalContainer").hide();
+		 });
+		 
+		 $("#submit").on("click",function(){
+	    	if(confirm("이대로 변경할까요?")){
+	    		updateState();
+	    	}
+		 });
+		 $(".searchBox").on("keyup",function(key){         
+		    	if(key.keyCode==13) {   
+		    		fn_pageClick(1);      
+		    	}
+		 });
+	        
+	});
+function fn_pageClick(page){
+	console.log('fn_pageClick');
+	document.searchForm.curPage.value = page;
+	document.searchForm.searchType.value = $("#thisSearchType").val();
+	document.searchForm.searchValue.value = $("#thisSearchValue").val();
+	document.searchForm.action = "/manager/user";
+	document.searchForm.submit();
+}
+function drawChart () { 
+
+	var myChart = echarts.init(document.getElementById('chart')); // echarts init 메소드로 id=chart인 DIV에 차트 초기화
+	
+	option = { // 차트를 그리는데 활용 할 다양한 옵션 정의
+                   xAxis: {
+                       type: 'category',
+                       data: xAxisData // 위에서 정의한 X축 데이터
+                   },
+                   yAxis: {
+                       type: 'value'
+                   },
+                   series: [
+                       {
+                       data: seriesData, // 위에서 정의한 값 데이터
+                       type: 'line' // 버튼의 value 데이터 ('line' or 'bar')
+                       }
+                   ]
+                       };
+       
+	myChart.setOption(option); // 차트 디스플레이
+}
+function openModal(userId, userName, 
+		userPhone, userEmail, status, regDate, emailAuth){
+
+	//console.log(reportNum);
+
+    // 가져온 값들을 모달에 넣기
+    $('#thisUserId').text(userId);
+    $('#thisUserName').text(userName);
+    $('#thisUserPhone').text(userPhone);
+    $('#thisUserEmail').text(userEmail);
+    $('#thisStatus').val(status);
+    $('#thisRegDate').text(regDate);
+    $('#thisEmailAuth').val(emailAuth);
+
+	$("#modalContainer").show();
+	
+}
+function updateState (){
+	var userId = $('#thisUserId').text();
+	var status = $('#thisStatus').val();
+	var email = $('#thisEmailAuth').val();
+	
+	console.log(userId);
+	console.log(status);
+	
+	$.ajax({
+		url:"/userUpdate",
+		type:'POST',
+		data:{
+			userId:userId,
+			status:status,
+			emailAuth:email
+		},
+		success: function(data){
+			alert("완료");
+			if(data == -1){
+				console.log("-1");
+			}
+			else if(data > 0){
+				console.log("1");
+				$("#modalContainer").hide();
+				window.location.href = "/manager/user";
+			}
+			if(data == 0){
+				console.log("반영안됨");
+			}
+			else {
+				console.log(data);
+			}
+		},
+		error: function(data){
+			alert("에러");	
+		}
+	});
+}
+
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+   <!-- 헤더 시작 -->
+   <div th:replace="/common/header :: header"></div>
+   <!-- 헤더 끝 -->
+
+   <!-- 개별 css -->
+<!--    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"> -->
+   <style type="text/css">
+      .board-Page-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         /* 가로로 중앙 정렬 */
+         align-items: center;
+         /* 세로로 중앙 정렬 */
+         min-height: 300px;
+         /* 최소 세로 크기 */
+         width: 100%;
+         /*     margin-bottom:10px !important;  */
+      }
+
+      .board-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         /* 가로로 중앙 정렬 */
+         align-items: center;
+         /* 세로로 중앙 정렬 */
+         min-height: 300px;
+         /* 최소 세로 크기 */
+         /*    max-height: 1000px; */
+         width: 97%;
+         border-radius: 10px;
+         margin-bottom: 1.5%;
+         background-color: #fafafa;
+         box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.1);
+         /* 그림자 추가 */
+      }
+
+      .board-content-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         align-items: center;
+         height: 50%;
+         /*    height: 1200px; */
+         width: 76%;
+         margin-left: 200px;
+         flex-direction: column;
+         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+         /* 그림자 추가 */
+      }
+      
+      .list-container {
+          display: flex;
+          justify-content: center; /* 자식 요소를 가로(수평) 기준으로 가운데 정렬 */
+      }
+
+      label {
+         font-weight: bold;
+      }
+
+      input[type="text"] {
+         width: 100%;
+         padding: 8px;
+         margin-top: 5px;
+         margin-bottom: 10px;
+         border: 1px solid #ccc;
+         border-radius: 3px;
+      }
+
+      input[type="text"]:focus {
+         outline: none;
+         /* 포커스 시 기본적으로 제공되는 테두리 스타일 제거 */
+      }
+
+
+      /* url복사, 수정버튼 포함 */
+      .button-container {
+         display: grid;
+/*          margin-top: 7%; */
+/*          align-items: flex-start; */
+         justify-content: flex-end; /* 자식 요소를 오른쪽으로 정렬 */
+           align-items: center; /* 수직 정렬 */
+      }
+
+      .share-container {
+          display: flex;
+          justify-content: space-between; /* 자식 요소를 수평으로 가운데 정렬하고 간격을 분산 */
+          align-items: center; /* 자식 요소를 수직으로 가운데 정렬 */
+          margin-left:auto;
+      }
+      
+      .button-container2 {
+          display: flex; /* Flexbox를 사용하여 가로 정렬 */
+          justify-content: space-between; /* 자식 요소 사이의 간격을 균등하게 배치 */
+      }
+
+      .btn-rewrite {
+         display: flex; /* 내부 요소들을 가로로 정렬하기 위해 flexbox 사용 */
+          justify-content: center; /* 내부 요소들 가로 정렬 중앙 정렬 */
+          align-items: center; /* 내부 요소들 세로 정렬 중앙 정렬 */
+         background-color: gray;
+         color: white;
+         padding: 5px 10px;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         margin-top: 30px;
+         margin-left: 5px;
+         white-space: nowrap; /* 텍스트가 한 줄로 줄바꿈되지 않도록 설정 */
+      }
+
+      .url-copy {
+         /* margin-bottom:10px; */
+         width: 20px;
+         height: auto;
+         cursor: pointer;
+      }
+
+      .info-container {
+         display: flex;
+         /*justify-content: space-between; */
+         justify-content: center;
+         align-items: center;
+         /* 자식 요소를 수직 가운데 정렬 */
+         width: 77.4%;
+
+      }
+
+      .info-container1 {
+         display: flex;
+         align-items: left;/* 자식 요소를 수직 가운데 정렬 */
+         flex-direction: column;/* 자식 요소를 세로 방향으로 배치 */
+         width: 100%;
+/*          margin-top: 7%; */
+
+      }
+
+      .info-container1-1 {
+         display: flex;
+         /*     justify-content: center; */
+         align-items: center;
+         width: 80%;
+         margin-top: 5px;
+         margin-bottom: 5px;
+      }
+
+      .info-container label {
+         display: flex;
+         text-align: center;
+         align-items: center;
+         margin-right: 10px;
+         margin-bottom: 0px;
+      }
+
+
+      button[type="submit"]:hover {
+         background-color: #0056b3;
+      }
+
+      /* textarea css */
+      .textarea-css {
+         box-sizing: border-box;
+         min-height: 100%;
+         width: 77.4%;
+         resize: none;
+         border: 1px solid #ccc;
+         outline: none;
+         overflow-y: auto;
+      }
+
+      .textarea-title {
+         font-weight: bold;
+         padding: 10px;
+         background-color: lightgray;
+      }
+
+      /* hr 요소 스타일 */
+      hr {
+         width: 90%;
+         border: none;
+         border-top: 2px solid #333;
+         /* 진한 그레이 색상 설정 */
+         margin: 20px auto;
+         /* 가운데 정렬을 위한 마진 설정 */
+      }
+
+      /* 댓글 */
+      .comment-container {
+
+         width: 77.4%;
+         justify-content: center;
+         flex-direction: column;
+         margin-bottom: 30px;
+         padding-top: 20px;
+         border: 1px solid lightgray;
+      }
+
+      .comment {
+         /*     border: 1px solid #ccc; */
+         padding: 15px;
+         /*     margin-bottom: 10px; */
+         margin-top: -15px;
+      }
+      
+      .nocomment {
+         padding: 15px;
+         display: flex;
+          justify-content: center; /* 가로 방향 가운데 정렬 */
+          align-items: center; /* 세로 방향 가운데 정렬 */
+      }
+
+      .comment::after {
+         content: "";
+         display: block;
+         width: 100%;
+         height: 1px;
+         background-color: lightgray;
+         /* 선의 색상 설정 */
+         /*     margin-bottom: 5px; /* 선 아래쪽 여백 설정 */
+         */
+      }
+
+      .comment-reply {
+         margin-left: 30px;
+         padding-left: 10px;
+         padding-bottom: 10px;
+          display: flex; /* 자식 요소들을 가로로 정렬하기 위해 Flexbox 사용 */
+          align-items: center; /* 세로 가운데 정렬 */
+      }
+      
+      .left-2 {
+         margin-bottom:30px;
+         margin-right:10px;
+         width: 20px;
+         height: auto;
+      }
+      
+      .comment-reply1 {
+         width: 95%;
+         border-left: 1px solid #ccc;
+         padding-left: 10px;
+         height: auto;
+/*           min-height: 60px; */
+      }
+      .comment-reply1::after {
+         content: "";
+         display: block;
+         width: 96%;
+         height: 1px;
+         background-color: lightgray;
+         /* 선의 색상 설정 */
+         /*     margin-bottom: 5px; /* 선 아래쪽 여백 설정 */
+         */
+      }
+
+      .comment-info {
+         font-size: 11px;
+      }
+      
+      .comment-delete {
+         width:20px;
+         float:right;
+         margin-right:20px;
+         cursor:pointer;"  
+      }
+      .recomment-delete {
+         width:20px;
+          float:right;
+          margin-right:px;
+          cursor:pointer;" 
+      }
+
+      .comment-content {
+         margin-top: 10px;
+         margin-bottom: 10px;
+         white-space: normal;
+/*          overflow-wrap: anywhere; */
+         overflow-wrap: break-word;
+         word-break: break-all;
+         width:90%;
+      }
+
+      .comment-button-container {
+         display: flex;
+         position: relative;
+         justify-content: center;
+         /*     align-items: center; */
+         margin-bottom: 25px;
+      }
+
+      .comment-input {
+         width: 80%;
+         height: 80px;
+         margin-right: 5px;
+         border-radius: 5px;
+         border: 1px solid #ccc;
+         outline: none;
+         /* 클릭 시 포커스 테두리 없애기 */
+      }
+
+      .btn-commentWrite {
+         background-color: gray;
+         color: white;
+         padding: 7px 12px;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+      }
+
+      .comment-hr {
+         width: 98%;
+         border: none;
+         border-top: 2px solid #333;
+         /* 진한 그레이 색상 설정 */
+         margin: 20px auto;
+         /* 가운데 정렬을 위한 마진 설정 */
+      }
+      
+      .fixed-bottom-right {
+           position: fixed; /* 요소를 화면에 고정 */
+           bottom: 8px; /* 하단 여백 설정 */
+           right: 38px; /* 우측 여백 설정 */
+           background-color: none; /* 배경색 지정 (필요에 따라 변경 가능) */
+           padding: 5px; /* 내부 여백 설정 */
+/*            border: 1px solid #ccc; /* 테두리 설정 */ */
+           border-radius: 5px; /* 테두리 둥글게 처리 */
+           z-index: 1000; /* 다른 요소들 위에 표시되도록 z-index 설정 */
+           width:80px;
+           cursor:pointer;
+       }
+      .auto-scroll {
+         position: fixed;
+           top: 20px;
+           right: 55px;
+           background-color: none;
+           padding: 5px;
+           border: 2px solid #ccc;
+           border-radius: 5px;
+           z-index: 1000;
+/*            font-weight:bold; */
+      }
+      .comment-scroll {
+         position: fixed;
+           bottom: 30px;
+           right: 120px;
+           background-color: none;
+           padding: 5px; 
+           border: 2px solid #ccc;
+           border-radius: 5px;
+           z-index: 1000;
+      }
+
+   </style>
+
+</head>
+
+<body>
+   <!-- 네비 시작 -->
+   <div th:replace="/common/nav :: nav"></div>
+   <!-- 네비 끝 -->
+
+   <!-- 본문 시작 -->
+   <div style="height: 13vh;"></div>
+
+         <!-- 게시판 전체 내용 div -->
+         <div class="board-content-container" th:if="${commu != null}">
+            <br /><br />
+            <div class="list-container">
+               <div onclick="fn_myWriteList()" style="cursor:pointer;font-weight:bold;">나의 글(자유게시판) 돌아가기</div>
+            </div>
+            
+            <hr>
+            
+            <div class="info-container">
+               <div class="info-container1">
+                  <div class="info-container1-1">
+                     <label for="author">글쓴이 :</label>
+                     <span th:text="${commu.userId} != null ? ${commu.userId} : ${commu.agentId}">작성자값</span>
+                  </div>
+                  <div class="info-container1-1">
+                     <label for="date">등록일 :</label>
+                     <span th:text="${commu.regDate}">등록일값</span>
+                  </div>
+                  <div class="info-container1-1">
+                     <label for="views">조회수 :</label>
+                     <span th:text="${commu.readCnt}">조회수값</span>
+                  </div>
+               </div>
+
+               <div class="button-container">
+                  <div class="share-container">
+                     <img src="/resources/images/icons8-copy-48.png" class="url-copy" th:onclick="fn_urlCopy()">&nbsp;&nbsp;
+<!--                      <img src="/resources/images/icons8-share-24.png" class="url-copy"> -->
+                  </div>
+                  <div class="button-container2" th:if="${me == 'Y'}">  <!-- 로그인한 아이디와 작성자가 같을경우만 보여주기 ?  -->
+                     <button class="btn-rewrite" id="btnDelete" >삭제</button>
+                     <button class="btn-rewrite" id="btnUpdate">수정</button>
+                  </div>
+               </div>
+            </div>
+
+
+
+            <hr>
+            <div class="textarea-css">
+               <div class="textarea-title" th:text="${commu.communityTitle}">제목</div>
+               <div id="readEditor" >내용</div>
+<!--                <textarea id="editor" class="textarea-css"></textarea> -->
+               <script src="/resources/js/ckeditor/build/ckeditor.js"></script>
+               <script>
+
+                  // 화면 연결
+                  ClassicEditor
+                     .create(document.querySelector('#readEditor'), {
+                     })
+                     .then(editor => {
+                        window.editor = editor;
+                        editor.enableReadOnlyMode( 'editor' );
+                        
+                        const toolbarElement = editor.ui.view.toolbar.element;
+                        toolbarElement.style.display = 'none';
+                        
+                        var strContent = '[(${commu.communityContent})]';      //CKEDITOR.instances.editor.setData('<p>' + strContent + '</p>');
+                        editor.setData('<p>' + strContent + '</p>');
+                        
+                        console.log('Editor was initialized', editor);
+                     })
+                     .catch(error => {
+                        console.error('There was a problem initializing the editor -- ', error);
+                     });
+
+
+               </script>
+            </div><br>
+            
+            
+            <div style="display: flex; flex-direction: row; justify-content: center; align-items: center;">
+<!--                <span>추천</span>/<span>비추천</span>  -->
+               <!-- 추천 -->
+               <div style="display: flex;flex-direction: column;align-items: center;">
+                  <img id="likeImg" alt="" src="/resources/images/icons8-thumb-up-48 (Gary).png" style="display:block;cursor:pointer;" th:onclick="fn_like()" > <!-- th:onclick="fn_like()" -->
+                  <span id="likeTotalCnt" th:text="${likeTotalCnt}"></span> <!-- th:text="${likeTotalCnt}" -->
+               </div>
+               <!-- 비추천 -->
+               <div style="display: flex;flex-direction: column;align-items: center;">
+                  <img id="hateImg" alt="" src="/resources/images/icons8-thumb-down-48 (Gary).png" style="cursor:pointer;" th:onclick="fn_hate()">
+                  <span id="likeTotalCnt">2</span> <!-- th:text="${likeTotalCnt}" -->
+               </div>
+            </div>
+
+            <hr>
+
+            <b>댓글 목록</b><br />
+            <div class="comment-container">
+               <th:block th:if="${list != null}" th:each="list : ${list}">
+                  <div class="comment" th:if="${list.commentDepth == 0 and list.isDeleted == 1}">
+                     <div>
+                        <b th:text="${list.userId}">작성자ID</b> 
+                        <span class="comment-info" th:text="${list.regDate}">2024.04.29 06:14 </span>&nbsp;
+                        <span class="comment-info" style="cursor:pointer;"  th:onclick="fn_comment([[${list.commentGroup}]], [[${list.userId}]], [[${list.commentContent}]])">답글</span>
+                        <img src="/resources/images/icons8-delete-64.png" class="comment-delete" th:if="${list.userId != null and user != null and list.userId == user.userId}" th:onclick="'fn_commentDelete(' + ${list.communityNum} + ',' + ${list.commentNum} + ')'"><!-- 삭제</span> -->
+                     </div>
+                     <div class="comment-content" th:text="${list.commentContent}">댓글 내용...</div>
+                  </div>
+                  <div class="comment" th:if="${list.commentDepth == 0 and list.isDeleted == 0}">
+                     <div style="margin-top:15px;margin-bottom:15px;">삭제된 댓글입니다.</div>
+                  </div>
+                  
+                  <div class="comment-reply" th:if="${list.commentDepth == 1 and list.isDeleted == 1}">
+                     <div>
+                        <img src="/resources/images/icons8-left-2-32.png" class="left-2">
+                     </div>
+                     <div class="comment-reply1">
+                        <div style="width:90%;">
+                           <b th:text="${list.userId}">작성자ID</b> 
+                           <span class="comment-info">2024.04.29 06:14 </span>&nbsp;
+                           <img src="/resources/images/icons8-delete-64.png" class="recomment-delete" th:if="${list.userId != null and user != null and list.userId == user.userId}" th:onclick="'fn_commentDelete(' + ${list.communityNum} + ',' + ${list.commentNum} + ')'">
+                        </div>
+                        <div class="comment-content" th:text="${list.commentContent}">댓글 내용...</div>
+                     </div>
+                  </div>
+                  <div class="comment-reply" th:if="${list.commentDepth == 1 and list.isDeleted == 0}">
+                     <div>
+                        <img src="/resources/images/icons8-left-2-32.png" class="left-2">
+                     </div>
+                     <div class="comment-reply1"><div style="margin-top:15px;margin-bottom:15px;">삭제된 댓글입니다.</div></div>
+                  </div>
+               </th:block>
+               
+               <th:block th:if="${list == null or list.isEmpty()}">
+                  <div class="nocomment">
+                     <b style="margin-top:20px;">댓글이 존재하지 않습니다.</b>
+                  </div>
+               </th:block>
+               
+               <!-- 댓글 작성 -->
+               <hr class="comment-hr">
+               <div style="display: flex; justify-content: space-between;">
+                  <span id="commentInfo" name="commentInfo" style="margin-left:50px;"></span>
+                  <span id="x" th:onclick="fn_groupCancel()" style=" cursor:pointer; margin-right:15%;">x</span>
+               </div>
+               <div class="comment-button-container">
+                  <input class="comment-input" id="commentContent" name="commentContent">
+                  <button class="btn-commentWrite" id="btnCommentWrite" onclick="fn_commentProc()">등록</button>
+               </div>
+               <form id="myWriteListForm" name="myWriteListForm" method="post">
+                  <input type="hidden" id="communityNum" name="communityNum" th:value="${communityNum}" />
+                  <input type="hidden" id="curPage" name="curPage" th:value="${curPage}" />
+                  <input type="hidden" id="searchType" name="searchType" th:value="${searchType}" />
+                  <input type="hidden" id="searchValue" name="searchValue" th:value="${searchValue}" />
+                  <input type="hidden" id="sort" name="sort" th:value="${sort}" />
+               </form>
+               <input type="hidden" id="commentGroup" name="commentGroup" value="" />
+               <input type="hidden" id="loginId" name="loginId" th:if="${user != null}" th:value="${user.userId}">
+            </div>
+         
+         
+         </div>
+         <!-- 게시판 전체 내용 div 끝 -->
+
+   <!-- 본문 끝 -->
+
+   <!-- 푸터 시작 -->
+   <footer th:replace="/common/footer :: footer"></footer>
+   <!-- 푸터 끝 -->
+
+   <!-- 개별 js -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script type="text/javascript">
+
+   $(document).ready(function() {
+      
+      
+      if('[[${commu}]]' == 'null' || '[[${commu}]]' == ''){
+         alert("해당 게시글이 존재하지 않습니다.");
+         location.href = "/user/myWriteList";
+      }
+      
+      document.getElementById("x").style.display = "none";
+      
+      //로딩시 추천 src 설정
+      if('[[${likeDone}]]' == 'Y'){
+         $("#likeImg").attr('src', '/resources/images/icons8-thumb-up-48 (Green).png');
+      }
+      
+      //게시글 삭제버튼 클릭시
+      $("#btnDelete").on("click", function(){
+         
+         $("#btnDelete").prop("disabled", true);
+         
+         if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+            alert("삭제하시려면 로그인이 필요합니다.");
+            $("#btnDelete").prop("disabled", false);
+            return;
+         }
+         
+         if(confirm("게시글을 삭제하시겠습니까?") && confirm("삭제된 게시물은 복구할 수 없습니다. 진행하시겠습니까?")){
+            $.ajax({
+               type:"POST",
+               url:"/board/CommunityDeleteProc",
+               data:{
+                  communityNum:$("#communityNum").val()
+               },
+               datatype:"JSON",
+               cache:false,
+               beforeSend:function(xhr){
+                  xhr.setRequestHeader("AJAX", "true");
+               },
+               success:function(res){
+                  if(res == 200){
+                      alert("게시글이 삭제되었습니다.");
+                      $("#btnDelete").prop("disabled", false);
+                      location.href = "/user/myWriteList";
+                  }
+                  else if(res == -200){
+                     alert("");
+                     $("#btnDelete").prop("disabled", false);
+                  }
+                  else if(res == 404){
+                     alert("게시글이 존재하지 않습니다.");
+                     $("#btnDelete").prop("disabled", false);
+                     location.href = "/user/myWriteList";
+                  }
+                  else{
+                     alert("게시글 삭제 중 오류가 발생하였습니다.");
+                     $("#btnDelete").prop("disabled", false);
+                     return;
+                  }
+               },
+               error:function(error){
+                  alert("게시글 삭제 중 예상치 못한 오류가 발생하였습니다.");
+                  $("#btnDelete").prop("disabled", false);
+               }
+            });
+         }else{
+            $("#btnDelete").prop("disabled", false);
+         }
+         
+      });
+      
+      
+      //수정버튼클릭시
+      $("#btnUpdate").on("click", function(){
+         document.myWriteListForm.action="/user/myFreeBoardUpdate";
+         document.myWriteListForm.submit();
+      });
+      
+   });
+   
+   function fn_myWriteList(){
+      document.myWriteListForm.action = "/user/myWriteList";
+      document.myWriteListForm.submit();
+   }
+   
+   function fn_commentProc(commentGroup){
+      $("#btnCommentWrite").prop("disabled", true);
+   
+      if($.trim($("#commentContent").val()).length <= 0){
+         alert("댓글을 입력해주세요.");
+         $("#commentContent").val("");
+         $("#commentContent").focus();;
+      
+         $("#btnCommentWrite").prop("disabled", false);
+         return;
+      }
+      
+      if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+         alert("댓글을 작성하려면 회원 로그인이 필요합니다.");
+         $("#btnCommentWrite").prop("disabled", false);
+         return;
+      }
+     
+      $.ajax({
+         type:"POST",
+         url:"/board/CommentWriteProc",
+         data:{
+            communityNum:$("#communityNum").val(),
+            boardComment:$("#commentContent").val(),
+            commentGroup:$("#commentGroup").val()
+         },
+         datatype:"JSON",
+         cache:false,
+         beforeSend:function(xhr){
+            xhr.setRequestHeader("AJAX", "true");
+         },
+         success:function(res){
+            if(res == 200){
+               alert("댓글이 등록되었습니다.");
+               document.myWriteListForm.action = "/user/myFreeBoardDetail";
+               document.myWriteListForm.submit();
+            }
+            else if(res == 300){
+               alert("회원만 작성 가능합니다.");
+               $("#btnCommentWrite").prop("disabled", false);
+            }
+            else if(res == 400){
+               alert("값이 올바르지 않습니다.");
+               $("#commentContent").focus();
+               $("#btnCommentWrite").prop("disabled", false);
+            }
+            else if(res == 404){
+               alert("게시글이 존재하지 않습니다.");
+               document.myWriteListForm.action = "/user/myWriteList";
+               document.myWriteListForm.submit();
+            }
+            else{
+               alert("댓글 등록 중 오류가 발생하였습니다.");
+               $("#commentContent").focus();
+               $("#btnCommentWrite").prop("disabled", false);
+            }
+         },
+         error:function(error){
+            alert("댓글 등록 중 예상치 못한 오류가 발생하였습니다.");
+            $("#btnCommentWrite").prop("disabled", false);
+         }
+      });      
+   }
+   
+   //답글 클릭시
+   function fn_comment(commentGroup, userId, commentContent){
+      
+      $("#commentGroup").val(commentGroup);
+      
+      var shortCommentContent = userId + ' - ' + commentContent.substring(0, 15) + ' .. 에 대한 답글';
+      
+      $("#commentInfo").text(shortCommentContent);
+      document.getElementById("x").style.display = "block";
+      
+   }
+   
+   //x클릭시
+   function fn_groupCancel(){
+      $("#commentGroup").val("");
+      $("#commentInfo").text("");
+      document.getElementById("x").style.display = "none";
+   }
+   
+   //댓글 삭제
+   function fn_commentDelete(communityNum, commentNum){
+      
+        if (confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+         $.ajax({
+            type:"POST",
+            url:"/board/CommentDeleteProc",
+            data:{
+               communityNum:communityNum,
+               commentNum:commentNum
+            },
+            datatype:"JSON",
+            cache:false,
+            beforeSend:function(xhr){
+               xhr.setRequestHeader("AJAX", "true");
+            },
+            success:function(res){
+               if(res == 200){
+                  alert("댓글이 삭제되었습니다.");
+                  document.myWriteListForm.action = "/user/myFreeBoardDetail";
+                  document.myWriteListForm.submit();
+               }
+               else if(res == 404){
+                  alert("게시글이 존재하지 않습니다.");
+                  document.myWriteListForm.action = "/user/myWriteList";
+                  document.myWriteListForm.submit();
+               }
+               else if(res == 500){
+                  alert("댓글 삭제 중 오류가 발생하였습니다.");
+               }
+               else{
+                  alert("잘못된 접근입니다.");
+                  document.myWriteListForm.action = "/user/myFreeBoardDetail";
+                  document.myWriteListForm.submit();
+               }
+            },
+            error:function(error){
+               alert("댓글 삭제 중 예상치 못한 오류가 발생하였습니다.");
+            }
+         });      
+        }
+        
+   }
+   
+   
+    //추천 클릭시
+    function fn_like(){
+       
+      if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+         alert("추천은 회원 로그인 후 이용하실 수 있습니다.");
+         $("#likeImg").attr('src', '/resources/images/icons8-thumb-up-48 (Gary).png');
+         return;         
+      }
+      else{
+          if($("#likeImg").attr('src') == '/resources/images/icons8-thumb-up-48 (Gary).png'){   //document.querySelector('img').src
+             $("#likeImg").attr('src', '/resources/images/icons8-thumb-up-48 (Green).png');
+             fn_likeProc();
+          }
+          else{
+             $("#likeImg").attr('src', '/resources/images/icons8-thumb-up-48 (Gary).png');
+             fn_likeProc();
+          }
+      }
+    }
+    
+    //추천 Proc 함수
+    function fn_likeProc(){
+       
+      $.ajax({
+         type:"POST",
+         url:"/board/CommentLikeProc",
+         data:{
+            communityNum:$("#communityNum").val()
+         },
+         datatype:"JSON",
+         cache:false,
+         beforeSend:function(xhr){
+            xhr.setRequestHeader("AJAX", "true");
+         },
+         success:function(res){
+            if(res == 200){
+               location.reload();
+
+            }
+            else if(res == -200){
+               location.reload();
+            }
+            else if(res == 404){
+               alert("게시글이 존재하지 않습니다.");
+               document.myWriteListForm.action = "/user/myFreeBoard";
+               document.myWriteListForm.submit();
+            }
+            else{
+               alert("추천 오류 code");
+               return;
+            }
+         },
+         error:function(error){
+            alert("추천 중 예상치 못한 오류가 발생하였습니다.");
+         }
+      });      
+    }
+    
+    //비추천 클릭시
+    function fn_hate(){
+      if('[[${user}]]' == 'null' || '[[${user}]]' == ''){
+         alert("비추천은 회원 로그인 후 이용하실 수 있습니다.");
+         $("#hateImg").attr('src', '/resources/images/icons8-thumb-down-48 (Gary).png');
+         return;         
+      }
+      
+       if($("#hateImg").attr('src') == '/resources/images/icons8-thumb-down-48 (Gary).png')
+       {
+          $("#hateImg").attr('src', '/resources/images/icons8-thumbs-down-48(red).png');
+       }
+       else
+       {
+          $("#hateImg").attr('src', '/resources/images/icons8-thumb-down-48 (Gary).png');  
+       }
+    }
+    
+    //url copy
+    function fn_urlCopy(){
+       var url = '';
+       const textarea = document.createElement("textarea");
+       document.body.appendChild(textarea);
+       url = window.document.location.href;
+       textarea.value = url;
+       textarea.select();
+       document.execCommand("copy");
+       document.body.removeChild(textarea);
+       alert("url이 복사되었습니다.");
+    }
+
+
+   </script>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<!-- 헤더 시작 -->
+	<div th:replace="/common/header :: header"></div>
+	<!-- 헤더 끝 -->
+
+	<!-- 개별 css -->
+	<style type="text/css">
+		section .container {
+        	width: 60%;
+        }
+        
+		textarea {
+			resize: none;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 네비 시작 -->
+	<div th:replace="/common/nav :: nav"></div>
+	<!-- 네비 끝 -->
+
+	<!-- 본문 시작 -->
+	<div style="height: 13vh;"></div>
+	<section style="min-height: 565px;">
+		<div class="container p-5">
+		 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">나의 문의(건의사항) 글수정</p>
+			<div class="d-flex row align-items-center justify-content-center h-100">
+				<form th:action="@{|/user/myQnaUpdate/${qna.qnaNum}|}" method="POST" onsubmit="return check()">
+					<div>
+						<input type="text" class="form-control mb-3" id="qnaTitle" name="qnaTitle" th:value="${qna.qnaTitle}">
+					</div>
+					<div sec:authorize="hasRole('ROLE_USER')">
+						<input type="text" class="form-control mb-3" id="userId" name="userId" th:value="${user.userId}" readonly>
+					</div>
+					<div sec:authorize="hasRole('ROLE_AGENT')">
+						<input type="text" class="form-control mb-3" id="userId" name="userId" th:value="${agent.agentId}" readonly>
+					</div>
+					<div>
+						<textarea class="form-control mb-3 p-3" cols="20" rows="20" id="qnaContent" name="qnaContent" th:text="${qna.qnaContent}"></textarea>
+					</div>
+					<div>
+						<input type="submit" id="btnUpdate" name="btnUpdate" value="수정">
+						<input type="button" id="btnback" name="btnback" value="취소">
+					</div>
+					<input type="hidden" name="id" th:value="${qna.qnaNum}">
+				</form>
+			</div>
+		</div>
+	</section>
+	<!-- 본문 끝 -->
+
+	<!-- 푸터 시작 -->
+	<footer th:replace="/common/footer :: footer"></footer>
+	<!-- 푸터 끝 -->
+
+	<!-- 개별 js -->
+	<script type="text/javascript" th:inline="javascript">
+		$(document).ready(function () {
+			$("#btnback").on("click", function () {
+				location.href = "/user/myQna/[[${qna.qnaNum}]]";
+			});
+		});
+		
+		function check() {
+			if (confirm("수정하시겠습니까?") == true) {
+				return;
+			}
+			
+			else {
+				return false;
+			}
+		}
+	</script>
+</body>
+
+</html>

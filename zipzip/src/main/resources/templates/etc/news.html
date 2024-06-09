@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- 헤더 시작 -->
+    <div th:replace="/common/header :: header"></div>
+    <!-- 헤더 끝 -->
+
+    <!-- 개별 css -->
+    <style type="text/css">
+
+    </style>
+</head>
+
+<body>
+    <!-- 네비 시작 -->
+    <div th:replace="/common/nav :: nav"></div>
+    <!-- 네비 끝 -->
+
+    <!-- 본문 시작 -->
+    <div style="height: 13vh;"></div>
+    <div class="section section-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-5">
+                <div class="col-lg-6 mb-5">
+                    <h2 class="font-weight-bold heading text-primary mb-4">
+                        뉴스
+                    </h2>
+                    <p class="text-black-50">실시간 업데이트되는 새로운 부동산 소식을 확인해보세요</p>
+                </div>
+                <div class="row">
+                    <div th:each="news:${news}" class="col-sm-6 col-md-6 col-lg-4 mb-5 mb-lg-3">
+                        <div class="h-100 person">
+                            <div class="person-contents">
+                                <h2 class="mb-0">
+                                    <a th:href="${news.url}" target="_blank"><span th:text="${news.subject}"></span></a>
+                                </h2>
+                                <span th:text="${news.info}" class="meta d-block mb-3"></span>
+                                <a th:href="${news.url}" target="_blank">
+                                    <p th:text="${news.content}"></p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 본문 끝 -->
+
+    <!-- 푸터 시작 -->
+    <footer th:replace="/common/footer :: footer"></footer>
+    <!-- 푸터 끝 -->
+
+    <!-- 개별 js -->
+    <script type="text/javascript">
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Suggest">
+
+	<insert id="insert" parameterType="com.example.demo.dto.Suggest">
+		<selectKey resultType="long" keyProperty="suggestNum" order="BEFORE">
+			SELECT ZIP_SUGGEST_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		
+		INSERT INTO ZIP_SUGGEST (
+		    SUGGEST_NUM,
+		    USER_ID,
+		    SUGGEST_TITLE,
+		    SUGGEST_CONTENT,
+		    REG_DATE,
+		    SUGGEST_HIT
+		) VALUES (
+		    #{suggestNum},
+		    #{userId},
+		    #{suggestTitle},
+		    #{suggestContent},
+		    SYSDATE,
+		    0
+		)
+	</insert>
+
+	<select id="selectAll" resultType="com.example.demo.dto.Suggest">
+		SELECT SUGGEST_NUM,
+		    USER_ID,
+		    SUGGEST_TITLE,
+		    SUGGEST_CONTENT,
+		    REG_DATE,
+		    SUGGEST_HIT
+		FROM (SELECT ROWNUM RNUM,
+		            SUGGEST_NUM,
+		            USER_ID,
+		            SUGGEST_TITLE,
+		            SUGGEST_CONTENT,
+		            REG_DATE,
+		            SUGGEST_HIT
+		        FROM (SELECT SUGGEST_NUM,
+		                    NVL(USER_ID, '') USER_ID,
+		                    NVL(SUGGEST_TITLE, '') SUGGEST_TITLE,
+		                    NVL(SUGGEST_CONTENT, '') SUGGEST_CONTENT,
+		                    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                    NVL(SUGGEST_HIT, 0) SUGGEST_HIT
+		                FROM ZIP_SUGGEST
+		                WHERE 1=1
+		                <if test='searchValue != null and searchValue != "" '>
+		                AND SUGGEST_TITLE  LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(SUGGEST_CONTENT, #{searchValue}) > 0
+		                </if>
+		                ORDER BY SUGGEST_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+	</select>
+	
+	<select id="listCnt" parameterType="com.example.demo.dto.Suggest" resultType="long">
+		SELECT COUNT(*) CNT
+		FROM ZIP_SUGGEST
+		WHERE 1=1
+		<if test='searchValue != null and searchValue != "" '>
+		AND SUGGEST_TITLE  LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(SUGGEST_CONTENT, #{searchValue}) > 0
+		</if>
+	</select>
+	
+	<update id="updateHit" parameterType="long">
+		UPDATE ZIP_SUGGEST
+		SET SUGGEST_HIT = SUGGEST_HIT + 1
+		WHERE SUGGEST_NUM = #{SUGGEST_NUM}
+	</update>
+	
+	
+	<select id="selectOne" parameterType="long" resultType="com.example.demo.dto.Suggest">
+		SELECT SUGGEST_NUM,
+		    NVL(USER_ID, '') USER_ID,
+		    NVL(SUGGEST_TITLE, '') SUGGEST_TITLE,
+		    NVL(SUGGEST_CONTENT, '') SUGGEST_CONTENT,
+		    NVL(TO_CHAR(REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		    NVL(SUGGEST_HIT, 0) SUGGEST_HIT
+		FROM ZIP_SUGGEST
+		WHERE SUGGEST_NUM = #{suggestNum}
+	</select>
+	
+	<update id="update">
+		UPDATE ZIP_SUGGEST
+		SET SUGGEST_TITLE = #{suggestTitle},
+		SUGGEST_CONTENT = #{suggestContent}
+		WHERE SUGGEST_NUM = #{suggestNum}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		DELETE FROM ZIP_SUGGEST
+		WHERE SUGGEST_NUM = #{suggestNum}
+	</delete>
+	
+   <!--24.05.16 나의글 건의사항 리스트 관련 소스 추가  -->
+   <select id="myWriteSelectAll" parameterType="com.example.demo.dto.Suggest" resultType="com.example.demo.dto.Suggest">	
+		SELECT  RNUM,
+		        SUGGEST_NUM,
+		        USER_ID,
+		        SUGGEST_TITLE,
+		        SUGGEST_CONTENT,
+		        REG_DATE,
+		        SUGGEST_HIT
+		FROM(SELECT ROWNUM AS RNUM,
+		        SUGGEST_NUM,
+		        USER_ID,
+		        SUGGEST_TITLE,
+		        SUGGEST_CONTENT,
+		        REG_DATE,
+		        SUGGEST_HIT
+		     FROM(SELECT A.SUGGEST_NUM,
+		                NVL(A.USER_ID, '') USER_ID,
+		                NVL(A.SUGGEST_TITLE, '') SUGGEST_TITLE,
+		                NVL(A.SUGGEST_CONTENT, '') SUGGEST_CONTENT,
+		                NVL(TO_CHAR(A.REG_DATE, 'YYYY-MM-DD'), '') REG_DATE,
+		                NVL(A.SUGGEST_HIT, 0) SUGGEST_HIT
+		          FROM ZIP_SUGGEST A ,ZIP_USER B, ZIP_AGENT C
+		          WHERE 1 = 1
+		           AND A.USER_ID = B.USER_ID(+)
+		           AND A.USER_ID = C.AGENT_ID(+)
+		           AND A.USER_ID = #{userId}
+		          <if test='searchValue != null and searchValue != "" '>
+		           AND (A.SUGGEST_TITLE  LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(A.SUGGEST_CONTENT, #{searchValue}) > 0)
+		          </if>
+		          ORDER BY A.SUGGEST_NUM DESC))
+		WHERE RNUM <![CDATA[>=]]> #{startRow}
+		AND RNUM <![CDATA[<=]]> #{endRow}
+   </select>
+   
+   <!--24.05.21 나의글 건의사항 리스트 개수 관련 소스 추가  -->
+   <select id="myListCnt" parameterType="com.example.demo.dto.Suggest" resultType="long">
+		SELECT COUNT(A.SUGGEST_NUM) AS CNT
+		FROM ZIP_SUGGEST A ,ZIP_USER B, ZIP_AGENT C
+		WHERE 1 = 1
+		 AND A.USER_ID = B.USER_ID(+)
+		 AND A.USER_ID = C.AGENT_ID(+)
+		 AND A.USER_ID= #{userId}
+		<if test='searchValue != null and searchValue != "" '>
+		 AND (A.SUGGEST_TITLE  LIKE '%' || #{searchValue} || '%' OR DBMS_LOB.INSTR(A.SUGGEST_CONTENT, #{searchValue}) > 0)
+		</if>
+	</select>
+	
+</mapper>
