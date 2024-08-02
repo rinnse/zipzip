@@ -5,4 +5,6 @@
 이름과 같이 서울 소재의 다양한 부동산 정보를 담고 있으며
 누구나 쉽고 간편하게 검색, 필터링, 업로드할 수 있는 사이트
 
-![Uploading ds.png…]()
+<p align="center">
+  <img src="![Uploading ds.png…]()">
+</p>
