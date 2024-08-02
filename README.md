@@ -6,5 +6,5 @@
 누구나 쉽고 간편하게 검색, 필터링, 업로드할 수 있는 사이트
 
 <p align="center">
-  <img src="![Uploading ds.png…]()">
+  <img src="<img width="440" alt="ds" src="https://github.com/user-attachments/assets/02cc3e08-6357-4baf-92fe-16f679586e49">">
 </p>
