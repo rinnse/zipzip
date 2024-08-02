@@ -47,3 +47,10 @@
 <p>
   <img width="440" alt="ds" src="https://github.com/rinnse/zipzip/assets/143079585/253493dc-2f9c-4647-a262-b76da77be6e6">
 </p>
+
+
+관리자 모드 
+: 메인 화면
+<p>
+  <img width="844" alt="KakaoTalk_20240802_183203955" src="https://github.com/user-attachments/assets/7805eeb4-b9a3-4baa-a455-4d6562de5f5f">
+</p>
